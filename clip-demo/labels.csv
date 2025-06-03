@@ -1,0 +1,6 @@
+image_path,score,label_text
+images/shoe1.jpg,4.5,比较好
+images/shoe2.jpg,3.0,一般
+images/shoe3.jpg,5.0,非常好
+images/shoe4.jpg,2.5,较差
+images/shoe5.jpg,4.0,比较好

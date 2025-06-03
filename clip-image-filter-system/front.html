@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Image Filter</title>
+</head>
+<body>
+    <h1>图片筛选系统</h1>
+    
+    <!-- 上传图片区域 -->
+    <div>
+        <h3>上传图片评分</h3>
+        <input type="file" id="imageUpload">
+        <button onclick="uploadImage()">提交</button>
+        <div id="scoreResult"></div>
+    </div>
+    
+    <!-- 搜索区域 -->
+    <div>
+        <h3>搜索相似图片</h3>
+        <select id="categorySelect">
+            <option value="">所有类别</option>
+            <option value="stripes">条纹</option>
+            <option value="spots">斑点</option>
+            <option value="small animals">小动物</option>
+            <option value="minimalist and fashionable">简约时尚</option>
+        </select>
+        <button onclick="searchImages()">搜索</button>
+        <div id="searchResults"></div>
+    </div>
+    
+    <script>
+        async function uploadImage() {
+            const fileInput = document.getElementById('imageUpload');
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            const response = await fetch('http://localhost:8000/score-image/', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            document.getElementById('scoreResult').innerHTML = JSON.stringify(result, null, 2);
+        }
+        
+        async function searchImages() {
+            const category = document.getElementById('categorySelect').value;
+            const url = category 
+                ? `http://localhost:8000/search-similar/?category=${encodeURIComponent(category)}`
+                : 'http://localhost:8000/search-similar/';
+            
+            const response = await fetch(url);
+            const results = await response.json();
+            
+            // 显示搜索结果图片
+            document.getElementById('searchResults').innerHTML = results.results.map(
+                r => `<div><img src="${r.path}" width="200"><p>得分: ${r.score.toFixed(2)}</p></div>`
+            ).join('');
+        }
+    </script>
+</body>
+</html>
