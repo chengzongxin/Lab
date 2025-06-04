@@ -1,0 +1,38 @@
+alt-svc
+h3=":443"; ma=86400
+cache-control
+private, no-cache, no-store, max-age=0, must-revalidate
+cf-cache-status
+DYNAMIC
+cf-ray
+94a58982eb55f224-KHH
+content-encoding
+zstd
+content-type
+text/html; charset=utf-8
+date
+Wed, 04 Jun 2025 06:57:39 GMT
+etag
+W/"10of9cv9hksuaor"
+server
+cloudflare
+set-cookie
+open_id_token=eyJhbGciOiJFUzI1NiIsImtpZCI6InJlZGJ1YmJsZS00IiwidHlwIjoiSldUIn0.eyJhbXIiOlsidW5hdXRoZW50aWNhdGVkIl0sImlzcyI6Imh0dHBzOi8vd3d3LnJlZGJ1YmJsZS5jb20iLCJzdWIiOiJyZWRidWJibGU6MDFKVEhIVFFHMkIwS05aSEc0MktFVlZZVEciLCJhdWQiOiJyZWRidWJibGUtc2VydmljZXMiLCJleHAiOjE3NDkwMjA4NTgsImlhdCI6MTc0OTAyMDI1OH0.AG4rZrkXLw1KW-XZQjZfzXc25obqepVHIUQFWeC4pmPqScxBDM5-aiJazF9HwZCuptEHaNvQkkgRGwss0eHC5g; Path=/; Domain=redbubble.com; Expires=Thu, 04 Jun 2026 06:57:38 GMT; HttpOnly; Secure; SameSite=Lax
+set-cookie
+refresh_token=; Path=/; Domain=redbubble.com; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax
+set-cookie
+rbVisitorId=01JV4JQZHV3MX9049DS6R0PND3; Path=/; Domain=redbubble.com; Expires=Wed, 11 Jun 2025 06:57:38 GMT; HttpOnly; Secure; SameSite=Lax
+set-cookie
+_rb_session4=dGtCWjlsOWtXZkpNZjV5QkpsRmhLMVZReU9idUFKM29Eck5sSDVMaDhSTEdKZ3Boek5EbmY1VURvb0FNeUIzNHB4RE9lRWNraHVESDdaY0U5WGd6N3kyaG96SklSVFZqT2tYNVNQemgxQTBVYi80RE12WU9ObFd1VVVsZEYrM3gtLXIxb2UvcVlQSjFCODNvWDQvSFFzaUE9PQ%3D%3D--d21a20460eaf3b4ac88d190caacecfeb75baffe0; path=/; secure; HttpOnly
+set-cookie
+__cf_bm=XU4O05VqPoMgYYtfoWCyK6y2RA4woMhkkij9BnQUGek-1749020259-1.0.1.1-AftAQRpeeL__fhFfn81P8ktyMdiGhhnCX4X29iznsUt9.ABV7ca_Q14N2wZAxJxFuwQgD1_IJirkBfivv1MTnCH8MAWtWyUwZ_AWXS1pG3Q; path=/; expires=Wed, 04-Jun-25 07:27:39 GMT; domain=.redbubble.com; HttpOnly; Secure; SameSite=None
+strict-transport-security
+max-age=0; includeSubDomains; preload
+vary
+Accept-Encoding
+x-dns-prefetch-control
+on
+x-frame-options
+SAMEORIGIN
+x-rb-bot-identified
+False
