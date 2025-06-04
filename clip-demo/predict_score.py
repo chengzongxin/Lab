@@ -48,10 +48,19 @@ features_tensor = torch.FloatTensor(features).to(device)
 with torch.no_grad():
     outputs = model(features_tensor)
     pred_labels = outputs.argmax(dim=1).cpu().numpy()
+    
     # 计算概率分布
     prob = torch.softmax(outputs, dim=1).cpu().numpy()
-    class_scores = np.array([1, 2, 3, 4, 5])
-    pred_scores = (prob * class_scores).sum(axis=1)
+    
+    # 新的分数计算方式
+    # 1. 找到最高概率的类别
+    max_prob_idx = np.argmax(prob, axis=1)
+    # 2. 获取最高概率值
+    max_probs = np.max(prob, axis=1)
+    # 3. 计算预测分数：基础分数 + 概率调整
+    base_scores = max_prob_idx + 1  # 基础分数（1-5）
+    # 4. 根据概率值调整分数
+    pred_scores = base_scores + (max_probs - 0.5) * 0.5  # 概率越高，分数越高
 
 # 保存结果
 meta["pred_label"] = pred_labels
