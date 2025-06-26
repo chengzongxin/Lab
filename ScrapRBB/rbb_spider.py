@@ -1,9 +1,10 @@
 import requests  # 导入 requests 库，用于发送 HTTP 请求
 import time      # 导入 time 库，用于设置请求间隔，防止被封
 import pymysql   # 导入 pymysql 库，用于操作 MySQL 数据库
+import os        # 导入 os 库，用于文件和路径操作
 
 # 1. 设置基础 URL，注意 page 参数会变化
-base_url = "https://www.redbubble.com/_next/data/AQyVrFfu7irWOEAP1IvK4/en/shop.json?country=TW&iaCode=u-bags&locale=en&page={page}&sortOrder=top+selling"
+base_url = "https://www.redbubble.com/_next/data/qr3AX2kCj6c8e3xcak9ko/en/shop.json?country=TW&iaCode=u-bags&locale=en&page={page}&sortOrder=top+selling"
 
 # 2. 设置请求头（headers），模拟浏览器访问
 send_headers = {
@@ -31,13 +32,18 @@ CREATE TABLE IF NOT EXISTS products (
     inventoryId VARCHAR(64) UNIQUE,            -- 商品唯一ID
     title VARCHAR(255),
     preview TEXT,
-    url TEXT
+    url TEXT,
+    local_image VARCHAR(255)   -- 新增字段，保存本地图片路径
 )
 '''
 cursor.execute(create_table_sql)
 conn.commit()
 
-# 5. 设置要爬取的页数
+# 5. 确保图片保存目录存在
+image_dir = 'images'
+os.makedirs(image_dir, exist_ok=True)
+
+# 6. 设置要爬取的页数
 start_page = 1  # 起始页
 end_page = 5    # 结束页（包含），你可以根据需要修改
 
@@ -58,12 +64,35 @@ for page in range(start_page, end_page + 1):
                 title = item['inventoryItem']['work']['title']
                 preview = item['inventoryItem']['previewSet']['previews'][0]['url']
                 url = item['inventoryItem']['productPageUrl']
-                print(title, preview, url)
-                # 插入数据到 MySQL，使用 INSERT IGNORE 防止唯一约束重复报错
+
+                # 1. 先查询数据库，若inventoryId已存在则跳过
+                cursor.execute("SELECT 1 FROM products WHERE inventoryId=%s", (inventoryId,))
+                if cursor.fetchone():
+                    print(f"inventoryId {inventoryId} 已存在，跳过插入。")
+                    continue
+
+                # 2. 下载图片到本地
+                image_ext = os.path.splitext(preview)[-1].split('?')[0]  # 获取图片扩展名
+                image_filename = f'{inventoryId}{image_ext}'
+                image_path = os.path.join(image_dir, image_filename)
+                try:
+                    img_resp = requests.get(preview, headers=send_headers, timeout=10)
+                    if img_resp.status_code == 200:
+                        with open(image_path, 'wb') as f:
+                            f.write(img_resp.content)
+                        print(f'图片已保存：{image_path}')
+                    else:
+                        print(f'图片下载失败：{preview}')
+                        image_path = None
+                except Exception as e:
+                    print(f'图片下载异常：{e}')
+                    image_path = None
+
+                # 3. 插入数据到 MySQL，记录本地图片路径
                 insert_sql = """
-                INSERT IGNORE INTO products (inventoryId, title, preview, url) VALUES (%s, %s, %s, %s)
+                INSERT INTO products (inventoryId, title, preview, url, local_image) VALUES (%s, %s, %s, %s, %s)
                 """
-                cursor.execute(insert_sql, (inventoryId, title, preview, url))
+                cursor.execute(insert_sql, (inventoryId, title, preview, url, image_path))
                 conn.commit()  # 提交事务
         else:
             print(f"第 {page} 页未找到商品信息字段 'results'，请检查数据结构。")
@@ -72,7 +101,7 @@ for page in range(start_page, end_page + 1):
     # 每次请求间隔2秒，防止被封
     time.sleep(2)
 
-# 6. 关闭数据库连接
+# 7. 关闭数据库连接
 cursor.close()
 conn.close()
 print("所有商品信息已成功存入 MySQL 数据库！") 
