@@ -41,4 +41,15 @@ test.describe('百度搜索测试套件', () => {
       throw error;
     }
   });
+
+  test('搜索 哈哈哈', async ({ page }) => {
+    Logger.info('开始测试百度搜索 Selenium');
+
+    await page.goto('https://www.baidu.com/');
+    await page.getByRole('textbox', { name: '广州的出生证明已有2200多岁' }).click();
+    await page.getByRole('textbox', { name: '广州的出生证明已有2200多岁' }).fill('哈哈哈');
+    await page.getByRole('textbox', { name: '广州的出生证明已有2200多岁' }).press('Enter');
+  });
 }); 
+
+
