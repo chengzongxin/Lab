@@ -4,7 +4,7 @@ import pymysql   # 导入 pymysql 库，用于操作 MySQL 数据库
 import os        # 导入 os 库，用于文件和路径操作
 
 # 1. 设置基础 URL，注意 page 参数会变化
-base_url = "https://www.redbubble.com/_next/data/qr3AX2kCj6c8e3xcak9ko/en/shop.json?country=TW&iaCode=u-bags&locale=en&page={page}&sortOrder=top+selling"
+base_url = "https://www.redbubble.com/_next/data/U8XOCcOqEsxLt_by_fj_l/en/shop.json"
 
 # 2. 设置请求头（headers），模拟浏览器访问
 send_headers = {
@@ -44,13 +44,20 @@ image_dir = 'images'
 os.makedirs(image_dir, exist_ok=True)
 
 # 6. 设置要爬取的页数
-start_page = 1  # 起始页
-end_page = 5    # 结束页（包含），你可以根据需要修改
+start_page = 101  # 起始页
+end_page = 110    # 结束页（包含），你可以根据需要修改
 
 for page in range(start_page, end_page + 1):
-    url = base_url.format(page=page)  # 构造当前页的 URL
+    params = {
+        "country": "TW",
+        "iaCode": "u-bags",
+        "locale": "en",
+        "page": page,
+        "sortOrder": "top selling"
+    }
+    url = base_url
     print(f"正在请求第 {page} 页: {url}")
-    response = requests.get(url, headers=send_headers)
+    response = requests.get(url, headers=send_headers, params=params)
     print("状态码：", response.status_code)
     if response.status_code == 200:
         data = response.json()
