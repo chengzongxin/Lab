@@ -1,30 +1,12 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Body
 from utils.scraper import search_temu
 from utils.craw import ViolationListCrawler
+from utils.request import NetworkRequest
 import os
+from typing import Optional, List
 
 router = APIRouter()
 
-@router.get("/search")
-def search(keyword: str = Query(...)):
-    return search_temu(keyword)
-
-@router.get("/violations")
-def get_violations(
-    page: int = Query(1, description="页码"),
-    page_size: int = Query(20, description="每页数量"),
-    cookie: str = Query(None, description="可选，TEMU Cookie，不传则用 .env")
-):
-    # 优先用传入 cookie，否则用环境变量
-    cookie_val = cookie or os.getenv("TEMU_COOKIE", "")
-    if not cookie_val:
-        return {"success": False, "msg": "未提供 Cookie"}
-    crawler = ViolationListCrawler(cookie_val)
-    data = crawler.get_page_data(page, page_size)
-    if data is not None:
-        return {"success": True, "data": data}
-    else:
-        return {"success": False, "msg": "获取数据失败"}
 
 @router.get("/compliance/list")
 def get_compliance_list(
@@ -37,3 +19,61 @@ def get_compliance_list(
         return {"success": True, "data": data}
     else:
         return {"success": False, "msg": "获取数据失败"}
+
+@router.post("/seller/product")
+def get_product(
+    spuid: Optional[int] = Body(None, embed=True),
+    productName: Optional[str] = Body(None, embed=True),
+    page: int = Body(1, embed=True),
+    pageSize: int = Body(20, embed=True)
+):
+    req = NetworkRequest(config_type="seller")
+    url = "https://seller.kuajingmaihuo.com/bg-visage-mms/product/skc/pageQuery"
+    payload = {"page": page, "pageSize": pageSize}
+    if spuid is not None:
+        payload["productIds"] = [spuid]
+    if productName is not None:
+        payload["productName"] = productName
+    result = req.post(url, data=payload)
+    if not result or not result.get("success"):
+        return {"success": False, "msg": "查询失败"}
+    items = result.get("result", {}).get("pageItems", [])
+    if not items:
+        return {"success": False, "msg": "未找到商品"}
+    # 返回所有商品列表
+    products = [
+        {
+            "productId": item.get("productId"),
+            "productName": item.get("productName"),
+            "mainImageUrl": item.get("mainImageUrl"),
+            "goodsId": item.get("goodsId"),
+            "categories": item.get("categories"),
+            # 可根据需要补充更多字段
+        }
+        for item in items
+    ]
+    return {
+        "success": True,
+        "data": products
+    }
+
+@router.post("/seller/offline")
+def offline_products(productIds: List[str] = Body(..., embed=True)):
+    req = NetworkRequest(config_type="seller")
+    url = "https://seller.kuajingmaihuo.com/marvel-supplier/api/ultraman/chat/reception/queryPreInterceptForToolSubmit"
+    tool_id = 2406230000031
+    results = []
+    for data_id in productIds:
+        payload = {
+            "toolId": tool_id,
+            "dataId": data_id
+        }
+        result = req.post(url, data=payload)
+        results.append({
+            "dataId": data_id,
+            "result": result
+        })
+    return {
+        "success": True,
+        "results": results
+    }
