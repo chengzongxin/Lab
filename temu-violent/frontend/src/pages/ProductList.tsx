@@ -1,20 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Card, Table, Button, message, Image } from "antd";
 import { useNavigate } from "react-router-dom";
-
-interface Product {
-  spu_id: string;
-  goods_name: string;
-  goods_img_url?: string;
-}
+import { useProductListContext } from './ProductListContext';
 
 const ProductList: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const { products, setProducts, page, setPage, pageSize, setPageSize, total, setTotal } = useProductListContext();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
-  const [total, setTotal] = useState(0);
   const navigate = useNavigate();
 
   // 获取违规商品列表
@@ -31,10 +23,13 @@ const ProductList: React.FC = () => {
     setLoading(false);
   };
 
+  // 首次挂载时自动加载一次数据
   useEffect(() => {
-    fetchProducts(page, pageSize);
+    if (products.length === 0) {
+      fetchProducts(page, pageSize);
+    }
     // eslint-disable-next-line
-  }, [page, pageSize]);
+  }, []);
 
   // 批量下架
   const handleOffline = async () => {
@@ -61,7 +56,10 @@ const ProductList: React.FC = () => {
 
   return (
     <Card title="违规商品列表">
-      <Button type="primary" style={{ marginBottom: 16 }} onClick={handleOffline} loading={loading}>
+      <Button type="primary" onClick={() => fetchProducts(page, pageSize)} loading={loading} style={{ marginBottom: 16 }}>
+        刷新
+      </Button>
+      <Button type="primary" style={{ marginLeft: 8, marginBottom: 16 }} onClick={handleOffline} loading={loading}>
         批量下架
       </Button>
       <Table
@@ -93,6 +91,7 @@ const ProductList: React.FC = () => {
           onChange: (p, ps) => {
             setPage(p);
             setPageSize(ps);
+            fetchProducts(p, ps); // 分页时主动刷新
           },
         }}
       />

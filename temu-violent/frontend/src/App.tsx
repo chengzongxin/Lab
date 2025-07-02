@@ -19,6 +19,7 @@ import ProductForm from './pages/ProductForm';
 import ConfigPage from './pages/ConfigPage';
 import ProductPage from './pages/ProductPage';
 import GalleryPage from './pages/GalleryPage';
+import { ProductListProvider } from './pages/ProductListContext';
 
 const { Header, Sider, Content } = Layout;
 
@@ -53,7 +54,7 @@ function AppLayout() {
             <Route path="/config" element={<ConfigPage />} />
             <Route path="/compliance" element={<ProductList />} />
             <Route path="/compliance/new" element={<ProductForm />} />
-            <Route path="/compliance/:id" element={<ProductDetail />} />
+            <Route path="/compliance/:spu_id" element={<ProductDetail />} />
             <Route path="/product" element={<ProductPage />} />
             <Route path="/gallery" element={<GalleryPage />} />
             <Route path="*" element={<ProductList />} />
@@ -67,7 +68,9 @@ function AppLayout() {
 function App() {
   return (
     <Router>
-      <AppLayout />
+      <ProductListProvider>
+        <AppLayout />
+      </ProductListProvider>
     </Router>
   );
 }
