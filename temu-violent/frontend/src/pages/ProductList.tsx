@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, Table, Button, message, Image } from "antd";
+import { useNavigate } from "react-router-dom";
 
 interface Product {
   spu_id: string;
@@ -14,6 +15,7 @@ const ProductList: React.FC = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [total, setTotal] = useState(0);
+  const navigate = useNavigate();
 
   // 获取违规商品列表
   const fetchProducts = async (pageNum = page, size = pageSize) => {
@@ -72,6 +74,14 @@ const ProductList: React.FC = () => {
           { title: "图片", dataIndex: "goods_img_url", render: (url: string) => url ? <Image width={60} src={url} /> : null },
           { title: "商品ID", dataIndex: "spu_id" },
           { title: "商品名称", dataIndex: "goods_name" },
+          {
+            title: "操作",
+            render: (_, record) => (
+              <Button type="link" onClick={() => navigate(`/compliance/${record.spu_id}`, { state: record })}>
+                详情
+              </Button>
+            ),
+          },
         ]}
         dataSource={products}
         loading={loading}
