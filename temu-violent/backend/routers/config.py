@@ -11,13 +11,15 @@ def set_config(
     seller_cookie: str = Body(...),
     compliance_cookie: str = Body(...),
     blue_cookie: str = Body(...),
-    mallid: str = Body(...)
+    mallid: str = Body(...),
+    blue_token: str = Body(...)
 ):
     config = {
         "seller_cookie": seller_cookie,
         "compliance_cookie": compliance_cookie,
         "blue_cookie": blue_cookie,
-        "mallid": mallid
+        "mallid": mallid,
+        "blue_token": blue_token
     }
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
         json.dump(config, f, ensure_ascii=False, indent=2)
