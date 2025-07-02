@@ -22,7 +22,7 @@ def get_compliance_list(
 
 @router.post("/seller/product")
 def get_product(
-    spuid: Optional[int] = Body(None, embed=True),
+    productIds: Optional[List[str]] = Body(None, embed=True),
     productName: Optional[str] = Body(None, embed=True),
     page: int = Body(1, embed=True),
     pageSize: int = Body(20, embed=True)
@@ -30,8 +30,8 @@ def get_product(
     req = NetworkRequest(config_type="seller")
     url = "https://seller.kuajingmaihuo.com/bg-visage-mms/product/skc/pageQuery"
     payload = {"page": page, "pageSize": pageSize}
-    if spuid is not None:
-        payload["productIds"] = [spuid]
+    if productIds is not None:
+        payload["productIds"] = productIds
     if productName is not None:
         payload["productName"] = productName
     result = req.post(url, data=payload)
