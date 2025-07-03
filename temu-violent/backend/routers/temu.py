@@ -60,8 +60,21 @@ def get_product(
 @router.post("/seller/offline")
 def offline_products(productIds: List[int] = Body(..., embed=True)):
     req = NetworkRequest(config_type="seller")
+    # 1. 获取所有工具
+    tool_list_url = "https://seller.kuajingmaihuo.com/marvel-supplier/api/ultraman/chat/reception/querySelfServiceTools"
+    tool_list_resp = req.post(tool_list_url, data={})
+    tool_id = None
+    if tool_list_resp and tool_list_resp.get("success"):
+        tools = tool_list_resp.get("result", {}).get("list", [])
+        for tool in tools:
+            if tool.get("toolName") == "商品下架":
+                tool_id = tool.get("toolId")
+                break
+    if not tool_id:
+        return {"success": False, "msg": "未找到商品下架工具ID"}
+
+    # 2. 下架操作
     url = "https://seller.kuajingmaihuo.com/marvel-supplier/api/ultraman/chat/reception/queryPreInterceptForToolSubmit"
-    tool_id = 2406230000031
     results = []
     for data_id in productIds:
         payload = {
