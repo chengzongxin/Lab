@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Table, Button, message, Image } from "antd";
+import { Card, Table, Button, message, Image, Switch, Modal } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useProductListContext } from './ProductListContext';
 
@@ -7,6 +7,7 @@ const ProductList: React.FC = () => {
   const { products, setProducts, page, setPage, pageSize, setPageSize, total, setTotal } = useProductListContext();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showMajorViolation, setShowMajorViolation] = useState(false);
   const navigate = useNavigate();
 
   // 获取违规商品列表
@@ -38,14 +39,39 @@ const ProductList: React.FC = () => {
       return;
     }
     setLoading(true);
-    const res = await fetch("/api/seller/offline", {
+    const res = await fetch("/api/temu/seller/offline", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productIds: selectedRowKeys }),
+      body: JSON.stringify({ productIds: selectedRowKeys.map(String) }),
     });
     const data = await res.json();
     if (data.success) {
-      message.success("下架成功");
+      // 处理批量下架结果
+      if (Array.isArray(data.results)) {
+        setTimeout(() => {
+          Modal.info({
+            title: "下架结果",
+            width: 600,
+            content: (
+              <div>
+                {data.results.map((item: any) => (
+                  <div key={item.dataId} style={{ marginBottom: 8 }}>
+                    商品ID: {item.dataId} - {item.result.success ? (
+                      <span style={{ color: 'green' }}>下架成功</span>
+                    ) : (
+                      <span style={{ color: 'red' }}>
+                        下架失败{item.result.errorMsg ? `: ${item.result.errorMsg}` : ""}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ),
+          });
+        }, 0);
+      } else {
+        message.success("下架成功");
+      }
       fetchProducts(page, pageSize);
       setSelectedRowKeys([]);
     } else {
@@ -54,8 +80,27 @@ const ProductList: React.FC = () => {
     setLoading(false);
   };
 
+  // 违规筛选逻辑
+  const filteredProducts = showMajorViolation
+    ? products.filter(record => {
+        const isAllSite = record.site_num === 1 &&
+          Array.isArray(record.punish_detail_list) &&
+          record.punish_detail_list.some((d: any) => d.site_id === -1);
+        return isAllSite || record.site_num >= 80;
+      })
+    : products;
+
   return (
-    <Card title="违规商品列表">
+    <Card title="违规商品列表"
+      extra={
+        <span>
+          <Switch checked={showMajorViolation} onChange={setShowMajorViolation} />
+          <span style={{ marginLeft: 8 }}>
+            只看全栈违规/80站以上
+          </span>
+        </span>
+      }
+    >
       <Button type="primary" onClick={() => fetchProducts(page, pageSize)} loading={loading} style={{ marginBottom: 16 }}>
         刷新
       </Button>
@@ -73,6 +118,22 @@ const ProductList: React.FC = () => {
           { title: "商品ID", dataIndex: "spu_id" },
           { title: "商品名称", dataIndex: "goods_name" },
           {
+            title: "违规描述",
+            dataIndex: "violation_desc",
+            render: (desc: string) => desc || "-"
+          },
+          {
+            title: "违规站点",
+            dataIndex: "site_num",
+            render: (_, record) => {
+              const isAllSite = record.site_num === 1 &&
+                Array.isArray(record.punish_detail_list) &&
+                record.punish_detail_list.some((d: any) => d.site_id === -1);
+              if (isAllSite) return "全部站点违规";
+              return record.site_num;
+            }
+          },
+          {
             title: "操作",
             render: (_, record) => (
               <Button type="link" onClick={() => navigate(`/compliance/${record.spu_id}`, { state: record })}>
@@ -81,7 +142,7 @@ const ProductList: React.FC = () => {
             ),
           },
         ]}
-        dataSource={products}
+        dataSource={filteredProducts}
         loading={loading}
         pagination={{
           current: page,

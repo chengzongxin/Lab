@@ -5,6 +5,8 @@ interface Product {
   spu_id: string;
   goods_name: string;
   goods_img_url?: string;
+  site_num: number;
+  punish_detail_list: any[];
 }
 
 // Context 状态类型

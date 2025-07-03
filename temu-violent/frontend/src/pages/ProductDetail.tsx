@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { Card, Button, Table, message, Image, Descriptions, Input } from "antd";
+import { Card, Button, Table, message, Image, Descriptions, Input, Modal, notification } from "antd";
+import { useGlobalNotification } from './GlobalNotification';
 
 // 商品详情页组件
 const ProductDetail: React.FC = () => {
@@ -14,6 +15,7 @@ const ProductDetail: React.FC = () => {
   const [relatedLoading, setRelatedLoading] = useState(false); // 关联商品loading
   const [searchName, setSearchName] = useState(""); // 关联搜索输入框内容
   const [selectedRelatedKeys, setSelectedRelatedKeys] = useState<React.Key[]>([]); // 关联商品多选
+  const notify = useGlobalNotification();
 
   // 查询商品详情，并自动用前三个单词做关联搜索
   useEffect(() => {
@@ -60,14 +62,45 @@ const ProductDetail: React.FC = () => {
   // 下架当前商品
   const handleOffline = async () => {
     setDetailLoading(true);
-    const res = await fetch("/api/seller/offline", {
+    const res = await fetch("/api/temu/seller/offline", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productIds: [spu_id] }),
+      body: JSON.stringify({ productIds: [spu_id?.toString()] }),
     });
     const data = await res.json();
-    if (data.success) message.success("下架成功");
-    else message.error(data.msg || "下架失败");
+    if (data.success) {
+      if (Array.isArray(data.results)) {
+        const successCount = data.results.filter((item: any) => item.result.success).length;
+        const failCount = data.results.length - successCount;
+        notify({
+          type: 'info',
+          message: "下架结果",
+          description: (
+            <div>
+              <div style={{ marginBottom: 12 }}>
+                <span style={{ color: 'green' }}>下架成功：{successCount} 个</span>
+                <span style={{ color: 'red', marginLeft: 16 }}>下架失败：{failCount} 个</span>
+              </div>
+              {data.results.map((item: any) => (
+                <div key={item.dataId} style={{ marginBottom: 8 }}>
+                  商品ID: {item.dataId} - {item.result.success ? (
+                    <span style={{ color: 'green' }}>下架成功</span>
+                  ) : (
+                    <span style={{ color: 'red' }}>
+                      下架失败{item.result.errorMsg ? `: ${item.result.errorMsg}` : ""}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) as any,
+        });
+      } else {
+        notify({ type: 'info', message: "下架结果", description: "下架成功" });
+      }
+    } else {
+      notify({ type: 'error', message: "下架失败", description: data.msg || "下架失败" });
+    }
     setDetailLoading(false);
   };
 
@@ -78,17 +111,47 @@ const ProductDetail: React.FC = () => {
       return;
     }
     setRelatedLoading(true);
-    const res = await fetch("/api/seller/offline", {
+    const res = await fetch("/api/temu/seller/offline", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productIds: selectedRelatedKeys }),
+      body: JSON.stringify({ productIds: selectedRelatedKeys.map(String) }),
     });
     const data = await res.json();
     if (data.success) {
-      message.success("关联商品下架成功");
+      if (Array.isArray(data.results)) {
+        const successCount = data.results.filter((item: any) => item.result.success).length;
+        const failCount = data.results.length - successCount;
+        notify({
+          type: 'info',
+          message: "下架结果",
+          description: (
+            <div>
+              <div style={{ marginBottom: 12 }}>
+                <span style={{ color: 'green' }}>下架成功：{successCount} 个</span>
+                <span style={{ color: 'red', marginLeft: 16 }}>下架失败：{failCount} 个</span>
+              </div>
+              {data.results.map((item: any) => (
+                <div key={item.dataId} style={{ marginBottom: 8 }}>
+                  商品ID: {item.dataId} - {item.result.success ? (
+                    <span style={{ color: 'green' }}>下架成功</span>
+                  ) : (
+                    <span style={{ color: 'red' }}>
+                      下架失败{item.result.errorMsg ? `: ${item.result.errorMsg}` : ""}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) as any,
+        });
+      } else {
+        notify({ type: 'info', message: "下架结果", description: "下架成功" });
+      }
       handleRelatedSearch(); // 下架后刷新关联商品列表
       setSelectedRelatedKeys([]); // 清空多选
-    } else message.error(data.msg || "下架失败");
+    } else {
+      notify({ type: 'error', message: "下架失败", description: data.msg || "下架失败" });
+    }
     setRelatedLoading(false);
   };
 
@@ -105,18 +168,28 @@ const ProductDetail: React.FC = () => {
         <Descriptions.Item label="主图">
           {violationData?.goods_img_url && <Image width={80} src={violationData.goods_img_url} />}
         </Descriptions.Item>
+        <Descriptions.Item label="违规站点">
+          {(() => {
+            const isAllSite = violationData?.site_num === 1 &&
+              Array.isArray(violationData?.punish_detail_list) &&
+              violationData.punish_detail_list.some((d: any) => d.site_id === -1);
+            if (isAllSite) return "全部站点违规";
+            return violationData?.site_num;
+          })()}
+        </Descriptions.Item>
+        <Descriptions.Item label="违规描述">{violationData?.violation_desc || '-'}</Descriptions.Item>
         {/* 展示所有原始字段 */}
-        {violationData &&
+        {/* {violationData &&
           Object.entries(violationData).map(([k, v]) => (
             <Descriptions.Item key={k} label={k}>
               {String(v)}
             </Descriptions.Item>
-          ))}
+          ))} */}
       </Descriptions>
       <br />
       {/* 商品详情 */}
       <Descriptions title="商品详情" bordered column={1} size="small">
-        <Descriptions.Item label="商品ID">{product?.productId}</Descriptions.Item>
+        {/* <Descriptions.Item label="商品ID">{product?.productId}</Descriptions.Item> */}
         <Descriptions.Item label="商品名称">{product?.productName}</Descriptions.Item>
         <Descriptions.Item label="主图">
           {product?.mainImageUrl && <Image width={80} src={product.mainImageUrl} />}

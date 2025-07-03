@@ -30,7 +30,7 @@ const ProductPage: React.FC = () => {
       setLoading(false);
       return;
     }
-    const res = await fetch("/api/temu/seller/product", {
+    const res = await fetch("/api/temu/temu/seller/product", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

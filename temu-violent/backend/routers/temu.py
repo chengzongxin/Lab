@@ -58,7 +58,7 @@ def get_product(
     }
 
 @router.post("/seller/offline")
-def offline_products(productIds: List[str] = Body(..., embed=True)):
+def offline_products(productIds: List[int] = Body(..., embed=True)):
     req = NetworkRequest(config_type="seller")
     url = "https://seller.kuajingmaihuo.com/marvel-supplier/api/ultraman/chat/reception/queryPreInterceptForToolSubmit"
     tool_id = 2406230000031

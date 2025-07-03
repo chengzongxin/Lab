@@ -20,6 +20,7 @@ import ConfigPage from './pages/ConfigPage';
 import ProductPage from './pages/ProductPage';
 import GalleryPage from './pages/GalleryPage';
 import { ProductListProvider } from './pages/ProductListContext';
+import { GlobalNotificationProvider } from './pages/GlobalNotification';
 
 const { Header, Sider, Content } = Layout;
 
@@ -68,9 +69,11 @@ function AppLayout() {
 function App() {
   return (
     <Router>
-      <ProductListProvider>
-        <AppLayout />
-      </ProductListProvider>
+      <GlobalNotificationProvider>
+        <ProductListProvider>
+          <AppLayout />
+        </ProductListProvider>
+      </GlobalNotificationProvider>
     </Router>
   );
 }
