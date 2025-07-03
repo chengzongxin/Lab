@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Card, Table, Button, message, Image, Switch, Modal } from "antd";
+import { Card, Table, Button, message, Image, Switch, Drawer } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useProductListContext } from './ProductListContext';
+import ProductDetail from './ProductDetail';
 
 const ProductList: React.FC = () => {
   const { products, setProducts, page, setPage, pageSize, setPageSize, total, setTotal } = useProductListContext();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [loading, setLoading] = useState(false);
   const [showMajorViolation, setShowMajorViolation] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [currentProduct, setCurrentProduct] = useState<any>(null);
   const navigate = useNavigate();
 
   // 获取违规商品列表
@@ -49,25 +52,7 @@ const ProductList: React.FC = () => {
       // 处理批量下架结果
       if (Array.isArray(data.results)) {
         setTimeout(() => {
-          Modal.info({
-            title: "下架结果",
-            width: 600,
-            content: (
-              <div>
-                {data.results.map((item: any) => (
-                  <div key={item.dataId} style={{ marginBottom: 8 }}>
-                    商品ID: {item.dataId} - {item.result.success ? (
-                      <span style={{ color: 'green' }}>下架成功</span>
-                    ) : (
-                      <span style={{ color: 'red' }}>
-                        下架失败{item.result.errorMsg ? `: ${item.result.errorMsg}` : ""}
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ),
-          });
+          message.info("下架结果已弹窗显示");
         }, 0);
       } else {
         message.success("下架成功");
@@ -89,6 +74,12 @@ const ProductList: React.FC = () => {
         return isAllSite || record.site_num >= 80;
       })
     : products;
+
+  // 打开详情抽屉
+  const openDetail = (record: any) => {
+    setCurrentProduct(record);
+    setDrawerVisible(true);
+  };
 
   return (
     <Card title="违规商品列表"
@@ -136,7 +127,7 @@ const ProductList: React.FC = () => {
           {
             title: "操作",
             render: (_, record) => (
-              <Button type="link" onClick={() => navigate(`/compliance/${record.spu_id}`, { state: record })}>
+              <Button type="link" onClick={() => openDetail(record)}>
                 详情
               </Button>
             ),
@@ -157,6 +148,17 @@ const ProductList: React.FC = () => {
         }}
         scroll={{ y: 800 }}
       />
+      <Drawer
+        title="违规商品详情"
+        width={1200}
+        open={drawerVisible}
+        onClose={() => setDrawerVisible(false)}
+        destroyOnClose
+      >
+        {currentProduct && (
+          <ProductDetail spu_id={currentProduct.spu_id} violationData={currentProduct} onClose={() => setDrawerVisible(false)} />
+        )}
+      </Drawer>
     </Card>
   );
 };

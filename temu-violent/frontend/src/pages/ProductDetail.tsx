@@ -3,19 +3,20 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Card, Button, Table, message, Image, Descriptions, Input, Modal, notification } from "antd";
 import { useGlobalNotification } from './GlobalNotification';
 
-// 商品详情页组件
-const ProductDetail: React.FC = () => {
-  const { spu_id } = useParams(); // 从路由参数获取spu_id
-  const location = useLocation(); // 获取路由传递的state
-  const navigate = useNavigate(); // 用于页面跳转
-  const violationData = location.state; // 违规商品原始数据
-  const [product, setProduct] = useState<any>(null); // 商品详情数据
+// 支持通过props传递spu_id、violationData和onClose
+const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: () => void }> = ({ spu_id: propSpuId, violationData: propViolationData, onClose }) => {
+  const params = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const spu_id = propSpuId || params.spu_id;
+  const violationData = propViolationData || location.state;
+  const notify = useGlobalNotification();
+  const [product, setProduct] = useState<any>(null); // 商品详情
   const [related, setRelated] = useState<any[]>([]); // 关联商品列表
   const [detailLoading, setDetailLoading] = useState(false); // 详情页loading
   const [relatedLoading, setRelatedLoading] = useState(false); // 关联商品loading
   const [searchName, setSearchName] = useState(""); // 关联搜索输入框内容
   const [selectedRelatedKeys, setSelectedRelatedKeys] = useState<React.Key[]>([]); // 关联商品多选
-  const notify = useGlobalNotification();
 
   // 查询商品详情，并自动用前三个单词做关联搜索
   useEffect(() => {
@@ -34,7 +35,7 @@ const ProductDetail: React.FC = () => {
           const name = data.data[0].productName || "";
           const words = name.split(/\s+/).slice(0, 3).join(" ");
           if (words) {
-            setSearchName(words); // 设置输入框内容
+            setSearchName(words);
             handleRelatedSearch(words);
           }
         } else message.error(data.msg || "商品详情获取失败");
@@ -159,7 +160,7 @@ const ProductDetail: React.FC = () => {
     <Card
       title="违规商品详情"
       loading={detailLoading}
-      extra={<Button onClick={() => navigate(-1)}>返回</Button>}
+      extra={<Button onClick={onClose ? onClose : () => navigate(-1)}>返回</Button>}
     >
       {/* 违规商品原始信息 */}
       <Descriptions title="违规商品信息" bordered column={1} size="small">

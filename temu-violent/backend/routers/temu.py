@@ -22,7 +22,7 @@ def get_compliance_list(
 
 @router.post("/seller/product")
 def get_product(
-    productIds: Optional[List[str]] = Body(None, embed=True),
+    productIds: Optional[List[int]] = Body(None, embed=True),
     productName: Optional[str] = Body(None, embed=True),
     page: int = Body(1, embed=True),
     pageSize: int = Body(20, embed=True)
