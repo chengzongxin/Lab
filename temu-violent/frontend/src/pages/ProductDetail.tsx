@@ -133,7 +133,7 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
               </div>
               {data.results.map((item: any) => (
                 <div key={item.dataId} style={{ marginBottom: 8 }}>
-                  商品ID: {item.dataId} - {item.result.success ? (
+                  SKC ID: {item.dataId} - {item.result.success ? (
                     <span style={{ color: 'green' }}>下架成功</span>
                   ) : (
                     <span style={{ color: 'red' }}>
@@ -226,8 +226,9 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
       />
       {/* 关联商品表格，支持多选 */}
       <Table
-        rowKey="productId"
+        rowKey="productSkcId"
         columns={[
+          { title: "SKC ID", dataIndex: "productSkcId" },
           { title: "商品ID", dataIndex: "productId" },
           { title: "商品名称", dataIndex: "productName" },
           {

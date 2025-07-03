@@ -41,20 +41,9 @@ def get_product(
     if not items:
         return {"success": False, "msg": "未找到商品"}
     # 返回所有商品列表
-    products = [
-        {
-            "productId": item.get("productId"),
-            "productName": item.get("productName"),
-            "mainImageUrl": item.get("mainImageUrl"),
-            "goodsId": item.get("goodsId"),
-            "categories": item.get("categories"),
-            # 可根据需要补充更多字段
-        }
-        for item in items
-    ]
     return {
         "success": True,
-        "data": products
+        "data": items
     }
 
 @router.post("/seller/offline")
