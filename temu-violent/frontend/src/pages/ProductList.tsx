@@ -155,6 +155,7 @@ const ProductList: React.FC = () => {
             fetchProducts(p, ps); // 分页时主动刷新
           },
         }}
+        scroll={{ y: 800 }}
       />
     </Card>
   );
