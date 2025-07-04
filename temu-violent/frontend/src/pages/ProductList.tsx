@@ -117,8 +117,12 @@ const ProductList: React.FC = () => {
           }}
           size='large'
           columns={[
-            { title: "图片", dataIndex: "goods_img_url", render: (url: string) => url ? <Image width={60} src={url} /> : null },
-            { title: "商品ID", dataIndex: "spu_id" },
+            { title: "图片", dataIndex: "goods_img_url", render: (url: string) => url ? <Image width={160} src={url} /> : null },
+            { 
+              title: "商品ID", 
+              dataIndex: "spu_id",
+              render: (text: string) => <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{text}</span>
+            },
             { title: "商品名称", dataIndex: "goods_name" },
             {
               title: "违规描述",
@@ -132,14 +136,14 @@ const ProductList: React.FC = () => {
                 const isAllSite = record.site_num === 1 &&
                   Array.isArray(record.punish_detail_list) &&
                   record.punish_detail_list.some((d: any) => d.site_id === -1);
-                if (isAllSite) return "全部站点违规";
-                return record.site_num;
+                if (isAllSite) return <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#ff4d4f' }}>全部站点违规</span>;
+                return <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{record.site_num}</span>;
               }
             },
             {
               title: "操作",
               render: (_, record) => (
-                <Button type="link" onClick={() => openDetail(record)}>
+                <Button type="link" style={{ fontSize: 16, padding: 20, border: '1px solid #00f' }} onClick={() => openDetail(record)}>
                   详情
                 </Button>
               ),

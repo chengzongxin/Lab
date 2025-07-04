@@ -203,7 +203,7 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
         <Descriptions.Item label="商品ID">{violationData?.spu_id}</Descriptions.Item>
         <Descriptions.Item label="商品名称">{violationData?.goods_name}</Descriptions.Item>
         <Descriptions.Item label="主图">
-          {violationData?.goods_img_url && <Image width={80} src={violationData.goods_img_url} />}
+          {violationData?.goods_img_url && <Image width={120} src={violationData.goods_img_url} />}
         </Descriptions.Item>
         <Descriptions.Item label="违规站点">
           {(() => {
@@ -229,27 +229,11 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
         {/* <Descriptions.Item label="商品ID">{product?.productId}</Descriptions.Item> */}
         <Descriptions.Item label="商品名称">{product?.productName}</Descriptions.Item>
         <Descriptions.Item label="主图">
-          {product?.mainImageUrl && <Image width={80} src={product.mainImageUrl} />}
+          {product?.mainImageUrl && <Image width={120} src={product.mainImageUrl} />}
         </Descriptions.Item>
         {/* 可补充更多字段 */}
       </Descriptions>
-      {/* 下架按钮 */}
-      <Button type="primary" danger style={{ marginTop: 16 }} onClick={handleOffline}>
-        下架该商品
-      </Button>
-      {/* 一键下架关联商品按钮 */}
-      <Button
-        type="primary"
-        danger
-        style={{ marginLeft: 16, marginTop: 16 }}
-        onClick={handleOfflineRelated}
-        disabled={selectedRelatedKeys.length === 0}
-        loading={relatedLoading}
-      >
-        一键下架关联商品
-      </Button>
-      <br />
-      <br />
+
       {/* 关联搜索输入框 */}
       <Input.Search
         placeholder="输入商品名称进行关联搜索"
@@ -270,7 +254,7 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
           {
             title: "主图",
             dataIndex: "mainImageUrl",
-            render: (url: string) => (url ? <Image width={100} src={url} /> : null),
+            render: (url: string) => (url ? <Image width={150} src={url} /> : null),
           },
           {
             title: "发布状态",
@@ -285,6 +269,40 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
           onChange: setSelectedRelatedKeys,
         }}
       />
+      
+      {/* 固定在抽屉底部的下架按钮区域 */}
+      <div style={{
+        position: 'sticky',
+        bottom: 0,
+        backgroundColor: '#fff',
+        padding: '16px 24px',
+        margin: '16px 0 0 0',
+        display: 'inline-flex',
+        justifyContent: 'flex-start',
+        gap: '16px',
+        borderRadius: '8px',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+      }}>
+        <Button 
+          type="primary" 
+          danger 
+          size="large"
+          onClick={handleOffline}
+          loading={detailLoading}
+        >
+          下架该商品
+        </Button>
+        <Button
+          type="primary"
+          danger
+          size="large"
+          onClick={handleOfflineRelated}
+          disabled={selectedRelatedKeys.length === 0}
+          loading={relatedLoading}
+        >
+          一键下架关联商品 ({selectedRelatedKeys.length})
+        </Button>
+      </div>
     </Card>
   );
 };
