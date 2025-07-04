@@ -1,0 +1,577 @@
+{
+    "items":[
+        {
+            "productId": 4133900454,
+            "productSkcId": 80260225953,
+            "productName": "MUM!  Drawstring Bags  lightweight closuresuitable for fitness outdoor sports travel  school and daily use",
+            "productType": 1,
+            "sourceType": 1,
+            "goodsId": 601102100204710,
+            "leafCat": {
+                "catId": 31563,
+                "catName": "抽绳健身包",
+                "catEnName": null,
+                "catType": 0
+            },
+            "sizeTemplateIds": null,
+            "productTotalSalesVolume": 0,
+            "extCode": "",
+            "skcStatus": 1,
+            "skcSiteStatus": 0,
+            "mainImageUrl": "https://img.cdnfe.com/product/open/c5b7a5c833c64195bcdd8087ec88e6f9-goods.jpeg",
+            "last7DaysSalesVolume": null,
+            "productSkuSummaries": [
+                {
+                    "productSkuId": 47988403066,
+                    "thumbUrl": "https://img.cdnfe.com/product/open/c5b7a5c833c64195bcdd8087ec88e6f9-goods.jpeg",
+                    "productSkuSpecList": [
+                        {
+                            "parentSpecId": 1001,
+                            "parentSpecName": "颜色",
+                            "specId": 19176,
+                            "specName": "Multicolor",
+                            "unitSpecName": null
+                        },
+                        {
+                            "parentSpecId": 3001,
+                            "parentSpecName": "尺码",
+                            "specId": 49671929,
+                            "specName": "单尺码",
+                            "unitSpecName": null
+                        }
+                    ],
+                    "currencyType": "CNY",
+                    "financeExchangeRate": null,
+                    "supplierPrice": 2200,
+                    "supplierPriceUS": null,
+                    "siteSupplierPrices": null,
+                    "extCode": "drawing_#N6OZI8H",
+                    "productSkuWhExtAttr": {
+                        "productSkuVolume": {
+                            "len": 130,
+                            "width": 130,
+                            "height": 20,
+                            "inputLen": null,
+                            "inputWidth": null,
+                            "inputHeight": null,
+                            "inputUnit": null
+                        },
+                        "productSkuWeight": {
+                            "value": 92000,
+                            "inputValue": null,
+                            "inputUnit": null
+                        },
+                        "productSkuVolumeLabel": null,
+                        "productSkuWmsVolume": null,
+                        "productSkuWmsWeight": null,
+                        "productSkuWmsVolumeLabel": null,
+                        "productSkuBarCodes": null,
+                        "productSkuSensitiveAttr": {
+                            "isSensitive": 0,
+                            "sensitiveTypes": [],
+                            "sensitiveList": [],
+                            "isForce2Normal": false,
+                            "force2NormalTypes": null
+                        },
+                        "productSkuSensitiveLimit": {
+                            "maxBatteryCapacity": null,
+                            "maxLiquidCapacity": null,
+                            "maxKnifeLength": null,
+                            "maxBatteryCapacityHp": null,
+                            "maxLiquidCapacityHp": null,
+                            "maxKnifeLengthHp": null,
+                            "knifeTipAngle": null
+                        },
+                        "productSkuFragileLabelAttr": null,
+                        "latestShippingModeEditRecord": null,
+                        "productSkuSameReference": null
+                    },
+                    "productSkuSaleExtAttr": {
+                        "productSkuCustomizationTmpl": null,
+                        "productSkuShippingMode": null,
+                        "productSkuAccessories": null,
+                        "productSkuIndividuallyPacked": null,
+                        "productSkuNetContent": null,
+                        "productSkuStockDisplayOption": null
+                    },
+                    "todaySalesVolume": null,
+                    "realStock": null,
+                    "virtualStock": null,
+                    "virtualStockLimitType": null,
+                    "salesStockLockType": null,
+                    "stockLockDetailList": null,
+                    "tempLockNum": null,
+                    "productSkuSemiManagedStock": null,
+                    "sampleNetWeight": null,
+                    "productSkuCwVOList": null,
+                    "productSkuMultiPack": {
+                        "skuClassification": 1,
+                        "numberOfPieces": 1,
+                        "pieceUnitCode": 1,
+                        "individuallyPacked": null,
+                        "productSkuNetContent": null
+                    },
+                    "priceReviewStatus": null,
+                    "flowLimit": null,
+                    "preLimitTime": null
+                }
+            ],
+            "createdAt": 1751595329000,
+            "productJitMode": {
+                "matchJitMode": false,
+                "quickSellAgtSignStatus": null,
+                "signLatestAgt": true
+            },
+            "productCertAuditStatus": null,
+            "offSaleByNoCert": null,
+            "noCertPunishRecord": null,
+            "productCertConfig": null,
+            "productCertPunish": null,
+            "productPersonalization": {
+                "personalizationSwitch": null,
+                "personalizationTmp": null,
+                "signLatestAgt": false,
+                "personalizationAgtSignStatus": null
+            },
+            "goodsAdvantageLabelVOList": null,
+            "productTags": null,
+            "productFragileLabelAttr": {
+                "isFragile": false
+            },
+            "productGuideFileI18nList": [],
+            "productGuideFileNewVOList": [],
+            "printedGuideFileInfoVO": null,
+            "productPropAdjustTasks": null,
+            "needGuideFile": false,
+            "productGuideFileIfNeed": null,
+            "guideFileStatus": null,
+            "guideFileFailReason": null,
+            "electronicGuideFileComplianceLabel": 1,
+            "printedGuideFileComplianceLabel": 1,
+            "productSelected": false,
+            "canEditSizeTemplate": null,
+            "inProcessEditTasks": null,
+            "productAuditDraft": null,
+            "hasDecoration": null,
+            "hasCarouseVideo": null,
+            "hasDetailVideo": null,
+            "matchSkcJitMode": false,
+            "isJitUnSignForMms": false,
+            "guideFileAttribute": null,
+            "similarClusterProduct": null,
+            "guideFilePageImages": null,
+            "isSupportPersonalization": false,
+            "supplierSourceType": 1000,
+            "productSemiManaged": null,
+            "productPublishLabel": null,
+            "productPattern": {
+                "canRelatePattern": false,
+                "patternId": null,
+                "isModified": null,
+                "garmentPreviewPics": null,
+                "paperPreviewPics": null,
+                "patternFile": null,
+                "modifiedPaperPreviewPics": null,
+                "modifiedPatternFile": null
+            },
+            "productCustomizationTechnology": null,
+            "hotSaleGoodsLabelStyle": null,
+            "sensitiveAttrProblemTag": false,
+            "classId": null,
+            "industrySelectionTag": false,
+            "allowanceCertList": null,
+            "flowAllowanceSiteList": null,
+            "flowAllowanceStatus": 1,
+            "newProductCatMisplace": {
+                "matchMisplace": false,
+                "recCategoriesList": [],
+                "feedback": null
+            },
+            "productPotentialInfo": null,
+            "hotSaleCarouselVideoNeedUpload": false,
+            "highPrice": null
+        },
+        {
+            "productId": 9594066610,
+            "productSkcId": 80896966897,
+            "productName": "Love ewing Drawstring Bags lightweight closuresuitable for fitness outdoor sports travel school and daily use",
+            "productType": 1,
+            "sourceType": 1,
+            "goodsId": 601102054787386,
+            "leafCat": {
+                "catId": 31563,
+                "catName": "抽绳健身包",
+                "catEnName": null,
+                "catType": 0
+            },
+            "sizeTemplateIds": null,
+            "productTotalSalesVolume": 0,
+            "extCode": "",
+            "skcStatus": 11,
+            "skcSiteStatus": 1,
+            "mainImageUrl": "https://img.cdnfe.com/product/open/694dbef505d746a58792c1af7280047c-goods.jpeg",
+            "last7DaysSalesVolume": null,
+            "productSkuSummaries": [
+                {
+                    "productSkuId": 76040495201,
+                    "thumbUrl": "https://img.cdnfe.com/product/open/694dbef505d746a58792c1af7280047c-goods.jpeg",
+                    "productSkuSpecList": [
+                        {
+                            "parentSpecId": 1001,
+                            "parentSpecName": "颜色",
+                            "specId": 19176,
+                            "specName": "Multicolor",
+                            "unitSpecName": null
+                        },
+                        {
+                            "parentSpecId": 3001,
+                            "parentSpecName": "尺码",
+                            "specId": 49671929,
+                            "specName": "单尺码",
+                            "unitSpecName": null
+                        }
+                    ],
+                    "currencyType": "CNY",
+                    "financeExchangeRate": null,
+                    "supplierPrice": 2178,
+                    "supplierPriceUS": null,
+                    "siteSupplierPrices": null,
+                    "extCode": "drawing_#N8YULXN",
+                    "productSkuWhExtAttr": {
+                        "productSkuVolume": {
+                            "len": 130,
+                            "width": 130,
+                            "height": 20,
+                            "inputLen": null,
+                            "inputWidth": null,
+                            "inputHeight": null,
+                            "inputUnit": null
+                        },
+                        "productSkuWeight": {
+                            "value": 92000,
+                            "inputValue": null,
+                            "inputUnit": null
+                        },
+                        "productSkuVolumeLabel": null,
+                        "productSkuWmsVolume": null,
+                        "productSkuWmsWeight": null,
+                        "productSkuWmsVolumeLabel": null,
+                        "productSkuBarCodes": null,
+                        "productSkuSensitiveAttr": {
+                            "isSensitive": 0,
+                            "sensitiveTypes": [],
+                            "sensitiveList": [],
+                            "isForce2Normal": false,
+                            "force2NormalTypes": null
+                        },
+                        "productSkuSensitiveLimit": {
+                            "maxBatteryCapacity": null,
+                            "maxLiquidCapacity": null,
+                            "maxKnifeLength": null,
+                            "maxBatteryCapacityHp": null,
+                            "maxLiquidCapacityHp": null,
+                            "maxKnifeLengthHp": null,
+                            "knifeTipAngle": null
+                        },
+                        "productSkuFragileLabelAttr": null,
+                        "latestShippingModeEditRecord": null,
+                        "productSkuSameReference": null
+                    },
+                    "productSkuSaleExtAttr": {
+                        "productSkuCustomizationTmpl": null,
+                        "productSkuShippingMode": null,
+                        "productSkuAccessories": null,
+                        "productSkuIndividuallyPacked": null,
+                        "productSkuNetContent": null,
+                        "productSkuStockDisplayOption": null
+                    },
+                    "todaySalesVolume": null,
+                    "realStock": null,
+                    "virtualStock": 1000,
+                    "virtualStockLimitType": null,
+                    "salesStockLockType": null,
+                    "stockLockDetailList": null,
+                    "tempLockNum": null,
+                    "productSkuSemiManagedStock": null,
+                    "sampleNetWeight": null,
+                    "productSkuCwVOList": null,
+                    "productSkuMultiPack": {
+                        "skuClassification": 1,
+                        "numberOfPieces": 1,
+                        "pieceUnitCode": 1,
+                        "individuallyPacked": null,
+                        "productSkuNetContent": null
+                    },
+                    "priceReviewStatus": 2,
+                    "flowLimit": null,
+                    "preLimitTime": null
+                }
+            ],
+            "createdAt": 1751379767000,
+            "productJitMode": {
+                "matchJitMode": true,
+                "quickSellAgtSignStatus": 1,
+                "signLatestAgt": true
+            },
+            "productCertAuditStatus": null,
+            "offSaleByNoCert": null,
+            "noCertPunishRecord": null,
+            "productCertConfig": null,
+            "productCertPunish": null,
+            "productPersonalization": {
+                "personalizationSwitch": null,
+                "personalizationTmp": null,
+                "signLatestAgt": false,
+                "personalizationAgtSignStatus": null
+            },
+            "goodsAdvantageLabelVOList": null,
+            "productTags": null,
+            "productFragileLabelAttr": {
+                "isFragile": false
+            },
+            "productGuideFileI18nList": [],
+            "productGuideFileNewVOList": [],
+            "printedGuideFileInfoVO": null,
+            "productPropAdjustTasks": null,
+            "needGuideFile": false,
+            "productGuideFileIfNeed": null,
+            "guideFileStatus": null,
+            "guideFileFailReason": null,
+            "electronicGuideFileComplianceLabel": 1,
+            "printedGuideFileComplianceLabel": 1,
+            "productSelected": true,
+            "canEditSizeTemplate": null,
+            "inProcessEditTasks": null,
+            "productAuditDraft": null,
+            "hasDecoration": null,
+            "hasCarouseVideo": null,
+            "hasDetailVideo": null,
+            "matchSkcJitMode": true,
+            "isJitUnSignForMms": false,
+            "guideFileAttribute": null,
+            "similarClusterProduct": null,
+            "guideFilePageImages": null,
+            "isSupportPersonalization": false,
+            "supplierSourceType": 1000,
+            "productSemiManaged": null,
+            "productPublishLabel": null,
+            "productPattern": {
+                "canRelatePattern": false,
+                "patternId": null,
+                "isModified": null,
+                "garmentPreviewPics": null,
+                "paperPreviewPics": null,
+                "patternFile": null,
+                "modifiedPaperPreviewPics": null,
+                "modifiedPatternFile": null
+            },
+            "productCustomizationTechnology": null,
+            "hotSaleGoodsLabelStyle": 10,
+            "sensitiveAttrProblemTag": false,
+            "classId": null,
+            "industrySelectionTag": false,
+            "allowanceCertList": null,
+            "flowAllowanceSiteList": null,
+            "flowAllowanceStatus": 1,
+            "newProductCatMisplace": {
+                "matchMisplace": false,
+                "recCategoriesList": [],
+                "feedback": null
+            },
+            "productPotentialInfo": null,
+            "hotSaleCarouselVideoNeedUpload": false,
+            "highPrice": false
+        },
+        {
+            "productId": 5475538490,
+            "productSkcId": 86909136503,
+            "productName": "My tyle  Daily Tote Bag Shopping Bag With Handle",
+            "productType": 1,
+            "sourceType": 1,
+            "goodsId": 601101927799945,
+            "leafCat": {
+                "catId": 29157,
+                "catName": "女士手拎包",
+                "catEnName": null,
+                "catType": 0
+            },
+            "sizeTemplateIds": null,
+            "productTotalSalesVolume": 0,
+            "extCode": "",
+            "skcStatus": 11,
+            "skcSiteStatus": 0,
+            "mainImageUrl": "https://img.cdnfe.com/product/open/4d2c7a7738df4df8b6e15bf9f16d5d30-goods.jpeg",
+            "last7DaysSalesVolume": 0,
+            "productSkuSummaries": [
+                {
+                    "productSkuId": 11596033798,
+                    "thumbUrl": "https://img.cdnfe.com/product/open/4d2c7a7738df4df8b6e15bf9f16d5d30-goods.jpeg",
+                    "productSkuSpecList": [
+                        {
+                            "parentSpecId": 1001,
+                            "parentSpecName": "颜色",
+                            "specId": 19176,
+                            "specName": "Multicolor",
+                            "unitSpecName": null
+                        },
+                        {
+                            "parentSpecId": 3001,
+                            "parentSpecName": "尺码",
+                            "specId": 49671929,
+                            "specName": "单尺码",
+                            "unitSpecName": null
+                        }
+                    ],
+                    "currencyType": "CNY",
+                    "financeExchangeRate": null,
+                    "supplierPrice": 1500,
+                    "supplierPriceUS": null,
+                    "siteSupplierPrices": null,
+                    "extCode": "CB_#NCFA9SW",
+                    "productSkuWhExtAttr": {
+                        "productSkuVolume": {
+                            "len": 150,
+                            "width": 150,
+                            "height": 20,
+                            "inputLen": null,
+                            "inputWidth": null,
+                            "inputHeight": null,
+                            "inputUnit": null
+                        },
+                        "productSkuWeight": {
+                            "value": 83000,
+                            "inputValue": null,
+                            "inputUnit": null
+                        },
+                        "productSkuVolumeLabel": null,
+                        "productSkuWmsVolume": null,
+                        "productSkuWmsWeight": null,
+                        "productSkuWmsVolumeLabel": null,
+                        "productSkuBarCodes": null,
+                        "productSkuSensitiveAttr": {
+                            "isSensitive": 0,
+                            "sensitiveTypes": [],
+                            "sensitiveList": [],
+                            "isForce2Normal": false,
+                            "force2NormalTypes": null
+                        },
+                        "productSkuSensitiveLimit": {
+                            "maxBatteryCapacity": null,
+                            "maxLiquidCapacity": null,
+                            "maxKnifeLength": null,
+                            "maxBatteryCapacityHp": null,
+                            "maxLiquidCapacityHp": null,
+                            "maxKnifeLengthHp": null,
+                            "knifeTipAngle": null
+                        },
+                        "productSkuFragileLabelAttr": null,
+                        "latestShippingModeEditRecord": null,
+                        "productSkuSameReference": null
+                    },
+                    "productSkuSaleExtAttr": {
+                        "productSkuCustomizationTmpl": null,
+                        "productSkuShippingMode": null,
+                        "productSkuAccessories": null,
+                        "productSkuIndividuallyPacked": null,
+                        "productSkuNetContent": null,
+                        "productSkuStockDisplayOption": null
+                    },
+                    "todaySalesVolume": 0,
+                    "realStock": null,
+                    "virtualStock": 1000,
+                    "virtualStockLimitType": null,
+                    "salesStockLockType": null,
+                    "stockLockDetailList": null,
+                    "tempLockNum": null,
+                    "productSkuSemiManagedStock": null,
+                    "sampleNetWeight": null,
+                    "productSkuCwVOList": null,
+                    "productSkuMultiPack": {
+                        "skuClassification": 1,
+                        "numberOfPieces": 1,
+                        "pieceUnitCode": 1,
+                        "individuallyPacked": null,
+                        "productSkuNetContent": null
+                    },
+                    "priceReviewStatus": 2,
+                    "flowLimit": null,
+                    "preLimitTime": null
+                }
+            ],
+            "createdAt": 1750776458000,
+            "productJitMode": {
+                "matchJitMode": true,
+                "quickSellAgtSignStatus": 1,
+                "signLatestAgt": true
+            },
+            "productCertAuditStatus": null,
+            "offSaleByNoCert": null,
+            "noCertPunishRecord": null,
+            "productCertConfig": null,
+            "productCertPunish": null,
+            "productPersonalization": {
+                "personalizationSwitch": null,
+                "personalizationTmp": null,
+                "signLatestAgt": false,
+                "personalizationAgtSignStatus": null
+            },
+            "goodsAdvantageLabelVOList": null,
+            "productTags": null,
+            "productFragileLabelAttr": {
+                "isFragile": false
+            },
+            "productGuideFileI18nList": [],
+            "productGuideFileNewVOList": [],
+            "printedGuideFileInfoVO": null,
+            "productPropAdjustTasks": null,
+            "needGuideFile": false,
+            "productGuideFileIfNeed": null,
+            "guideFileStatus": null,
+            "guideFileFailReason": null,
+            "electronicGuideFileComplianceLabel": 1,
+            "printedGuideFileComplianceLabel": 1,
+            "productSelected": true,
+            "canEditSizeTemplate": null,
+            "inProcessEditTasks": null,
+            "productAuditDraft": null,
+            "hasDecoration": null,
+            "hasCarouseVideo": null,
+            "hasDetailVideo": null,
+            "matchSkcJitMode": true,
+            "isJitUnSignForMms": false,
+            "guideFileAttribute": null,
+            "similarClusterProduct": null,
+            "guideFilePageImages": null,
+            "isSupportPersonalization": false,
+            "supplierSourceType": 1000,
+            "productSemiManaged": null,
+            "productPublishLabel": null,
+            "productPattern": {
+                "canRelatePattern": false,
+                "patternId": null,
+                "isModified": null,
+                "garmentPreviewPics": null,
+                "paperPreviewPics": null,
+                "patternFile": null,
+                "modifiedPaperPreviewPics": null,
+                "modifiedPatternFile": null
+            },
+            "productCustomizationTechnology": null,
+            "hotSaleGoodsLabelStyle": 10,
+            "sensitiveAttrProblemTag": false,
+            "classId": null,
+            "industrySelectionTag": false,
+            "allowanceCertList": null,
+            "flowAllowanceSiteList": null,
+            "flowAllowanceStatus": 1,
+            "newProductCatMisplace": {
+                "matchMisplace": false,
+                "recCategoriesList": [],
+                "feedback": null
+            },
+            "productPotentialInfo": null,
+            "hotSaleCarouselVideoNeedUpload": false,
+            "highPrice": null
+        }
+    ]
+}

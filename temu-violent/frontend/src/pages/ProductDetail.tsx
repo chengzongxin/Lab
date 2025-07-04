@@ -156,6 +156,20 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
     setRelatedLoading(false);
   };
 
+  // 判断商品发布状态的函数
+  function getProductStatus(skcStatus: number, skcSiteStatus: number) {
+    if ((skcStatus === 1 || skcStatus === 7 || skcStatus === 10) && skcSiteStatus === 0) {
+      return "未发布";
+    }
+    if (skcStatus === 11 && skcSiteStatus === 1) {
+      return "在售中";
+    }
+    if (skcStatus === 11 && skcSiteStatus === 0) {
+      return "已下架";
+    }
+    return "未知状态";
+  }
+
   return (
     <Card
       title="违规商品详情"
@@ -235,6 +249,10 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
             title: "主图",
             dataIndex: "mainImageUrl",
             render: (url: string) => (url ? <Image width={100} src={url} /> : null),
+          },
+          {
+            title: "发布状态",
+            render: (_: any, record: any) => getProductStatus(record.skcStatus, record.skcSiteStatus),
           },
         ]}
         dataSource={related}
