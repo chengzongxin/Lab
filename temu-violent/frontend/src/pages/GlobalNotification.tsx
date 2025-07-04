@@ -17,7 +17,7 @@ export const GlobalNotificationProvider: React.FC<{ children: React.ReactNode }>
 
   const showNotification = useCallback((n: Notification) => {
     setNotification(n);
-    setTimeout(() => setNotification(null), 3000); // 3秒后自动消失
+    setTimeout(() => setNotification(null), 5000); // 5秒后自动消失
   }, []);
 
   return (

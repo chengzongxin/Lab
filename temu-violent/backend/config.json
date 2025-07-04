@@ -3,5 +3,8 @@
   "compliance_cookie": "api_uid=CuJTj2hOpi4LygBGW7QzAg==; _bee=GUL6QTAeDTEkUdM14Ip321Ln3i2dgapp; njrpl=GUL6QTAeDTEkUdM14Ip321Ln3i2dgapp; dilx=ZR9dYkHGSCnH-fwx3f8OG; hfsc=L3yOcYA47Tb52p7JeQ==; _nano_fp=XpmyX0dyX5EYn5Tal9_hAx3TfBvyLaHF_6s5OC_b; mallid=634418223525077; seller_temp=N_eyJ0IjoicmluM0J5UiswUFE5OG9mOENYeGUrTE50VDBFUjRweGNnTW81YXJmdlFHaTZXQUc2S211dXVEMVJ1U0k0djdMb3JxN1BYamxBNkN5allwM1JNK0JkWFE9PSIsInYiOjEsInMiOjEwMDAxLCJ1IjoyNDE1MTU0NjgxNzcwMX0=",
   "blue_cookie": "string",
   "mallid": "634418223796259",
-  "blue_token": "string"
+  "blue_token": "string",
+  "parent_msg_id": 448421445119357,
+  "tool_id": 2406230000031,
+  "parent_msg_timestamp": "1751646269502"
 }

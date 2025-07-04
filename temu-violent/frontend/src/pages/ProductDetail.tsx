@@ -67,7 +67,10 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
       const res = await fetch("/api/temu/seller/offline", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productIds: [parseInt(spu_id || "0")] }),
+        body: JSON.stringify({ 
+          productIds: [parseInt(spu_id || "0")],
+          max_threads: 4  // 单个商品使用较少线程
+        }),
       });
       const data = await res.json();
       if (data.success) {
@@ -127,7 +130,10 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
       const res = await fetch("/api/temu/seller/offline", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productIds: selectedRelatedKeys.map(key => parseInt(key.toString())) }),
+        body: JSON.stringify({ 
+          productIds: selectedRelatedKeys.map(key => parseInt(key.toString())),
+          max_threads: 8  // 批量下架使用更多线程
+        }),
       });
       const data = await res.json();
       if (data.success) {

@@ -47,7 +47,10 @@ const ProductList: React.FC = () => {
     const res = await fetch("/api/temu/seller/offline", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productIds: selectedRowKeys.map(String) }),
+      body: JSON.stringify({ 
+        productIds: selectedRowKeys.map(String),
+        max_threads: 8  // 批量下架使用更多线程
+      }),
     });
     const data = await res.json();
     if (data.success) {
