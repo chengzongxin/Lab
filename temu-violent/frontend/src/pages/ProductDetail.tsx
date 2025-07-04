@@ -228,42 +228,53 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
       title="违规商品详情"
       loading={detailLoading}
       extra={<Button onClick={onClose ? onClose : () => navigate(-1)}>返回</Button>}
+      style={{ fontSize: '18px' }}
     >
-      {/* 违规商品原始信息 */}
-      <Descriptions title="违规商品信息" bordered column={1} size="small">
-        <Descriptions.Item label="商品ID">{violationData?.spu_id}</Descriptions.Item>
-        <Descriptions.Item label="商品名称">{violationData?.goods_name}</Descriptions.Item>
-        <Descriptions.Item label="主图">
-          {violationData?.goods_img_url && <Image width={120} src={violationData.goods_img_url} />}
-        </Descriptions.Item>
-        <Descriptions.Item label="违规站点">
-          {(() => {
-            const isAllSite = violationData?.site_num === 1 &&
-              Array.isArray(violationData?.punish_detail_list) &&
-              violationData.punish_detail_list.some((d: any) => d.site_id === -1);
-            if (isAllSite) return "全部站点违规";
-            return violationData?.site_num;
-          })()}
-        </Descriptions.Item>
-        <Descriptions.Item label="违规描述">{violationData?.violation_desc || '-'}</Descriptions.Item>
-        {/* 展示所有原始字段 */}
-        {/* {violationData &&
-          Object.entries(violationData).map(([k, v]) => (
-            <Descriptions.Item key={k} label={k}>
-              {String(v)}
+      {/* 商品信息区域 - 左右排列 */}
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+        {/* 违规商品原始信息 - 左侧 */}
+        <div style={{ flex: 1 }}>
+          <Descriptions title="违规商品信息" bordered column={1} size="default" style={{ fontSize: '17px' }}>
+            <Descriptions.Item label="商品ID">{violationData?.spu_id}</Descriptions.Item>
+            <Descriptions.Item label="商品名称">{violationData?.goods_name}</Descriptions.Item>
+            <Descriptions.Item label="主图">
+              {violationData?.goods_img_url && <Image width={120} src={violationData.goods_img_url} />}
             </Descriptions.Item>
-          ))} */}
-      </Descriptions>
-      <br />
-      {/* 商品详情 */}
-      <Descriptions title="商品详情" bordered column={1} size="small">
-        {/* <Descriptions.Item label="商品ID">{product?.productId}</Descriptions.Item> */}
-        <Descriptions.Item label="商品名称">{product?.productName}</Descriptions.Item>
-        <Descriptions.Item label="主图">
-          {product?.mainImageUrl && <Image width={120} src={product.mainImageUrl} />}
-        </Descriptions.Item>
-        {/* 可补充更多字段 */}
-      </Descriptions>
+            <Descriptions.Item label="违规站点">
+              {(() => {
+                const isAllSite = violationData?.site_num === 1 &&
+                  Array.isArray(violationData?.punish_detail_list) &&
+                  violationData.punish_detail_list.some((d: any) => d.site_id === -1);
+                if (isAllSite) return "全部站点违规";
+                return violationData?.site_num;
+              })()}
+            </Descriptions.Item>
+            <Descriptions.Item label="违规描述">{violationData?.violation_desc || '-'}</Descriptions.Item>
+            {/* 展示所有原始字段 */}
+            {/* {violationData &&
+              Object.entries(violationData).map(([k, v]) => (
+                <Descriptions.Item key={k} label={k}>
+                  {String(v)}
+                </Descriptions.Item>
+              ))} */}
+          </Descriptions>
+        </div>
+        
+        {/* 商品详情 - 右侧 */}
+        <div style={{ flex: 1 }}>
+          <Descriptions title="商品详情" bordered column={1} size="default" style={{ fontSize: '17px' }}>
+            {/* <Descriptions.Item label="商品ID">{product?.productId}</Descriptions.Item> */}
+            <Descriptions.Item label="商品名称">{product?.productName}</Descriptions.Item>
+            <Descriptions.Item label="创建时间">
+              {product?.createdAt ? new Date(product.createdAt).toLocaleString('zh-CN') : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label="主图">
+              {product?.mainImageUrl && <Image width={120} src={product.mainImageUrl} />}
+            </Descriptions.Item>
+            {/* 可补充更多字段 */}
+          </Descriptions>
+        </div>
+      </div>
 
       {/* 关联搜索输入框 */}
       <Input.Search
@@ -271,7 +282,7 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
         value={searchName}
         onChange={e => setSearchName(e.target.value)}
         onSearch={v => handleRelatedSearch(v)}
-        style={{ width: 300, marginBottom: 16 }}
+        style={{ width: 300, margin: 16, fontSize: '17px' }}
         enterButton="关联搜索"
         loading={relatedLoading}
       />
@@ -279,9 +290,21 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
       <Table
         rowKey="productSkcId"
         columns={[
-          { title: "SKC ID", dataIndex: "productSkcId" },
-          { title: "商品ID", dataIndex: "productId", render: (text: string) => text === spu_id ? <span style={{ color: 'red' }}>{text}</span> : text },
-          { title: "商品名称", dataIndex: "productName" },
+          { 
+            title: "SKC ID", 
+            dataIndex: "productSkcId",
+            render: (text: string) => <span style={{ fontSize: '16px' }}>{text}</span>
+          },
+          { 
+            title: "商品ID", 
+            dataIndex: "productId", 
+            render: (text: string) => text === spu_id ? <span style={{ color: 'red', fontSize: '16px' }}>{text}</span> : <span style={{ fontSize: '16px' }}>{text}</span>
+          },
+          { 
+            title: "商品名称", 
+            dataIndex: "productName",
+            render: (text: string) => <span style={{ fontSize: '16px' }}>{text}</span>
+          },
           {
             title: "主图",
             dataIndex: "mainImageUrl",
@@ -289,7 +312,11 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
           },
           {
             title: "发布状态",
-            render: (_: any, record: any) => getProductStatus(record.skcStatus, record.skcSiteStatus),
+            render: (_: any, record: any) => (
+              <span style={{ fontSize: '16px' }}>
+                {getProductStatus(record.skcStatus, record.skcSiteStatus)}
+              </span>
+            ),
           },
                       {
               title: "下架结果",
@@ -304,11 +331,11 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
                     whiteSpace: 'pre-wrap',
                     lineHeight: '1.4'
                   }}>
-                    <Tag color={result.success ? 'green' : 'red'} style={{ marginBottom: '4px' }}>
+                    <Tag color={result.success ? 'green' : 'red'} style={{ marginBottom: '4px', fontSize: '15px' }}>
                       {result.success ? '成功' : '失败'}
                     </Tag>
                     <div style={{ 
-                      fontSize: '12px',
+                      fontSize: '15px',
                       color: result.success ? '#52c41a' : '#ff4d4f',
                       marginTop: '4px'
                     }}>
@@ -321,7 +348,7 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
         ]}
         dataSource={related}
         loading={relatedLoading}
-        title={() => "关联商品列表"}
+        title={() => <div style={{ fontSize: 20, fontWeight: 'bold' }}>关联商品列表</div>}
         rowSelection={{
           selectedRowKeys: selectedRelatedKeys,
           onChange: setSelectedRelatedKeys,
@@ -347,6 +374,7 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
           size="large"
           onClick={handleOffline}
           loading={detailLoading}
+          style={{ fontSize: '17px' }}
         >
           下架该商品
         </Button>
@@ -357,6 +385,7 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
           onClick={handleOfflineRelated}
           disabled={selectedRelatedKeys.length === 0}
           loading={relatedLoading}
+          style={{ fontSize: '17px' }}
         >
           一键下架关联商品 ({selectedRelatedKeys.length})
         </Button>
