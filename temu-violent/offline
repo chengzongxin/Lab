@@ -1,0 +1,762 @@
+https://seller.kuajingmaihuo.com/marvel-supplier/api/ultraman/chat/knowledge/pageQueryKnowledgeBaseTitleList
+{"page":1,"pageSize":20}
+{
+    "success": true,
+    "errorCode": 1000000,
+    "errorMsg": null,
+    "result": {
+        "knowledgeBaseTitleList": [
+            {
+                "id": 2503280000023,
+                "title": "常规店铺中“未发布”的商品是什么状态？"
+            },
+            {
+                "id": 2503270016012,
+                "title": "常规店铺的商品发布流程？"
+            },
+            {
+                "id": 2406110000189,
+                "title": "如何查看其他店铺？"
+            },
+            {
+                "id": 2503260032810,
+                "title": "半托管店铺的商品能选择哪些经营站点？"
+            },
+            {
+                "id": 2503260064812,
+                "title": "半托管店铺中的“默认包邮设置”能否修改？"
+            },
+            {
+                "id": 2408210000071,
+                "title": "常规店铺的备货单有哪些收货仓库？"
+            },
+            {
+                "id": 2503260048820,
+                "title": "商品资质上传失败如何处理？"
+            },
+            {
+                "id": 2408210000100,
+                "title": "常规店铺是否需要寄样?"
+            },
+            {
+                "id": 2406110000106,
+                "title": "商品资质如何上传？"
+            },
+            {
+                "id": 2503260016030,
+                "title": "如何上传欧代/英代/美代信息？"
+            },
+            {
+                "id": 2503260000041,
+                "title": "电子说明书内容缺少语言如何处理？"
+            },
+            {
+                "id": 2503260016018,
+                "title": "如何上传实物纸质说明书的商品实拍图？"
+            },
+            {
+                "id": 2503260048810,
+                "title": "商品实拍图中标签有异常如何处理？"
+            },
+            {
+                "id": 2408210000043,
+                "title": "如何查看保存草稿的商品？"
+            },
+            {
+                "id": 2503260000032,
+                "title": "有什么商品说明书制作工具？"
+            },
+            {
+                "id": 2503260000024,
+                "title": "常规店铺的商品能发布到哪些站点？"
+            },
+            {
+                "id": 2503260000017,
+                "title": "常规店铺的定制商品有什么专门规则？"
+            },
+            {
+                "id": 2406110000012,
+                "title": "如何进入Temu卖家中心？"
+            },
+            {
+                "id": 2503260032021,
+                "title": "常规店铺如何创建定制商品？"
+            },
+            {
+                "id": 2406110000041,
+                "title": "怎么填写计划销售商品？"
+            }
+        ],
+        "total": 110
+    }
+}
+
+
+https://seller.kuajingmaihuo.com/marvel-supplier/api/ultraman/chat/reception/responseChatWithCustomerSupportV2
+{"consultantBizAccountType":1,"sendRobotHotFaqMsg":true}
+{
+    "success": true,
+    "errorCode": 1000000,
+    "errorMsg": null,
+    "result": {
+        "resultCode": 13,
+        "msgContent": null,
+        "receptionId": null,
+        "waitCount": 0,
+        "hasDeliveryProduct": null,
+        "timeStamp": 1751638619082,
+        "robotAnswerInfoList": null,
+        "robotAnswerInfoListTitle": null,
+        "robotBackupAnswer": null
+    }
+}
+
+https://seller.kuajingmaihuo.com/marvel-supplier/api/ultraman/chat/reception/judgeAbleUseCustomerChat
+{}
+{
+    "success": true,
+    "errorCode": 1000000,
+    "errorMsg": null,
+    "result": {
+        "ableUseFlag": true,
+        "subAccountAbleUse": true,
+        "ableUseHumanChat": false,
+        "ableUseSelfTool": true
+    }
+}
+
+https://seller.kuajingmaihuo.com/bg/cute/api/merchantService/chat/queryMessage
+{"direction":2,"limit":20}
+{
+    "success": true,
+    "errorCode": 1000000,
+    "errorMsg": null,
+    "result": {
+        "messageList": [
+            {
+                "msgId": 448133051989639,
+                "clientMsgId": "",
+                "timestamp": 1750519734000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "系统正在努力思考，请耐心等待，咨询结果将稍后发送给您～",
+                "contentType": 1,
+                "messageType": 1,
+                "supportOpTypes": null,
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448133051989971,
+                "clientMsgId": "",
+                "timestamp": 1750519734000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "系统正在努力思考，请耐心等待，咨询结果将稍后发送给您～",
+                "contentType": 1,
+                "messageType": 1,
+                "supportOpTypes": null,
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448133052138497,
+                "clientMsgId": "",
+                "timestamp": 1750519734000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "<p><strong>【商品下架】咨询结果已更新</strong></p><p>【SKC ID：96205579545】：您好，该商品还未发布到任何站点，暂时无法操作下架。</p>",
+                "contentType": 12,
+                "messageType": 1,
+                "supportOpTypes": [
+                    1001,
+                    1002
+                ],
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448133052140066,
+                "clientMsgId": "",
+                "timestamp": 1750519734000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "<p><strong>【商品下架】咨询结果已更新</strong></p><p>【SKC ID：69035579698】：您好，该商品还未发布到任何站点，暂时无法操作下架。</p>",
+                "contentType": 12,
+                "messageType": 1,
+                "supportOpTypes": [
+                    1001,
+                    1002
+                ],
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448133052141823,
+                "clientMsgId": "",
+                "timestamp": 1750519734000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "<p><strong>【商品下架】咨询结果已更新</strong></p><p>【SKC ID：94453500383】：您好，该商品还未发布到任何站点，暂时无法操作下架。</p>",
+                "contentType": 12,
+                "messageType": 1,
+                "supportOpTypes": [
+                    1001,
+                    1002
+                ],
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448133052141921,
+                "clientMsgId": "",
+                "timestamp": 1750519734000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "<p><strong>【商品下架】咨询结果已更新</strong></p><p>【SKC ID：26475709185】：您好，该商品还未发布到任何站点，暂时无法操作下架。</p>",
+                "contentType": 12,
+                "messageType": 1,
+                "supportOpTypes": [
+                    1001,
+                    1002
+                ],
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448133052142383,
+                "clientMsgId": "",
+                "timestamp": 1750519734000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "<p><strong>【商品下架】咨询结果已更新</strong></p><p>【SKC ID：39024515881】：您好，该商品还未发布到任何站点，暂时无法操作下架。</p>",
+                "contentType": 12,
+                "messageType": 1,
+                "supportOpTypes": [
+                    1001,
+                    1002
+                ],
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448133052753722,
+                "clientMsgId": "",
+                "timestamp": 1750519737000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "<p><strong>【商品下架】咨询结果已更新</strong></p><p>【SKC ID：28155758046】：您好，该商品已下架</p>",
+                "contentType": 12,
+                "messageType": 1,
+                "supportOpTypes": [
+                    1001,
+                    1002
+                ],
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448133052762194,
+                "clientMsgId": "",
+                "timestamp": 1750519737000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "<p><strong>【商品下架】咨询结果已更新</strong></p><p>【SKC ID：91601264520】：您好，该商品已下架</p>",
+                "contentType": 12,
+                "messageType": 1,
+                "supportOpTypes": [
+                    1001,
+                    1002
+                ],
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448386425446592,
+                "clientMsgId": "",
+                "timestamp": 1751509474000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "{\"title\":\"热门咨询问题\",\"titleList\":[\"您是否需要\",\"或想咨询以下问题\"],\"entryList\":[{\"desc\":\"店铺审核时间一般为多久？\",\"id\":\"2406110000050\",\"type\":0},{\"desc\":\"怎么修改店铺类别？\",\"id\":\"2406110000259\",\"type\":0},{\"desc\":\"如何查看商品的申报价格状态？\",\"id\":\"2503280032019\",\"type\":0}],\"scene\":1}",
+                "contentType": 5,
+                "messageType": 1,
+                "supportOpTypes": null,
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448386431299611,
+                "clientMsgId": "",
+                "timestamp": 1751509497000,
+                "senderType": 1,
+                "senderAccountId": 24151546817701,
+                "senderAccountName": "程*鑫",
+                "senderAccountAvatar": "https://bstatic.cdnfe.com/static/files/sc/merchant_avatar.png",
+                "content": "商品下架",
+                "contentType": 1,
+                "messageType": 1,
+                "supportOpTypes": null,
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448386431311140,
+                "clientMsgId": "",
+                "timestamp": 1751509497000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "{\"content\":\"请发送商品信息给客服，可以更快为您处理哦。\",\"btnText\":[\"发商品\"],\"toolId\":2406230000031,\"dataType\":1}",
+                "contentType": 6,
+                "messageType": 1,
+                "supportOpTypes": null,
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448386514543848,
+                "clientMsgId": "",
+                "timestamp": 1751509822000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "{\"title\":\"热门咨询问题\",\"titleList\":[\"您是否需要\",\"或想咨询以下问题\"],\"entryList\":[{\"desc\":\"店铺审核时间一般为多久？\",\"id\":\"2406110000050\",\"type\":0},{\"desc\":\"怎么修改店铺类别？\",\"id\":\"2406110000259\",\"type\":0},{\"desc\":\"如何查看商品的申报价格状态？\",\"id\":\"2503280032019\",\"type\":0}],\"scene\":1}",
+                "contentType": 5,
+                "messageType": 1,
+                "supportOpTypes": null,
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448419278220389,
+                "clientMsgId": "",
+                "timestamp": 1751637805000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "{\"title\":\"热门咨询问题\",\"titleList\":[\"您是否需要\",\"或想咨询以下问题\"],\"entryList\":[{\"desc\":\"店铺审核时间一般为多久？\",\"id\":\"2406110000050\",\"type\":0},{\"desc\":\"怎么修改店铺类别？\",\"id\":\"2406110000259\",\"type\":0},{\"desc\":\"如何查看商品的申报价格状态？\",\"id\":\"2503280032019\",\"type\":0}],\"scene\":1}",
+                "contentType": 5,
+                "messageType": 1,
+                "supportOpTypes": null,
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448419279021071,
+                "clientMsgId": "",
+                "timestamp": 1751637808000,
+                "senderType": 1,
+                "senderAccountId": 24151546817701,
+                "senderAccountName": "程*鑫",
+                "senderAccountAvatar": "https://bstatic.cdnfe.com/static/files/sc/merchant_avatar.png",
+                "content": "商品下架",
+                "contentType": 1,
+                "messageType": 1,
+                "supportOpTypes": null,
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448419279033383,
+                "clientMsgId": "",
+                "timestamp": 1751637808000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "{\"content\":\"请发送商品信息给客服，可以更快为您处理哦。\",\"btnText\":[\"发商品\"],\"toolId\":2406230000031,\"dataType\":1}",
+                "contentType": 6,
+                "messageType": 1,
+                "supportOpTypes": null,
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448419295907686,
+                "clientMsgId": "",
+                "timestamp": 1751637874000,
+                "senderType": 1,
+                "senderAccountId": 24151546817701,
+                "senderAccountName": "程*鑫",
+                "senderAccountAvatar": "https://bstatic.cdnfe.com/static/files/sc/merchant_avatar.png",
+                "content": "{\"name\":\"Blue hell Blue PatternPrinted Sleeve Keep Your Arms Cool\",\"img\":\"https://img.cdnfe.com/product/open/0e1f5617d09c4dd3b0053e00e29cb1cc-goods.jpeg\",\"dataId\":\"68180230053\",\"dataType\":1,\"toolId\":2406230000031}",
+                "contentType": 7,
+                "messageType": 1,
+                "supportOpTypes": null,
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448419295919622,
+                "clientMsgId": "",
+                "timestamp": 1751637874000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "系统正在努力思考，请耐心等待，咨询结果将稍后发送给您～",
+                "contentType": 1,
+                "messageType": 1,
+                "supportOpTypes": null,
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448419296891190,
+                "clientMsgId": "",
+                "timestamp": 1751637878000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "<p><strong>【商品下架】咨询结果已更新</strong></p><p>【SKC ID：68180230053】：您好，该商品已下架</p>",
+                "contentType": 12,
+                "messageType": 1,
+                "supportOpTypes": [
+                    1001,
+                    1002
+                ],
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448419486541830,
+                "clientMsgId": "",
+                "timestamp": 1751638619000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "{\"title\":\"热门咨询问题\",\"titleList\":[\"您是否需要\",\"或想咨询以下问题\"],\"entryList\":[{\"desc\":\"店铺审核时间一般为多久？\",\"id\":\"2406110000050\",\"type\":0},{\"desc\":\"怎么修改店铺类别？\",\"id\":\"2406110000259\",\"type\":0},{\"desc\":\"如何查看商品的申报价格状态？\",\"id\":\"2503280032019\",\"type\":0}],\"scene\":1}",
+                "contentType": 5,
+                "messageType": 1,
+                "supportOpTypes": null,
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            }
+        ]
+    }
+}
+
+https://seller.kuajingmaihuo.com/marvel-supplier/api/ultraman/chat/reception/querySelfServiceTools
+{}
+{
+    "success": true,
+    "errorCode": 1000000,
+    "errorMsg": null,
+    "result": {
+        "list": [
+            {
+                "toolType": 1,
+                "toolId": 2406230000016,
+                "toolName": "商品发布到站点",
+                "algo1OperationType": 2,
+                "algo2OperationType": 2,
+                "dataIdType": 1,
+                "onlyFullyHosted": false,
+                "feedbackType": 1,
+                "feedbackProblemType": 26,
+                "feedbackRemark": "上架，加入站点",
+                "funcDesc": null
+            },
+            {
+                "toolType": 1,
+                "toolId": 2406230000031,
+                "toolName": "商品下架",
+                "algo1OperationType": 3,
+                "algo2OperationType": 4,
+                "dataIdType": 1,
+                "onlyFullyHosted": false,
+                "feedbackType": 1,
+                "feedbackProblemType": 27,
+                "feedbackRemark": "下架",
+                "funcDesc": null
+            },
+            {
+                "toolType": 1,
+                "toolId": 2406280000010,
+                "toolName": "备货单申请作废",
+                "algo1OperationType": 11,
+                "algo2OperationType": 5,
+                "dataIdType": 3,
+                "onlyFullyHosted": true,
+                "feedbackType": 1,
+                "feedbackProblemType": 25,
+                "feedbackRemark": "取消备货，备货单作废",
+                "funcDesc": null
+            },
+            {
+                "toolType": 1,
+                "toolId": 2406280000031,
+                "toolName": "价格刷新",
+                "algo1OperationType": 10,
+                "algo2OperationType": 12,
+                "dataIdType": 2,
+                "onlyFullyHosted": false,
+                "feedbackType": 2,
+                "feedbackProblemType": 42,
+                "feedbackRemark": "【客服反馈：价格刷新】",
+                "funcDesc": null
+            },
+            {
+                "toolType": 1,
+                "toolId": 2407170000010,
+                "toolName": "申请开JIT",
+                "algo1OperationType": 12,
+                "algo2OperationType": 1,
+                "dataIdType": 1,
+                "onlyFullyHosted": true,
+                "feedbackType": 6,
+                "feedbackProblemType": null,
+                "feedbackRemark": "开JIT",
+                "funcDesc": null
+            }
+        ]
+    }
+}
+
+https://seller.kuajingmaihuo.com/bg/cute/api/merchantService/chat/sendMessage
+{"contentType":1,"content":"商品下架"}
+{
+    "success": true,
+    "errorCode": 1000000,
+    "errorMsg": null,
+    "result": {
+        "msgId": 448419487954282,
+        "clientMsgId": null,
+        "timestamp": 1751638624821,
+        "senderType": 1,
+        "senderAccountId": 24151546817701,
+        "senderAccountName": "程*鑫",
+        "senderAccountAvatar": "https://bstatic.cdnfe.com/static/files/sc/merchant_avatar.png",
+        "content": "商品下架",
+        "contentType": 1
+    }
+}
+
+https://seller.kuajingmaihuo.com/bg/cute/api/merchantService/chat/queryMessage
+{"msgId":448419486541830,"direction":2,"limit":20}
+{
+    "success": true,
+    "errorCode": 1000000,
+    "errorMsg": null,
+    "result": {
+        "messageList": [
+            {
+                "msgId": 448419487954282,
+                "clientMsgId": "",
+                "timestamp": 1751638624000,
+                "senderType": 1,
+                "senderAccountId": 24151546817701,
+                "senderAccountName": "程*鑫",
+                "senderAccountAvatar": "https://bstatic.cdnfe.com/static/files/sc/merchant_avatar.png",
+                "content": "商品下架",
+                "contentType": 1,
+                "messageType": 1,
+                "supportOpTypes": null,
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448419487966637,
+                "clientMsgId": "",
+                "timestamp": 1751638624000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "{\"content\":\"请发送商品信息给客服，可以更快为您处理哦。\",\"btnText\":[\"发商品\"],\"toolId\":2406230000031,\"dataType\":1}",
+                "contentType": 6,
+                "messageType": 1,
+                "supportOpTypes": null,
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            }
+        ]
+    }
+}
+1. 查询商品基础信息
+https://seller.kuajingmaihuo.com/marvel-supplier/api/ultraman/chat/reception/queryProductSkcBasicInfo
+{"productSkcId":68180230053}
+{
+    "success": true,
+    "errorCode": 1000000,
+    "errorMsg": null,
+    "result": {
+        "productName": "Blue hell Blue PatternPrinted Sleeve Keep Your Arms Cool",
+        "productSkcId": 68180230053,
+        "productPicture": "https://img.cdnfe.com/product/open/0e1f5617d09c4dd3b0053e00e29cb1cc-goods.jpeg",
+        "isCloth": true,
+        "isSemi": false
+    }
+}
+
+https://seller.kuajingmaihuo.com/marvel-supplier/api/ultraman/chat/reception/queryPreInterceptForToolSubmit
+{"toolId":2406230000031,"dataId":"68180230053"}
+{
+    "success": true,
+    "errorCode": 1000000,
+    "errorMsg": null,
+    "result": {
+        "interceptCode": 0,
+        "interceptMsg": null
+    }
+}
+
+https://seller.kuajingmaihuo.com/marvel-supplier/api/ultraman/chat/reception/queryPreInterceptForToolSubmit
+{"toolId":2406230000031,"dataId":"68180230053"}
+{
+    "success": true,
+    "errorCode": 1000000,
+    "errorMsg": null,
+    "result": {
+        "interceptCode": 2,
+        "interceptMsg": {
+            "hint": "该商品已在您的上次咨询后处理成功",
+            "subHint": "如有问题，可在24小时后重新咨询",
+            "lastHandleResultTitle": null,
+            "lastHandleResultContent": null
+        }
+    }
+}
+
+https://seller.kuajingmaihuo.com/marvel-supplier/api/ultraman/chat/reception/responseChatWithCustomerSupportV2
+{"consultantBizAccountType":1}
+{
+    "success": true,
+    "errorCode": 1000000,
+    "errorMsg": null,
+    "result": {
+        "resultCode": 13,
+        "msgContent": null,
+        "receptionId": null,
+        "waitCount": 0,
+        "hasDeliveryProduct": null,
+        "timeStamp": 1751638633598,
+        "robotAnswerInfoList": null,
+        "robotAnswerInfoListTitle": null,
+        "robotBackupAnswer": null
+    }
+}
+
+3. 发送消息
+https://seller.kuajingmaihuo.com/bg/cute/api/merchantService/chat/sendMessage
+{"parentMsgId":448419487966637,"contentType":7,"content":"{\"name\":\"Blue hell Blue PatternPrinted Sleeve Keep Your Arms Cool\",\"img\":\"https://img.cdnfe.com/product/open/0e1f5617d09c4dd3b0053e00e29cb1cc-goods.jpeg\",\"dataType\":1,\"dataId\":\"68180230053\",\"toolId\":2406230000031}"}
+{
+    "success": true,
+    "errorCode": 1000000,
+    "errorMsg": null,
+    "result": {
+        "msgId": 448419490216736,
+        "clientMsgId": null,
+        "timestamp": 1751638633659,
+        "senderType": 1,
+        "senderAccountId": 24151546817701,
+        "senderAccountName": "程*鑫",
+        "senderAccountAvatar": "https://bstatic.cdnfe.com/static/files/sc/merchant_avatar.png",
+        "content": "{\"name\":\"Blue hell Blue PatternPrinted Sleeve Keep Your Arms Cool\",\"img\":\"https://img.cdnfe.com/product/open/0e1f5617d09c4dd3b0053e00e29cb1cc-goods.jpeg\",\"dataId\":\"68180230053\",\"dataType\":1,\"toolId\":2406230000031}",
+        "contentType": 7
+    }
+}
+
+4. 查询结果
+https://seller.kuajingmaihuo.com/bg/cute/api/merchantService/chat/queryMessage
+{"msgId":448419487966637,"direction":2,"limit":20}
+{
+    "success": true,
+    "errorCode": 1000000,
+    "errorMsg": null,
+    "result": {
+        "messageList": [
+            {
+                "msgId": 448419490216736,
+                "clientMsgId": "",
+                "timestamp": 1751638633000,
+                "senderType": 1,
+                "senderAccountId": 24151546817701,
+                "senderAccountName": "程*鑫",
+                "senderAccountAvatar": "https://bstatic.cdnfe.com/static/files/sc/merchant_avatar.png",
+                "content": "{\"name\":\"Blue hell Blue PatternPrinted Sleeve Keep Your Arms Cool\",\"img\":\"https://img.cdnfe.com/product/open/0e1f5617d09c4dd3b0053e00e29cb1cc-goods.jpeg\",\"dataId\":\"68180230053\",\"dataType\":1,\"toolId\":2406230000031}",
+                "contentType": 7,
+                "messageType": 1,
+                "supportOpTypes": null,
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            },
+            {
+                "msgId": 448419490230219,
+                "clientMsgId": "",
+                "timestamp": 1751638633000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "系统正在努力思考，请耐心等待，咨询结果将稍后发送给您～",
+                "contentType": 1,
+                "messageType": 1,
+                "supportOpTypes": null,
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            }
+        ]
+    }
+}
+
+https://seller.kuajingmaihuo.com/bg/cute/api/merchantService/chat/queryMessage
+{"msgId":448419490230219,"direction":2,"limit":20}
+{"success":true,"errorCode":1000000,"errorMsg":null,"result":{"messageList":[]}}
+
+
+https://seller.kuajingmaihuo.com/bg/cute/api/merchantService/chat/queryMessage
+{"msgId":448419490230219,"direction":2,"limit":20}
+
+{
+    "success": true,
+    "errorCode": 1000000,
+    "errorMsg": null,
+    "result": {
+        "messageList": [
+            {
+                "msgId": 448419490354934,
+                "clientMsgId": "",
+                "timestamp": 1751638634000,
+                "senderType": 1001,
+                "senderAccountId": 1,
+                "senderAccountName": "智能客服Mumu",
+                "senderAccountAvatar": "https://img.cdnfe.com/product/fancy/f4d0abd7-537e-4fd1-a124-72d50c90848e.jpg",
+                "content": "<p><strong>【商品下架】咨询结果已更新</strong></p><p>【SKC ID：68180230053】：您好，该商品还未发布到任何站点，暂时无法操作下架。</p>",
+                "contentType": 12,
+                "messageType": 1,
+                "supportOpTypes": [
+                    1001,
+                    1002
+                ],
+                "eventList": [],
+                "fileUrlToSignedUrl": null
+            }
+        ]
+    }
+}

@@ -63,16 +63,19 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
   // 下架当前商品
   const handleOffline = async () => {
     setDetailLoading(true);
-    const res = await fetch("/api/temu/seller/offline", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productIds: [spu_id?.toString()] }),
-    });
-    const data = await res.json();
-    if (data.success) {
-      if (Array.isArray(data.results)) {
-        const successCount = data.results.filter((item: any) => item.result.success).length;
-        const failCount = data.results.length - successCount;
+    try {
+      const res = await fetch("/api/temu/seller/offline", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productIds: [parseInt(spu_id || "0")] }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        // 新的返回格式处理
+        const successCount = data.summary?.success || 0;
+        const failCount = data.summary?.failed || 0;
+        const totalCount = data.summary?.total || 0;
+        
         notify({
           type: 'info',
           message: "下架结果",
@@ -81,15 +84,14 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
               <div style={{ marginBottom: 12 }}>
                 <span style={{ color: 'green' }}>下架成功：{successCount} 个</span>
                 <span style={{ color: 'red', marginLeft: 16 }}>下架失败：{failCount} 个</span>
+                <span style={{ color: 'blue', marginLeft: 16 }}>总计：{totalCount} 个</span>
               </div>
-              {data.results.map((item: any) => (
-                <div key={item.dataId} style={{ marginBottom: 8 }}>
-                  商品ID: {item.dataId} - {item.result.success ? (
-                    <span style={{ color: 'green' }}>下架成功</span>
+              {data.results && data.results.map((item: any) => (
+                <div key={item.productId} style={{ marginBottom: 8 }}>
+                  商品ID: {item.productId} - {item.success ? (
+                    <span style={{ color: 'green' }}>{item.message}</span>
                   ) : (
-                    <span style={{ color: 'red' }}>
-                      下架失败{item.result.errorMsg ? `: ${item.result.errorMsg}` : ""}
-                    </span>
+                    <span style={{ color: 'red' }}>{item.message}</span>
                   )}
                 </div>
               ))}
@@ -97,12 +99,21 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
           ) as any,
         });
       } else {
-        notify({ type: 'info', message: "下架结果", description: "下架成功" });
+        notify({ 
+          type: 'error', 
+          message: "下架失败", 
+          description: data.msg || data.message || "下架失败" 
+        });
       }
-    } else {
-      notify({ type: 'error', message: "下架失败", description: data.msg || "下架失败" });
+    } catch (error) {
+      notify({ 
+        type: 'error', 
+        message: "下架失败", 
+        description: `网络错误: ${error}` 
+      });
+    } finally {
+      setDetailLoading(false);
     }
-    setDetailLoading(false);
   };
 
   // 一键下架关联商品
@@ -112,16 +123,19 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
       return;
     }
     setRelatedLoading(true);
-    const res = await fetch("/api/temu/seller/offline", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productIds: selectedRelatedKeys.map(String) }),
-    });
-    const data = await res.json();
-    if (data.success) {
-      if (Array.isArray(data.results)) {
-        const successCount = data.results.filter((item: any) => item.result.success).length;
-        const failCount = data.results.length - successCount;
+    try {
+      const res = await fetch("/api/temu/seller/offline", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productIds: selectedRelatedKeys.map(key => parseInt(key.toString())) }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        // 新的返回格式处理
+        const successCount = data.summary?.success || 0;
+        const failCount = data.summary?.failed || 0;
+        const totalCount = data.summary?.total || 0;
+        
         notify({
           type: 'info',
           message: "下架结果",
@@ -130,30 +144,38 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
               <div style={{ marginBottom: 12 }}>
                 <span style={{ color: 'green' }}>下架成功：{successCount} 个</span>
                 <span style={{ color: 'red', marginLeft: 16 }}>下架失败：{failCount} 个</span>
+                <span style={{ color: 'blue', marginLeft: 16 }}>总计：{totalCount} 个</span>
               </div>
-              {data.results.map((item: any) => (
-                <div key={item.dataId} style={{ marginBottom: 8 }}>
-                  SKC ID: {item.dataId} - {item.result.success ? (
-                    <span style={{ color: 'green' }}>下架成功</span>
+              {data.results && data.results.map((item: any) => (
+                <div key={item.productId} style={{ marginBottom: 8 }}>
+                  商品ID: {item.productId} - {item.success ? (
+                    <span style={{ color: 'green' }}>{item.message}</span>
                   ) : (
-                    <span style={{ color: 'red' }}>
-                      下架失败{item.result.errorMsg ? `: ${item.result.errorMsg}` : ""}
-                    </span>
+                    <span style={{ color: 'red' }}>{item.message}</span>
                   )}
                 </div>
               ))}
             </div>
           ) as any,
         });
+        handleRelatedSearch(); // 下架后刷新关联商品列表
+        setSelectedRelatedKeys([]); // 清空多选
       } else {
-        notify({ type: 'info', message: "下架结果", description: "下架成功" });
+        notify({ 
+          type: 'error', 
+          message: "下架失败", 
+          description: data.msg || data.message || "下架失败" 
+        });
       }
-      handleRelatedSearch(); // 下架后刷新关联商品列表
-      setSelectedRelatedKeys([]); // 清空多选
-    } else {
-      notify({ type: 'error', message: "下架失败", description: data.msg || "下架失败" });
+    } catch (error) {
+      notify({ 
+        type: 'error', 
+        message: "下架失败", 
+        description: `网络错误: ${error}` 
+      });
+    } finally {
+      setRelatedLoading(false);
     }
-    setRelatedLoading(false);
   };
 
   // 判断商品发布状态的函数
