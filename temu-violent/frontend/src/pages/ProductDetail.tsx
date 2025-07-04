@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { Card, Button, Table, message, Image, Descriptions, Input, Modal, notification } from "antd";
+import { Card, Button, Table, message, Image, Descriptions, Input, Modal, notification, Tag } from "antd";
 import { useGlobalNotification } from './GlobalNotification';
 
 // 支持通过props传递spu_id、violationData和onClose
@@ -17,6 +17,7 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
   const [relatedLoading, setRelatedLoading] = useState(false); // 关联商品loading
   const [searchName, setSearchName] = useState(""); // 关联搜索输入框内容
   const [selectedRelatedKeys, setSelectedRelatedKeys] = useState<React.Key[]>([]); // 关联商品多选
+  const [offlineResults, setOfflineResults] = useState<{[key: string]: {success: boolean, message: string}}>({}); // 下架结果缓存
 
   // 查询商品详情，并自动用前三个单词做关联搜索
   useEffect(() => {
@@ -78,6 +79,18 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
         const successCount = data.summary?.success || 0;
         const failCount = data.summary?.failed || 0;
         const totalCount = data.summary?.total || 0;
+        
+        // 更新下架结果缓存
+        const newResults = { ...offlineResults };
+        if (data.results) {
+          data.results.forEach((item: any) => {
+            newResults[item.productId.toString()] = {
+              success: item.success,
+              message: item.message
+            };
+          });
+        }
+        setOfflineResults(newResults);
         
         notify({
           type: 'info',
@@ -141,6 +154,18 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
         const successCount = data.summary?.success || 0;
         const failCount = data.summary?.failed || 0;
         const totalCount = data.summary?.total || 0;
+        
+        // 更新下架结果缓存
+        const newResults = { ...offlineResults };
+        if (data.results) {
+          data.results.forEach((item: any) => {
+            newResults[item.productId.toString()] = {
+              success: item.success,
+              message: item.message
+            };
+          });
+        }
+        setOfflineResults(newResults);
         
         notify({
           type: 'info',
@@ -266,6 +291,33 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
             title: "发布状态",
             render: (_: any, record: any) => getProductStatus(record.skcStatus, record.skcSiteStatus),
           },
+                      {
+              title: "下架结果",
+              dataIndex: "productSkcId",
+              render: (productSkcId: string) => {
+                const result = offlineResults[productSkcId];
+                if (!result) return null;
+                return (
+                  <div style={{ 
+                    maxWidth: '200px',
+                    wordBreak: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    lineHeight: '1.4'
+                  }}>
+                    <Tag color={result.success ? 'green' : 'red'} style={{ marginBottom: '4px' }}>
+                      {result.success ? '成功' : '失败'}
+                    </Tag>
+                    <div style={{ 
+                      fontSize: '12px',
+                      color: result.success ? '#52c41a' : '#ff4d4f',
+                      marginTop: '4px'
+                    }}>
+                      {result.message}
+                    </div>
+                  </div>
+                );
+              },
+            },
         ]}
         dataSource={related}
         loading={relatedLoading}
