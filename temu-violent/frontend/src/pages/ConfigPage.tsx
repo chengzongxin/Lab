@@ -1,8 +1,10 @@
 import React, { useEffect } from "react";
 import { Card, Form, Input, Button, message } from "antd";
+import { useGlobalNotification } from "./GlobalNotification";
 
 const ConfigPage: React.FC = () => {
   const [form] = Form.useForm();
+  const notify = useGlobalNotification();
 
   // 获取配置
   useEffect(() => {
@@ -24,9 +26,9 @@ const ConfigPage: React.FC = () => {
     });
     const data = await res.json();
     if (data.success) {
-      message.success("配置已保存！");
+      notify({ type: 'success', message: "配置已保存！" });
     } else {
-      message.error(data.msg || "保存失败");
+      notify({ type: 'error', message: data.msg || "保存失败" });
     }
   };
 

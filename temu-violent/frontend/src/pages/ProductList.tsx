@@ -68,11 +68,11 @@ const ProductList: React.FC = () => {
   // 违规筛选逻辑
   const filteredProducts = showMajorViolation
     ? products.filter(record => {
-        const isAllSite = record.site_num === 1 &&
-          Array.isArray(record.punish_detail_list) &&
-          record.punish_detail_list.some((d: any) => d.site_id === -1);
-        return isAllSite || record.site_num >= 80;
-      })
+      const isAllSite = record.site_num === 1 &&
+        Array.isArray(record.punish_detail_list) &&
+        record.punish_detail_list.some((d: any) => d.site_id === -1);
+      return isAllSite || record.site_num >= 80;
+    })
     : products;
 
   // 打开详情抽屉
@@ -84,73 +84,84 @@ const ProductList: React.FC = () => {
   return (
     <Card title="违规商品列表"
       extra={
-        <span>
-          <Switch checked={showMajorViolation} onChange={setShowMajorViolation} />
-          <span style={{ marginLeft: 8 }}>
-            只看全栈违规/80站以上
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+          <div>
+            <Button type="primary" onClick={() => fetchProducts(page, pageSize)} loading={loading} style={{ marginRight: 8 }}>
+              刷新
+            </Button>
+            <Button type="primary" onClick={handleOffline} loading={loading}>
+              批量下架
+            </Button>
+          </div>
+          <span>
+            <Switch checked={showMajorViolation} onChange={setShowMajorViolation} />
+            <span style={{ marginLeft: 8 }}>
+              只看全栈违规/80站以上
+            </span>
           </span>
-        </span>
+        </div>
       }
+      style={{ display: 'flex', flexDirection: 'column', height: 'auto', minHeight: 0 }}
     >
-      <Button type="primary" onClick={() => fetchProducts(page, pageSize)} loading={loading} style={{ marginBottom: 16 }}>
-        刷新
-      </Button>
-      <Button type="primary" style={{ marginLeft: 8, marginBottom: 16 }} onClick={handleOffline} loading={loading}>
-        批量下架
-      </Button>
-      <Table
-        rowKey="spu_id"
-        rowSelection={{
-          selectedRowKeys,
-          onChange: setSelectedRowKeys,
-        }}
-        columns={[
-          { title: "图片", dataIndex: "goods_img_url", render: (url: string) => url ? <Image width={60} src={url} /> : null },
-          { title: "商品ID", dataIndex: "spu_id" },
-          { title: "商品名称", dataIndex: "goods_name" },
-          {
-            title: "违规描述",
-            dataIndex: "violation_desc",
-            render: (desc: string) => desc || "-"
-          },
-          {
-            title: "违规站点",
-            dataIndex: "site_num",
-            render: (_, record) => {
-              const isAllSite = record.site_num === 1 &&
-                Array.isArray(record.punish_detail_list) &&
-                record.punish_detail_list.some((d: any) => d.site_id === -1);
-              if (isAllSite) return "全部站点违规";
-              return record.site_num;
-            }
-          },
-          {
-            title: "操作",
-            render: (_, record) => (
-              <Button type="link" onClick={() => openDetail(record)}>
-                详情
-              </Button>
-            ),
-          },
-        ]}
-        dataSource={filteredProducts}
-        loading={loading}
-        pagination={{
-          current: page,
-          pageSize: pageSize,
-          total: total,
-          showSizeChanger: true,
-          onChange: (p, ps) => {
-            setPage(p);
-            setPageSize(ps);
-            fetchProducts(p, ps); // 分页时主动刷新
-          },
-        }}
-        scroll={{ y: 800 }}
-      />
+
+      <div style={{ flex: 1, height: '100%' }}>
+
+        <Table
+          rowKey="spu_id"
+          rowSelection={{
+            selectedRowKeys,
+            onChange: setSelectedRowKeys,
+          }}
+          size='large'
+          columns={[
+            { title: "图片", dataIndex: "goods_img_url", render: (url: string) => url ? <Image width={60} src={url} /> : null },
+            { title: "商品ID", dataIndex: "spu_id" },
+            { title: "商品名称", dataIndex: "goods_name" },
+            {
+              title: "违规描述",
+              dataIndex: "violation_desc",
+              render: (desc: string) => desc || "-"
+            },
+            {
+              title: "违规站点",
+              dataIndex: "site_num",
+              render: (_, record) => {
+                const isAllSite = record.site_num === 1 &&
+                  Array.isArray(record.punish_detail_list) &&
+                  record.punish_detail_list.some((d: any) => d.site_id === -1);
+                if (isAllSite) return "全部站点违规";
+                return record.site_num;
+              }
+            },
+            {
+              title: "操作",
+              render: (_, record) => (
+                <Button type="link" onClick={() => openDetail(record)}>
+                  详情
+                </Button>
+              ),
+            },
+          ]}
+          dataSource={filteredProducts}
+          loading={loading}
+          pagination={{
+            current: page,
+            pageSize: pageSize,
+            total: total,
+            showSizeChanger: true,
+            onChange: (p, ps) => {
+              setPage(p);
+              setPageSize(ps);
+              fetchProducts(p, ps); // 分页时主动刷新
+            },
+          }}
+          scroll={{ y: 800 }}
+        // style={{ flex: 1 }}
+        />
+      </div>
       <Drawer
         title="违规商品详情"
-        width={1200}
+        width={1600}
         open={drawerVisible}
         onClose={() => setDrawerVisible(false)}
         destroyOnClose

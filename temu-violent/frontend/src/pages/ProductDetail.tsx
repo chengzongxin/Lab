@@ -229,12 +229,12 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
         rowKey="productSkcId"
         columns={[
           { title: "SKC ID", dataIndex: "productSkcId" },
-          { title: "商品ID", dataIndex: "productId" },
+          { title: "商品ID", dataIndex: "productId", render: (text: string) => text === spu_id ? <span style={{ color: 'red' }}>{text}</span> : text },
           { title: "商品名称", dataIndex: "productName" },
           {
             title: "主图",
             dataIndex: "mainImageUrl",
-            render: (url: string) => (url ? <Image width={60} src={url} /> : null),
+            render: (url: string) => (url ? <Image width={100} src={url} /> : null),
           },
         ]}
         dataSource={related}

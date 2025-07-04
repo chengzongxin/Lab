@@ -36,7 +36,7 @@ function AppLayout() {
   const selectedKey = menuItems.find(item => location.pathname.startsWith(`/${item.key}`))?.key || 'compliance';
   return (
     <Layout style={{ minHeight: '100vh', width: '100vw' }}>
-      <Sider width={200} style={{ background: '#fff' }}>
+      <Sider width={200} style={{ background: '#fff', overflow: 'hidden' }}>
         <div style={{ height: 32, margin: 16, color: '#1890ff', fontWeight: 'bold', fontSize: 18 }}>TEMU工具箱</div>
         <Menu mode="inline" selectedKeys={[selectedKey]} style={{ height: '100%', borderRight: 0 }} items={menuItems} />
       </Sider>
@@ -48,7 +48,7 @@ function AppLayout() {
           margin: '0',
           background: '#fff',
           padding: 24,
-          minHeight: '100%',
+          // minHeight: '100%',
           flex: 1,
         }}>
           <Routes>
