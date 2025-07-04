@@ -67,3 +67,69 @@ export default tseslint.config([
   },
 ])
 ```
+
+# React + Vite 前端部署与打包说明
+
+## 1. 本地开发
+
+```bash
+npm install
+npm run dev
+```
+
+---
+
+## 2. 打包构建（生产环境）
+
+```bash
+npm run build
+```
+- 构建后静态文件在 `dist/` 目录下。
+
+---
+
+## 3. 本地预览
+
+```bash
+npm run preview -- --host
+```
+- 其他电脑可通过 `http://你的IP:4173` 访问。
+
+---
+
+## 4. 用 nginx 部署静态文件（推荐生产环境）
+
+1. 安装 nginx（如 Ubuntu: `sudo apt install nginx`）。
+2. 将 `dist/` 目录内容上传到服务器（如 `/var/www/temu-frontend`）。
+3. 配置 nginx：
+
+```nginx
+server {
+    listen 80;
+    server_name your.domain.com;
+    root /var/www/temu-frontend;
+    index index.html;
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+    location /api/ {
+        proxy_pass http://127.0.0.1:8000/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+4. 重载 nginx：
+```bash
+sudo nginx -s reload
+```
+
+---
+
+## 5. 访问方式
+- 浏览器访问 `http://your.domain.com` 或 `http://服务器IP`。
+- 前端所有 `/api` 请求会自动转发到后端。
+
+---
+
+如需详细部署帮助，请查阅本项目文档或联系开发者。

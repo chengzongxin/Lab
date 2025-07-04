@@ -1,0 +1,6 @@
+# FastAPI 后端依赖列表
+fastapi  # 主框架
+uvicorn  # ASGI 服务器，推荐用于 FastAPI
+requests  # HTTP 请求库
+bs4  # BeautifulSoup4，HTML 解析（用于图片搜索）
+dataclasses  # Python 3.7+ 标准库自带，低版本需手动安装 
