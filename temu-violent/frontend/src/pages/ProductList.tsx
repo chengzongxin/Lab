@@ -3,6 +3,7 @@ import { Card, Table, Button, message, Image, Switch, Drawer } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useProductListContext } from './ProductListContext';
 import ProductDetail from './ProductDetail';
+import './ProductList.css';
 
 const ProductList: React.FC = () => {
   const { products, setProducts, page, setPage, pageSize, setPageSize, total, setTotal } = useProductListContext();
@@ -12,6 +13,7 @@ const ProductList: React.FC = () => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<any>(null);
   const navigate = useNavigate();
+  const [viewedIds, setViewedIds] = useState<React.Key[]>([]);
 
   // 获取违规商品列表
   const fetchProducts = async (pageNum = page, size = pageSize) => {
@@ -79,6 +81,7 @@ const ProductList: React.FC = () => {
   const openDetail = (record: any) => {
     setCurrentProduct(record);
     setDrawerVisible(true);
+    setViewedIds(prev => prev.includes(record.spu_id) ? prev : [...prev, record.spu_id]);
   };
 
   return (
@@ -156,7 +159,7 @@ const ProductList: React.FC = () => {
             },
           }}
           scroll={{ y: 800 }}
-        // style={{ flex: 1 }}
+          rowClassName={record => viewedIds.includes(record.spu_id) ? "viewed-row" : ""}
         />
       </div>
       <Drawer
