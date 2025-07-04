@@ -132,4 +132,28 @@ sudo nginx -s reload
 
 ---
 
+## 6. 用 Docker 部署前端项目（推荐自动化部署）
+
+### 1. 打包前端静态文件
+```bash
+npm install
+npm run build
+```
+
+### 2. 构建 Docker 镜像
+```bash
+docker build -t temu-frontend .
+```
+
+### 3. 运行 Docker 容器
+```bash
+docker run -d -p 3000:80 temu-frontend
+```
+这样你就可以通过 http://localhost:3000 访问前端页面。
+
+- 现在可以通过 `http://localhost` 或 `http://服务器IP` 访问前端页面。
+- 如需自定义 Nginx 配置，可将 `nginx.conf` 拷贝到项目根目录，并取消 Dockerfile 中相关注释。
+
+---
+
 如需详细部署帮助，请查阅本项目文档或联系开发者。
