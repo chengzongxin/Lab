@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { Card, Button, Table, message, Image, Descriptions, Input, Modal, notification, Tag } from "antd";
+import { Card, Button, Table, message, Image, Descriptions, Input, Modal, notification, Tag, Space } from "antd";
+import { CopyOutlined } from "@ant-design/icons";
 import { useGlobalNotification } from './GlobalNotification';
 
 // 支持通过props传递spu_id、violationData和onClose
@@ -209,6 +210,31 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
     }
   };
 
+  // 复制文本到剪贴板
+  const handleCopy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      notify({
+        type: 'success',
+        message: '复制成功',
+        description: `已复制"${text}"到剪贴板`
+      });
+    } catch (err) {
+      // 降级方案：使用传统方法
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      notify({
+        type: 'success',
+        message: '复制成功',
+        description: `已复制"${text}"到剪贴板`
+      });
+    }
+  };
+
   // 判断商品发布状态的函数
   function getProductStatus(skcStatus: number, skcSiteStatus: number) {
     if ((skcStatus === 1 || skcStatus === 7 || skcStatus === 10) && skcSiteStatus === 0) {
@@ -277,15 +303,26 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
       </div>
 
       {/* 关联搜索输入框 */}
-      <Input.Search
-        placeholder="输入商品名称进行关联搜索"
-        value={searchName}
-        onChange={e => setSearchName(e.target.value)}
-        onSearch={v => handleRelatedSearch(v)}
-        style={{ width: 300, margin: 16, fontSize: '17px' }}
-        enterButton="关联搜索"
-        loading={relatedLoading}
-      />
+      <Space style={{ margin: 16 }}>
+        <Input.Search
+          placeholder="输入商品名称进行关联搜索"
+          value={searchName}
+          onChange={e => setSearchName(e.target.value)}
+          onSearch={v => handleRelatedSearch(v)}
+          style={{ width: 300, fontSize: '17px' }}
+          enterButton="关联搜索"
+          loading={relatedLoading}
+        />
+        <Button
+          icon={<CopyOutlined />}
+          onClick={() => handleCopy(searchName)}
+          disabled={!searchName.trim()}
+          title="复制搜索内容"
+          style={{ fontSize: '17px' }}
+        >
+          复制
+        </Button>
+      </Space>
       {/* 关联商品表格，支持多选 */}
       <Table
         rowKey="productSkcId"
