@@ -213,6 +213,18 @@ def get_compliance_list(
     else:
         return {"success": False, "msg": "获取数据失败"}
 
+@router.get("/compliance/total")
+def get_compliance_total(
+    page: int = Query(1, description="页码"),
+    page_size: int = Query(20, description="每页数量")
+):
+    crawler = ViolationListCrawler(config_type="compliance")
+    total = crawler.get_total_data(page, page_size)
+    if total is not None:
+        return {"success": True, "total": total}
+    else:
+        return {"success": False, "msg": "获取数据失败"}
+
 @router.post("/seller/product")
 def get_product(
     productIds: Optional[List[int]] = Body(None, embed=True),

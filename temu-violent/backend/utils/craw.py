@@ -133,3 +133,14 @@ class ViolationListCrawler:
             return None
         items = result.get('result', {}).get('punish_appeal_entrance_list', [])
         return [ViolationProduct.from_dict(item).to_dict() for item in items] 
+
+    def get_total_data(self, page: int, page_size: int) -> Optional[int]:
+        payload = {
+            "page_num": page,
+            "page_size": page_size,
+            "target_type": "goods"
+        }
+        result = self.request.post(self.api_url, data=payload)
+        if not result or not result.get('success'):
+            return None
+        return result.get('result', {}).get('total', 0)

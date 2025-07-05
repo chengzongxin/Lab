@@ -318,33 +318,63 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
               </span>
             ),
           },
-                      {
-              title: "下架结果",
-              dataIndex: "productSkcId",
-              render: (productSkcId: string) => {
-                const result = offlineResults[productSkcId];
-                if (!result) return null;
-                return (
-                  <div style={{ 
-                    maxWidth: '200px',
-                    wordBreak: 'break-word',
-                    whiteSpace: 'pre-wrap',
-                    lineHeight: '1.4'
-                  }}>
-                    <Tag color={result.success ? 'green' : 'red'} style={{ marginBottom: '4px', fontSize: '15px' }}>
-                      {result.success ? '成功' : '失败'}
-                    </Tag>
-                    <div style={{ 
-                      fontSize: '15px',
-                      color: result.success ? '#52c41a' : '#ff4d4f',
-                      marginTop: '4px'
-                    }}>
-                      {result.message}
-                    </div>
-                  </div>
-                );
-              },
+          {
+            title: "虚拟库存",
+            dataIndex: "virtualStock",
+            render: (virtualStock: number, record: any) => {
+              // 从 productSkuSummaries 中获取虚拟库存信息
+              const skuSummaries = record.productSkuSummaries;
+              if (!skuSummaries || skuSummaries.length === 0) {
+                return <span style={{ fontSize: '16px', color: '#999' }}>-</span>;
+              }
+              
+              // 计算总虚拟库存
+              const totalVirtualStock = skuSummaries.reduce((sum: number, sku: any) => {
+                return sum + (sku.virtualStock || 0);
+              }, 0);
+              
+              // 根据库存数量显示不同颜色
+              let color = '#52c41a'; // 绿色 - 库存充足
+              if (totalVirtualStock <= 10) {
+                color = '#ff4d4f'; // 红色 - 库存不足
+              } else if (totalVirtualStock <= 50) {
+                color = '#faad14'; // 橙色 - 库存警告
+              }
+              
+              return (
+                <span style={{ fontSize: '16px', color: color, fontWeight: 'bold' }}>
+                  {totalVirtualStock.toLocaleString()}
+                </span>
+              );
             },
+          },
+          {
+            title: "下架结果",
+            dataIndex: "productSkcId",
+            render: (productSkcId: string) => {
+              const result = offlineResults[productSkcId];
+              if (!result) return null;
+              return (
+                <div style={{ 
+                  maxWidth: '200px',
+                  wordBreak: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  lineHeight: '1.4'
+                }}>
+                  <Tag color={result.success ? 'green' : 'red'} style={{ marginBottom: '4px', fontSize: '15px' }}>
+                    {result.success ? '成功' : '失败'}
+                  </Tag>
+                  <div style={{ 
+                    fontSize: '15px',
+                    color: result.success ? '#52c41a' : '#ff4d4f',
+                    marginTop: '4px'
+                  }}>
+                    {result.message}
+                  </div>
+                </div>
+              );
+            },
+          },
         ]}
         dataSource={related}
         loading={relatedLoading}
