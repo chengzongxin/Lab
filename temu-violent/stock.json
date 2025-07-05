@@ -1,0 +1,298 @@
+{
+    "success": true,
+    "errorCode": 1000000,
+    "errorMsg": null,
+    "result": {
+        "total": 20,
+        "pageItems": [
+            {
+                "productId": 7527957965,
+                "productSkcId": 71111302175,
+                "productName": "pringbok The outh Africa National Rugby Union Team Scarf Neckerchief Neck Face Mask Polyester",
+                "productType": 1,
+                "sourceType": 1,
+                "goodsId": 601101875522206,
+                "leafCat": {
+                    "catId": 31087,
+                    "catName": "男士装扮面具",
+                    "catEnName": null,
+                    "catType": 0
+                },
+                "categories": {
+                    "cat1": {
+                        "catId": 27011,
+                        "catName": "服装、鞋靴和珠宝饰品",
+                        "catEnName": null,
+                        "catType": null
+                    },
+                    "cat2": {
+                        "catId": 31029,
+                        "catName": "装扮服饰和配饰",
+                        "catEnName": null,
+                        "catType": null
+                    },
+                    "cat3": {
+                        "catId": 31074,
+                        "catName": "男士装扮服饰和配饰",
+                        "catEnName": null,
+                        "catType": null
+                    },
+                    "cat4": {
+                        "catId": 31087,
+                        "catName": "男士装扮面具",
+                        "catEnName": null,
+                        "catType": null
+                    },
+                    "cat5": {
+                        "catId": 0,
+                        "catName": "",
+                        "catEnName": null,
+                        "catType": null
+                    },
+                    "cat6": {
+                        "catId": 0,
+                        "catName": "",
+                        "catEnName": null,
+                        "catType": null
+                    },
+                    "cat7": {
+                        "catId": 0,
+                        "catName": "",
+                        "catEnName": null,
+                        "catType": null
+                    },
+                    "cat8": {
+                        "catId": 0,
+                        "catName": "",
+                        "catEnName": null,
+                        "catType": null
+                    },
+                    "cat9": {
+                        "catId": 0,
+                        "catName": "",
+                        "catEnName": null,
+                        "catType": null
+                    },
+                    "cat10": {
+                        "catId": 0,
+                        "catName": "",
+                        "catEnName": null,
+                        "catType": null
+                    },
+                    "catType": 0
+                },
+                "productProperties": [
+                    {
+                        "templatePid": 918176,
+                        "pid": 1,
+                        "refPid": 12,
+                        "propName": "材质",
+                        "vid": 1157,
+                        "propValue": "涤纶和氨纶",
+                        "valueUnit": "",
+                        "valueExtendInfo": "",
+                        "numberInputValue": ""
+                    },
+                    {
+                        "templatePid": 918177,
+                        "pid": 3,
+                        "refPid": 19,
+                        "propName": "风格",
+                        "vid": 29609,
+                        "propValue": "Sporty运动",
+                        "valueUnit": "",
+                        "valueExtendInfo": "",
+                        "numberInputValue": ""
+                    },
+                    {
+                        "templatePid": 1233429,
+                        "pid": 23,
+                        "refPid": 84,
+                        "propName": "类型",
+                        "vid": 1002,
+                        "propValue": "其他",
+                        "valueUnit": "",
+                        "valueExtendInfo": "",
+                        "numberInputValue": ""
+                    }
+                ],
+                "sizeTemplateIds": null,
+                "productTotalSalesVolume": 2,
+                "extCode": "",
+                "skcStatus": 11,
+                "skcSiteStatus": 1,
+                "mainImageUrl": "https://img.cdnfe.com/product/open/e168b27cfc1541fda050d241abb70978-goods.jpeg",
+                "last7DaysSalesVolume": 0,
+                "productSkuSummaries": [
+                    {
+                        "productSkuId": 31787624313,
+                        "thumbUrl": "https://img.cdnfe.com/product/open/e168b27cfc1541fda050d241abb70978-goods.jpeg",
+                        "productSkuSpecList": [
+                            {
+                                "parentSpecId": 1001,
+                                "parentSpecName": "颜色",
+                                "specId": 19176,
+                                "specName": "Multicolor",
+                                "unitSpecName": null
+                            },
+                            {
+                                "parentSpecId": 3001,
+                                "parentSpecName": "尺码",
+                                "specId": 49671929,
+                                "specName": "单尺码",
+                                "unitSpecName": null
+                            }
+                        ],
+                        "currencyType": "CNY",
+                        "financeExchangeRate": null,
+                        "supplierPrice": 873,
+                        "supplierPriceUS": null,
+                        "siteSupplierPrices": null,
+                        "extCode": "Scarf_#NO42FH2",
+                        "productSkuWhExtAttr": {
+                            "productSkuVolume": {
+                                "len": 120,
+                                "width": 100,
+                                "height": 10,
+                                "inputLen": null,
+                                "inputWidth": null,
+                                "inputHeight": null,
+                                "inputUnit": null
+                            },
+                            "productSkuWeight": {
+                                "value": 38000,
+                                "inputValue": null,
+                                "inputUnit": null
+                            },
+                            "productSkuVolumeLabel": null,
+                            "productSkuWmsVolume": null,
+                            "productSkuWmsWeight": null,
+                            "productSkuWmsVolumeLabel": null,
+                            "productSkuBarCodes": null,
+                            "productSkuSensitiveAttr": {
+                                "isSensitive": 0,
+                                "sensitiveTypes": [],
+                                "sensitiveList": [],
+                                "isForce2Normal": false,
+                                "force2NormalTypes": null
+                            },
+                            "productSkuSensitiveLimit": {
+                                "maxBatteryCapacity": null,
+                                "maxLiquidCapacity": null,
+                                "maxKnifeLength": null,
+                                "maxBatteryCapacityHp": null,
+                                "maxLiquidCapacityHp": null,
+                                "maxKnifeLengthHp": null,
+                                "knifeTipAngle": null
+                            },
+                            "productSkuFragileLabelAttr": null,
+                            "latestShippingModeEditRecord": null,
+                            "productSkuSameReference": null
+                        },
+                        "productSkuSaleExtAttr": {
+                            "productSkuCustomizationTmpl": null,
+                            "productSkuShippingMode": null,
+                            "productSkuAccessories": null,
+                            "productSkuIndividuallyPacked": null,
+                            "productSkuNetContent": null,
+                            "productSkuStockDisplayOption": null
+                        },
+                        "todaySalesVolume": 2,
+                        "realStock": 0,
+                        "virtualStock": 997,
+                        "virtualStockLimitType": null,
+                        "salesStockLockType": null,
+                        "stockLockDetailList": null,
+                        "tempLockNum": null,
+                        "productSkuSemiManagedStock": null,
+                        "sampleNetWeight": null,
+                        "productSkuCwVOList": null,
+                        "productSkuMultiPack": {
+                            "skuClassification": 1,
+                            "numberOfPieces": 1,
+                            "pieceUnitCode": 1,
+                            "individuallyPacked": null,
+                            "productSkuNetContent": null
+                        },
+                        "priceReviewStatus": 2,
+                        "flowLimit": null,
+                        "preLimitTime": null
+                    }
+                ],
+                "createdAt": 1750521407000,
+                "productJitMode": {
+                    "matchJitMode": true,
+                    "quickSellAgtSignStatus": 1,
+                    "signLatestAgt": true
+                },
+                "productCertAuditStatus": null,
+                "offSaleByNoCert": null,
+                "noCertPunishRecord": null,
+                "productCertConfig": null,
+                "productCertPunish": null,
+                "productPersonalization": {
+                    "personalizationSwitch": null,
+                    "personalizationTmp": null,
+                    "signLatestAgt": false,
+                    "personalizationAgtSignStatus": null
+                },
+                "goodsAdvantageLabelVOList": null,
+                "productTags": null,
+                "productFragileLabelAttr": {
+                    "isFragile": false
+                },
+                "productGuideFileI18nList": [],
+                "productGuideFileNewVOList": [],
+                "printedGuideFileInfoVO": null,
+                "productPropAdjustTasks": null,
+                "needGuideFile": false,
+                "productGuideFileIfNeed": null,
+                "guideFileStatus": null,
+                "guideFileFailReason": null,
+                "electronicGuideFileComplianceLabel": 1,
+                "printedGuideFileComplianceLabel": 1,
+                "productSelected": true,
+                "canEditSizeTemplate": null,
+                "inProcessEditTasks": null,
+                "productAuditDraft": null,
+                "hasDecoration": null,
+                "hasCarouseVideo": null,
+                "hasDetailVideo": null,
+                "matchSkcJitMode": true,
+                "isJitUnSignForMms": false,
+                "guideFileAttribute": null,
+                "similarClusterProduct": null,
+                "guideFilePageImages": null,
+                "isSupportPersonalization": false,
+                "supplierSourceType": 1000,
+                "productSemiManaged": null,
+                "productPublishLabel": null,
+                "productPattern": {
+                    "canRelatePattern": false,
+                    "patternId": null,
+                    "isModified": null,
+                    "garmentPreviewPics": null,
+                    "paperPreviewPics": null,
+                    "patternFile": null,
+                    "modifiedPaperPreviewPics": null,
+                    "modifiedPatternFile": null
+                },
+                "productCustomizationTechnology": null,
+                "hotSaleGoodsLabelStyle": 10,
+                "sensitiveAttrProblemTag": false,
+                "classId": null,
+                "industrySelectionTag": false,
+                "allowanceCertList": null,
+                "flowAllowanceSiteList": null,
+                "flowAllowanceStatus": 1,
+                "newProductCatMisplace": {
+                    "matchMisplace": false,
+                    "recCategoriesList": [],
+                    "feedback": null
+                },
+                "productPotentialInfo": null,
+                "hotSaleCarouselVideoNeedUpload": false,
+                "highPrice": false
+            }]
+    }
+}

@@ -22,17 +22,25 @@ const ProductList: React.FC = () => {
     const data = await res.json();
     if (data.success) {
       setProducts(data.data.items || data.data); // 兼容返回结构
-      setTotal(data.data.total || 3000);
     } else {
       message.error(data.msg || "获取商品失败");
     }
     setLoading(false);
   };
 
+  const fetchTotal = async (pageNum = page, size = pageSize) => {
+    const res = await fetch(`/api/temu/compliance/total?page=${pageNum}&page_size=${size}`);
+    const data = await res.json();
+    if (data.success) {
+      setTotal(data.total || 8000);
+    }
+  };
+
   // 首次挂载时自动加载一次数据
   useEffect(() => {
     if (products.length === 0) {
       fetchProducts(page, pageSize);
+      fetchTotal(page, pageSize);
     }
     // eslint-disable-next-line
   }, []);
@@ -92,7 +100,10 @@ const ProductList: React.FC = () => {
       extra={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
           <div>
-            <Button type="primary" onClick={() => fetchProducts(page, pageSize)} loading={loading} style={{ marginRight: 8 }}>
+            <Button type="primary" onClick={() => {
+              fetchProducts(page, pageSize);
+              fetchTotal(page, pageSize);
+            }} loading={loading} style={{ marginRight: 8 }}>
               刷新
             </Button>
             <Button type="primary" onClick={handleOffline} loading={loading}>
