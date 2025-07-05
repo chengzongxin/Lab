@@ -95,7 +95,7 @@ const ProductList: React.FC = () => {
       } else if (filterRange === "custom") {
         // 自定义范围：只包括指定范围，不包括全站违规
         if (isAllSite) {
-          return false;
+          return customMax >= 999;
         } else {
           return record.site_num >= customMin && record.site_num <= customMax;
         }
