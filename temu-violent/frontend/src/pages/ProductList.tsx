@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Table, Button, message, Image, Switch, Drawer } from "antd";
+import { Card, Table, Button, message, Image, Switch, Drawer, Select, InputNumber, Space } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useProductListContext } from './ProductListContext';
 import ProductDetail from './ProductDetail';
@@ -14,6 +14,9 @@ const ProductList: React.FC = () => {
   const [currentProduct, setCurrentProduct] = useState<any>(null);
   const navigate = useNavigate();
   const [viewedIds, setViewedIds] = useState<React.Key[]>([]);
+  const [filterRange, setFilterRange] = useState<string>("80+"); // 默认筛选80以上
+  const [customMin, setCustomMin] = useState<number>(80); // 自定义最小值
+  const [customMax, setCustomMax] = useState<number>(999); // 自定义最大值
 
   // 获取违规商品列表
   const fetchProducts = async (pageNum = page, size = pageSize) => {
@@ -84,7 +87,21 @@ const ProductList: React.FC = () => {
       const isAllSite = record.site_num === 1 &&
         Array.isArray(record.punish_detail_list) &&
         record.punish_detail_list.some((d: any) => d.site_id === -1);
-      return isAllSite || record.site_num >= 80;
+      
+      // 根据筛选范围进行过滤
+      if (filterRange === "80+") {
+        // 80以上：包括全站违规 + 80站以上
+        return isAllSite || record.site_num >= 80;
+      } else if (filterRange === "custom") {
+        // 自定义范围：只包括指定范围，不包括全站违规
+        if (isAllSite) {
+          return false;
+        } else {
+          return record.site_num >= customMin && record.site_num <= customMax;
+        }
+      }
+      
+      return false;
     })
     : products;
 
@@ -110,12 +127,46 @@ const ProductList: React.FC = () => {
               批量下架
             </Button>
           </div>
-          <span>
+          <Space>
             <Switch checked={showMajorViolation} onChange={setShowMajorViolation} />
             <span style={{ marginLeft: 8 }}>
-              只看全栈违规/80站以上
+              违规筛选
             </span>
-          </span>
+            {showMajorViolation && (
+              <Space>
+                <Select
+                  value={filterRange}
+                  onChange={setFilterRange}
+                  style={{ width: 120 }}
+                  options={[
+                    { label: "80站以上(含全站)", value: "80+" },
+                    { label: "自定义范围", value: "custom" }
+                  ]}
+                />
+                {filterRange === "custom" && (
+                  <Space>
+                    <InputNumber
+                      min={0}
+                      max={999}
+                      value={customMin}
+                      onChange={(value) => setCustomMin(value || 0)}
+                      placeholder="最小值"
+                      style={{ width: 100 }}
+                    />
+                    <span>-</span>
+                    <InputNumber
+                      min={0}
+                      max={999}
+                      value={customMax}
+                      onChange={(value) => setCustomMax(value || 999)}
+                      placeholder="最大值"
+                      style={{ width: 100 }}
+                    />
+                  </Space>
+                )}
+              </Space>
+            )}
+          </Space>
         </div>
       }
       style={{ display: 'flex', flexDirection: 'column', height: 'auto', minHeight: 0 }}
