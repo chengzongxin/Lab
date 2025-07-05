@@ -4,7 +4,7 @@
   "blue_cookie": "string",
   "mallid": "634418223796259",
   "blue_token": "string",
-  "parent_msg_id": 448431229465261,
-  "tool_id": 2406230000031,
-  "parent_msg_timestamp": "1751684498306"
+  "parent_msg_id": null,
+  "parent_msg_timestamp": null,
+  "tool_id": null
 }
