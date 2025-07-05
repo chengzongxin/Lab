@@ -1,0 +1,10 @@
+{
+  "seller_cookie": "your_seller_cookie_here",
+  "compliance_cookie": "your_compliance_cookie_here", 
+  "blue_cookie": "your_blue_cookie_here",
+  "mallid": "your_mallid_here",
+  "blue_token": "your_blue_token_here",
+  "parent_msg_id": null,
+  "parent_msg_timestamp": null,
+  "tool_id": null
+} 

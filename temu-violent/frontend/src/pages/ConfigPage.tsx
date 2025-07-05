@@ -32,6 +32,31 @@ const ConfigPage: React.FC = () => {
     }
   };
 
+  // 清除配置
+  const handleClearConfig = async () => {
+    // 使用浏览器原生的确认对话框
+    const confirmed = window.confirm('确定要清除所有配置吗？此操作不可撤销。');
+    if (!confirmed) {
+      return;
+    }
+    
+    try {
+      const res = await fetch("/api/config", {
+        method: "DELETE"
+      });
+      const data = await res.json();
+      if (data.success) {
+        notify({ type: 'success', message: "配置已清除！" });
+        // 清空表单
+        form.resetFields();
+      } else {
+        notify({ type: 'error', message: data.msg || "清除失败" });
+      }
+    } catch (error) {
+      notify({ type: 'error', message: "清除配置时发生错误" });
+    }
+  };
+
   return (
     <Card title="配置管理">
       <Form form={form} labelCol={{ span: 4 }} wrapperCol={{ span: 8 }} onFinish={onFinish}>
@@ -40,7 +65,10 @@ const ConfigPage: React.FC = () => {
         <Form.Item label="蓝站Cookie" name="blue_cookie"><Input /></Form.Item>
         <Form.Item label="蓝站Token" name="blue_token"><Input /></Form.Item>
         <Form.Item label="MallId" name="mallid"><Input /></Form.Item>
-        <Form.Item><Button type="primary" htmlType="submit">保存配置</Button></Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" style={{ marginRight: 8 }}>保存配置</Button>
+          <Button danger onClick={handleClearConfig}>清除配置</Button>
+        </Form.Item>
       </Form>
     </Card>
   );

@@ -90,4 +90,17 @@ def update_cache(
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
         json.dump(config, f, ensure_ascii=False, indent=2)
     
-    return {"success": True, "msg": "缓存已更新"} 
+    return {"success": True, "msg": "缓存已更新"}
+
+@router.delete("/config")
+def clear_config():
+    """清除所有配置"""
+    try:
+        # 如果配置文件存在，则删除它
+        if os.path.exists(CONFIG_PATH):
+            os.remove(CONFIG_PATH)
+            return {"success": True, "msg": "配置已清除"}
+        else:
+            return {"success": True, "msg": "配置文件不存在"}
+    except Exception as e:
+        return {"success": False, "msg": f"清除配置失败: {str(e)}"} 
