@@ -165,7 +165,7 @@ const ProductList: React.FC = () => {
               fetchProducts(p, ps); // 分页时主动刷新
             },
           }}
-          scroll={{ y: 800 }}
+          scroll={{ y: 400 }}
           rowClassName={record => viewedIds.includes(record.spu_id) ? "viewed-row" : ""}
         />
       </div>
