@@ -63,9 +63,44 @@ class NetworkRequest:
     def post(self, url: str, data: Dict[str, Any], cookie: Optional[str] = None, mallid: Optional[str] = None) -> Optional[Dict]:
         try:
             headers = self._get_headers(cookie, mallid)
+            
+            # 调试信息（简化版）
+            print(f"发送POST请求到: {url}")
+            print(f"请求数据: {json.dumps(data, ensure_ascii=False, indent=2)}")
+            
             response = self.session.post(url, json=data, headers=headers)
-            response.raise_for_status()
-            return response.json()
+            
+            # 详细的错误处理
+            if response.status_code != 200:
+                print(f"HTTP错误: {response.status_code}")
+                print(f"响应内容: {response.text[:500]}...")
+                
+                # 尝试解析错误响应
+                try:
+                    error_data = response.json()
+                    print(f"错误详情: {json.dumps(error_data, ensure_ascii=False, indent=2)}")
+                except:
+                    print(f"无法解析错误响应为JSON")
+                
+                response.raise_for_status()
+            
+            result = response.json()
+            print(f"请求成功")
+            return result
+            
+        except requests.exceptions.HTTPError as e:
+            print(f"HTTP错误: {e}")
+            if hasattr(e, 'response') and e.response is not None:
+                print(f"状态码: {e.response.status_code}")
+                print(f"响应内容: {e.response.text[:500]}...")
+            return None
+        except requests.exceptions.RequestException as e:
+            print(f"网络请求异常: {e}")
+            return None
+        except json.JSONDecodeError as e:
+            print(f"JSON解析错误: {e}")
+            print(f"响应内容: {response.text[:500]}...")
+            return None
         except Exception as e:
             print(f"POST请求失败: {e}")
             return None 

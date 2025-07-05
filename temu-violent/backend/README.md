@@ -1,5 +1,7 @@
 # FastAPI 后端部署与打包说明
 
+source venv/bin/activate && python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
 ## 1. 直接运行（开发/测试）
 
 ```bash
