@@ -170,6 +170,7 @@ const ProductList: React.FC = () => {
             pageSize: pageSize,
             total: total,
             showSizeChanger: true,
+            showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条违规记录`,
             onChange: (p, ps) => {
               setPage(p);
               setPageSize(ps);
