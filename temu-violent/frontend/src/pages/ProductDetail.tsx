@@ -435,16 +435,6 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
         borderRadius: '8px',
         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
       }}>
-        <Button 
-          type="primary" 
-          danger 
-          size="large"
-          onClick={handleOffline}
-          loading={detailLoading}
-          style={{ fontSize: '17px' }}
-        >
-          下架该商品
-        </Button>
         <Button
           type="primary"
           danger
