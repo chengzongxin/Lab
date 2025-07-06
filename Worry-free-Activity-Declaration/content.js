@@ -493,14 +493,14 @@ if (typeof window.autoCheckManager === 'undefined') {
 
             // 获取申报价格 - 尝试多种选择器
             // 支持两种页面结构
-            let priceElement = row.querySelector('td:nth-child(5) span span:last-child');
+            let priceElement = row.querySelector('td:nth-child(7) span span:last-child');
             if (!priceElement) {
                 // 备用选择器
-                priceElement = row.querySelector('td:nth-child(5) span:last-child');
+                priceElement = row.querySelector('td:nth-child(7) span:last-child');
             }
             if (!priceElement) {
                 // 再备用选择器
-                priceElement = row.querySelector('td:nth-child(5)');
+                priceElement = row.querySelector('td:nth-child(7)');
             }
             
             if (!priceElement) {
