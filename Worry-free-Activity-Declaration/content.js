@@ -8,6 +8,15 @@ if (typeof window.autoCheckManager === 'undefined') {
             this.observer = null;
             this.checkInterval = null;
             this.processedRows = new Set();
+            this.checkedCount = 0; // 已勾选的商品数量
+            this.maxCheckedItems = 200; // 最大勾选数量限制
+            this.lastCheckTime = 0; // 上次检查时间
+            this.checkThrottle = 1000; // 检查间隔（毫秒）
+            this.scrollInterval = null; // 滚动定时器
+            this.lastScrollTime = 0; // 上次滚动时间
+            this.scrollThrottle = 2000; // 滚动间隔（毫秒）
+            this.noMatchCount = 0; // 连续无匹配次数
+            this.maxNoMatchCount = 3; // 最大连续无匹配次数，超过后开始滚动
             this.init();
         }
 
@@ -31,6 +40,10 @@ if (typeof window.autoCheckManager === 'undefined') {
                     case 'stopAutoCheck':
                         this.stopAutoCheck();
                         sendResponse({ success: true, message: '自动勾选已停止' });
+                        break;
+                    case 'getStatus':
+                        const status = this.getStatus();
+                        sendResponse({ success: true, data: status });
                         break;
                     case 'ping':
                         // 用于测试连接
@@ -56,16 +69,27 @@ if (typeof window.autoCheckManager === 'undefined') {
         this.categories = categories;
         this.isRunning = true;
         this.processedRows.clear();
+        this.checkedCount = 0;
+        this.lastCheckTime = 0;
+        this.lastScrollTime = 0;
+        this.noMatchCount = 0;
         
         // 立即执行一次检查
         this.checkCurrentRows();
         
-        // 设置定时检查
+        // 设置定时检查（降低频率以减少卡顿）
         this.checkInterval = setInterval(() => {
             if (this.isRunning) {
                 this.checkCurrentRows();
             }
-        }, 2000); // 每2秒检查一次
+        }, 3000); // 每3秒检查一次，减少频率
+        
+        // 设置定时滚动检查
+        this.scrollInterval = setInterval(() => {
+            if (this.isRunning) {
+                this.checkAndScroll();
+            }
+        }, 5000); // 每5秒检查一次是否需要滚动
         
         // 监听DOM变化
         this.startObserving();
@@ -78,20 +102,55 @@ if (typeof window.autoCheckManager === 'undefined') {
         console.log('⏹️ 停止自动勾选');
         this.isRunning = false;
         
+        // 清除定时器
         if (this.checkInterval) {
             clearInterval(this.checkInterval);
             this.checkInterval = null;
         }
         
+        // 清除滚动定时器
+        if (this.scrollInterval) {
+            clearInterval(this.scrollInterval);
+            this.scrollInterval = null;
+        }
+        
+        // 停止DOM监听
         if (this.observer) {
             this.observer.disconnect();
             this.observer = null;
         }
         
+        // 重置状态
+        this.processedRows.clear();
+        this.lastCheckTime = 0;
+        this.lastScrollTime = 0;
+        this.noMatchCount = 0;
+        
         this.showNotification('自动勾选已停止', 'info');
+        
+        // 通知popup更新状态
+        try {
+            chrome.runtime.sendMessage({
+                action: 'updateStatus',
+                data: { isRunning: false, checkedCount: this.checkedCount }
+            });
+        } catch (error) {
+            console.log('无法发送状态更新消息');
+        }
     }
 
-    // 开始监听DOM变化
+    // 获取当前状态
+    getStatus() {
+        return {
+            isRunning: this.isRunning,
+            checkedCount: this.checkedCount,
+            maxCheckedItems: this.maxCheckedItems,
+            categories: this.categories,
+            processedRows: this.processedRows.size
+        };
+    }
+
+    // 开始监听DOM变化（优化性能）
     startObserving() {
         const targetNode = document.body;
         const config = { 
@@ -103,6 +162,12 @@ if (typeof window.autoCheckManager === 'undefined') {
 
         this.observer = new MutationObserver((mutations) => {
             if (!this.isRunning) return;
+            
+            // 节流处理，避免频繁触发
+            const now = Date.now();
+            if (now - this.lastCheckTime < this.checkThrottle) {
+                return;
+            }
             
             let hasNewRows = false;
             mutations.forEach((mutation) => {
@@ -121,10 +186,13 @@ if (typeof window.autoCheckManager === 'undefined') {
             });
             
             if (hasNewRows) {
+                this.lastCheckTime = now;
                 // 延迟一点时间让DOM完全渲染
                 setTimeout(() => {
-                    this.checkCurrentRows();
-                }, 500);
+                    if (this.isRunning) {
+                        this.checkCurrentRows();
+                    }
+                }, 1000); // 增加延迟时间
             }
         });
 
@@ -134,6 +202,14 @@ if (typeof window.autoCheckManager === 'undefined') {
     // 检查当前页面上的所有行
     checkCurrentRows() {
         if (!this.isRunning) return;
+        
+        // 检查是否达到最大勾选数量
+        if (this.checkedCount >= this.maxCheckedItems) {
+            console.log(`⚠️ 已达到最大勾选数量限制 (${this.maxCheckedItems})，停止自动勾选`);
+            this.showNotification(`已达到最大勾选数量限制 (${this.maxCheckedItems})，自动勾选已停止`, 'warning');
+            this.stopAutoCheck();
+            return;
+        }
 
         const rows = this.getTableRows();
         let checkedCount = 0;
@@ -145,17 +221,50 @@ if (typeof window.autoCheckManager === 'undefined') {
             totalCount++;
             const shouldCheck = this.shouldCheckRow(row);
             
-            if (shouldCheck) {
+            if (shouldCheck && this.checkedCount < this.maxCheckedItems) {
                 this.checkRow(row);
                 checkedCount++;
+                this.checkedCount++;
+                
+                // 检查是否达到限制
+                if (this.checkedCount >= this.maxCheckedItems) {
+                    console.log(`⚠️ 已达到最大勾选数量限制 (${this.maxCheckedItems})`);
+                    this.showNotification(`已达到最大勾选数量限制 (${this.maxCheckedItems})，自动勾选已停止`, 'warning');
+                    this.stopAutoCheck();
+                    return;
+                }
             }
             
             this.processedRows.add(row);
         });
 
         if (totalCount > 0) {
-            console.log(`📊 检查了 ${totalCount} 行，勾选了 ${checkedCount} 行`);
-            this.showNotification(`检查了 ${totalCount} 行，勾选了 ${checkedCount} 行`, 'info');
+            console.log(`📊 检查了 ${totalCount} 行，勾选了 ${checkedCount} 行，总计 ${this.checkedCount}/${this.maxCheckedItems}`);
+            this.showNotification(`已勾选 ${this.checkedCount}/${this.maxCheckedItems} 个商品`, 'info');
+            
+            // 更新无匹配计数
+            if (checkedCount === 0) {
+                this.noMatchCount++;
+                console.log(`⚠️ 本次检查无匹配商品，连续无匹配次数: ${this.noMatchCount}`);
+                console.log('🔄 开始滚动加载更多内容');
+                this.scrollToBottom();
+            } else {
+                this.noMatchCount = 0; // 重置计数
+            }
+            
+            // 通知popup更新状态
+            try {
+                chrome.runtime.sendMessage({
+                    action: 'updateStatus',
+                    data: { 
+                        isRunning: this.isRunning, 
+                        checkedCount: this.checkedCount,
+                        maxCheckedItems: this.maxCheckedItems
+                    }
+                });
+            } catch (error) {
+                console.log('无法发送状态更新消息');
+            }
         }
     }
 
@@ -166,12 +275,164 @@ if (typeof window.autoCheckManager === 'undefined') {
         return Array.from(rows);
     }
 
+    // 检查是否需要滚动并执行滚动
+    checkAndScroll() {
+        if (!this.isRunning) return;
+        
+        // 检查是否达到最大勾选数量
+        if (this.checkedCount >= this.maxCheckedItems) {
+            console.log('✅ 已达到最大勾选数量，停止滚动');
+            return;
+        }
+        
+        // 节流处理，避免频繁滚动
+        const now = Date.now();
+        if (now - this.lastScrollTime < this.scrollThrottle) {
+            return;
+        }
+        
+        // 如果连续多次检查都没有匹配的商品，开始滚动
+        if (this.noMatchCount >= this.maxNoMatchCount) {
+            console.log(`🔄 连续 ${this.noMatchCount} 次无匹配商品，开始滚动加载更多内容`);
+            this.scrollToBottom();
+            this.lastScrollTime = now;
+            this.noMatchCount = 0; // 重置计数
+        }
+    }
+
+    // 滚动到页面底部
+    scrollToBottom() {
+        try {
+            console.log('📜 滚动到页面底部...');
+            
+            // 方法1：查找表格容器并滚动
+            const tableContainer = this.findTableContainer();
+            if (tableContainer) {
+                console.log('找到表格容器，执行滚动:', tableContainer);
+                tableContainer.scrollTo({
+                    top: tableContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
+            
+            // 方法2：查找所有可能的滚动容器
+            const scrollContainers = document.querySelectorAll('[style*="overflow"], [class*="scroll"], [class*="table"], .ant-table-body, .el-table__body-wrapper');
+            console.log('找到滚动容器数量:', scrollContainers.length);
+            
+            scrollContainers.forEach((container, index) => {
+                if (container.scrollHeight > container.clientHeight) {
+                    console.log(`滚动容器 ${index}:`, container);
+                    container.scrollTo({
+                        top: container.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+            
+            // 方法3：直接滚动页面
+            const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const maxScrollTop = document.body.scrollHeight - window.innerHeight;
+            
+            console.log('页面滚动信息:', {
+                currentScrollTop,
+                maxScrollTop,
+                documentHeight: document.body.scrollHeight,
+                windowHeight: window.innerHeight
+            });
+            
+            if (maxScrollTop > currentScrollTop) {
+                window.scrollTo({
+                    top: maxScrollTop,
+                    behavior: 'smooth'
+                });
+            }
+            
+            // 方法4：模拟键盘End键（更完整的事件）
+            const endEvent = new KeyboardEvent('keydown', {
+                key: 'End',
+                code: 'End',
+                keyCode: 35,
+                which: 35,
+                bubbles: true,
+                cancelable: true,
+                composed: true
+            });
+            
+            // 在多个元素上触发事件
+            [document, document.body, document.documentElement].forEach(element => {
+                element.dispatchEvent(endEvent);
+            });
+            
+            // 方法5：查找并点击"加载更多"按钮
+            const loadMoreButtons = document.querySelectorAll('button, .btn, [class*="load"], [class*="more"]');
+            loadMoreButtons.forEach(button => {
+                const text = button.textContent.toLowerCase();
+                if (text.includes('加载') || text.includes('更多') || text.includes('load') || text.includes('more')) {
+                    console.log('找到加载更多按钮:', button);
+                    button.click();
+                }
+            });
+            
+            this.showNotification('正在加载更多商品...', 'info');
+            
+            // 延迟后重新检查
+            setTimeout(() => {
+                if (this.isRunning) {
+                    console.log('🔄 滚动后重新检查商品');
+                    this.checkCurrentRows();
+                }
+            }, 3000); // 增加延迟时间
+            
+        } catch (error) {
+            console.error('滚动时出错:', error);
+        }
+    }
+
+    // 查找表格容器
+    findTableContainer() {
+        // 查找包含表格的容器
+        const table = document.querySelector('table, [data-testid*="table"]');
+        if (table) {
+            // 向上查找可滚动的父容器
+            let container = table.parentElement;
+            while (container && container !== document.body) {
+                const style = window.getComputedStyle(container);
+                if (style.overflow === 'auto' || style.overflow === 'scroll' || style.overflowY === 'auto' || style.overflowY === 'scroll') {
+                    return container;
+                }
+                container = container.parentElement;
+            }
+        }
+        
+        // 查找常见的表格容器类名
+        const commonContainers = [
+            '.ant-table-body',
+            '.el-table__body-wrapper',
+            '.table-container',
+            '.scroll-container',
+            '[class*="table"]',
+            '[class*="scroll"]'
+        ];
+        
+        for (const selector of commonContainers) {
+            const container = document.querySelector(selector);
+            if (container && container.scrollHeight > container.clientHeight) {
+                return container;
+            }
+        }
+        
+        return null;
+    }
+
     // 判断是否应该勾选某一行
     shouldCheckRow(row) {
         try {
             // 获取商品名称 - 尝试多种方式获取纯文本
             const titleElement = row.querySelector('.goods-info_title__yHBeG');
-            if (!titleElement) return false;
+            if (!titleElement) {
+                console.log('❌ 未找到商品名称元素');
+                return false;
+            }
             
             // 获取纯文本内容，排除样式代码
             let productName = '';
@@ -202,7 +463,10 @@ if (typeof window.autoCheckManager === 'undefined') {
                 productName = productName.replace(/\{[^}]*\}/g, '').trim();
             }
             
-            if (!productName) return false;
+            if (!productName) {
+                console.log('❌ 商品名称为空');
+                return false;
+            }
 
             // 获取申报价格 - 尝试多种选择器
             let priceElement = row.querySelector('td:nth-child(5) span span:last-child');
@@ -215,23 +479,38 @@ if (typeof window.autoCheckManager === 'undefined') {
                 priceElement = row.querySelector('td:nth-child(5)');
             }
             
-            if (!priceElement) return false;
+            if (!priceElement) {
+                console.log(`❌ 未找到价格元素，商品: "${productName}"`);
+                return false;
+            }
             
             const priceText = priceElement.textContent.trim();
             // 提取数字
             const priceMatch = priceText.match(/[\d.]+/);
             const price = priceMatch ? parseFloat(priceMatch[0]) : 0;
             
-            if (isNaN(price) || price <= 0) return false;
+            if (isNaN(price) || price <= 0) {
+                console.log(`❌ 价格无效: "${priceText}" -> ${price}，商品: "${productName}"`);
+                return false;
+            }
+
+            // 调试：打印商品信息
+            // console.log(`🔍 检查商品: "${productName}" (¥${price})`);
 
             // 检查是否匹配任何品类
             for (const category of this.categories) {
-                if (this.matchesCategory(productName, category.keyword) && price >= category.minPrice) {
-                    console.log(`✅ 匹配成功: "${productName}" (¥${price}) 匹配品类 "${category.keyword}" (最低价¥${category.minPrice})`);
+                const isMatch = this.matchesCategory(productName, category.keyword);
+                const priceOK = price >= category.minPrice;
+                
+                // console.log(`  - 品类 "${category.keyword}": 匹配=${isMatch}, 价格=${priceOK} (需要≥${category.minPrice})`);
+                
+                if (isMatch && priceOK) {
+                    // console.log(`✅ 匹配成功: "${productName}" (¥${price}) 匹配品类 "${category.keyword}" (最低价¥${category.minPrice})`);
                     return true;
                 }
             }
 
+            // console.log(`❌ 未匹配任何品类: "${productName}" (¥${price})`);
             return false;
         } catch (error) {
             console.error('检查行时出错:', error);
@@ -502,7 +781,9 @@ if (typeof window.autoCheckManager === 'undefined') {
         return {
             total: rows.length,
             checked: checkedRows.length,
-            processed: this.processedRows.size
+            processed: this.processedRows.size,
+            autoChecked: this.checkedCount,
+            maxChecked: this.maxCheckedItems
         };
     }
 }

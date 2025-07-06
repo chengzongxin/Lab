@@ -36,6 +36,23 @@ class DebugTool {
                     price: price ? price.textContent.trim() : '未找到',
                     checkbox: checkbox ? (checkbox.checked ? '已勾选' : '未勾选') : '未找到'
                 });
+                
+                // 详细检查第一个商品
+                if (title) {
+                    console.log('商品名称元素详情:', {
+                        textContent: title.textContent,
+                        innerHTML: title.innerHTML.substring(0, 200) + '...',
+                        className: title.className
+                    });
+                }
+                
+                if (price) {
+                    console.log('价格元素详情:', {
+                        textContent: price.textContent,
+                        innerHTML: price.innerHTML,
+                        className: price.className
+                    });
+                }
             }
             
             return results;
@@ -166,6 +183,125 @@ class DebugTool {
             }
         };
 
+        // 测试第一行商品的匹配
+        window.testFirstRow = () => {
+            console.log('🔍 测试第一行商品匹配...');
+            
+            const firstRow = document.querySelector('tr[data-testid="beast-core-table-body-tr"]');
+            if (!firstRow) {
+                console.log('❌ 未找到表格行');
+                return;
+            }
+            
+            if (window.autoCheckManager) {
+                const shouldCheck = window.autoCheckManager.shouldCheckRow(firstRow);
+                console.log('第一行是否应该勾选:', shouldCheck);
+                return shouldCheck;
+            } else {
+                console.log('❌ 插件管理器未找到');
+                return false;
+            }
+        };
+
+        // 测试所有配置的品类
+        window.testAllCategories = () => {
+            console.log('🔍 测试所有品类配置...');
+            
+            if (window.autoCheckManager && window.autoCheckManager.categories) {
+                console.log('当前配置的品类:', window.autoCheckManager.categories);
+                
+                const firstRow = document.querySelector('tr[data-testid="beast-core-table-body-tr"]');
+                if (firstRow) {
+                    const titleElement = firstRow.querySelector('.goods-info_title__yHBeG');
+                    if (titleElement) {
+                        const productName = titleElement.textContent.trim().replace(/\{[^}]*\}/g, '').trim();
+                        console.log('第一行商品名称:', productName);
+                        
+                        window.autoCheckManager.categories.forEach((category, index) => {
+                            const isMatch = window.autoCheckManager.matchesCategory(productName, category.keyword);
+                            console.log(`品类 ${index + 1}: "${category.keyword}" -> 匹配 = ${isMatch}`);
+                        });
+                    }
+                }
+            } else {
+                console.log('❌ 插件管理器或品类配置未找到');
+            }
+        };
+
+        // 测试滚动功能
+        window.testScroll = () => {
+            console.log('📜 测试滚动功能...');
+            
+            if (window.autoCheckManager && window.autoCheckManager.scrollToBottom) {
+                window.autoCheckManager.scrollToBottom();
+                console.log('✅ 滚动命令已执行');
+            } else {
+                console.log('❌ 滚动功能未找到');
+            }
+        };
+
+        // 手动触发滚动检查
+        window.triggerScrollCheck = () => {
+            console.log('🔄 手动触发滚动检查...');
+            
+            if (window.autoCheckManager && window.autoCheckManager.checkAndScroll) {
+                window.autoCheckManager.checkAndScroll();
+                console.log('✅ 滚动检查已触发');
+            } else {
+                console.log('❌ 滚动检查功能未找到');
+            }
+        };
+
+        // 检查页面滚动容器
+        window.checkScrollContainers = () => {
+            console.log('🔍 检查页面滚动容器...');
+            
+            // 检查页面滚动信息
+            const pageInfo = {
+                documentHeight: document.body.scrollHeight,
+                windowHeight: window.innerHeight,
+                currentScrollTop: window.pageYOffset || document.documentElement.scrollTop,
+                maxScrollTop: document.body.scrollHeight - window.innerHeight
+            };
+            console.log('页面滚动信息:', pageInfo);
+            
+            // 查找所有可能的滚动容器
+            const selectors = [
+                '[style*="overflow"]',
+                '[class*="scroll"]',
+                '[class*="table"]',
+                '.ant-table-body',
+                '.el-table__body-wrapper',
+                '.table-container',
+                '.scroll-container'
+            ];
+            
+            selectors.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                console.log(`选择器 "${selector}" 找到 ${elements.length} 个元素`);
+                
+                elements.forEach((element, index) => {
+                    const style = window.getComputedStyle(element);
+                    const scrollInfo = {
+                        element: element,
+                        className: element.className,
+                        scrollHeight: element.scrollHeight,
+                        clientHeight: element.clientHeight,
+                        overflow: style.overflow,
+                        overflowY: style.overflowY,
+                        canScroll: element.scrollHeight > element.clientHeight
+                    };
+                    console.log(`元素 ${index}:`, scrollInfo);
+                });
+            });
+            
+            // 查找表格容器
+            if (window.autoCheckManager && window.autoCheckManager.findTableContainer) {
+                const tableContainer = window.autoCheckManager.findTableContainer();
+                console.log('找到的表格容器:', tableContainer);
+            }
+        };
+
         // 显示帮助信息
         window.debugHelp = () => {
             console.log(`
@@ -180,10 +316,20 @@ class DebugTool {
 7. testActiveClass(rowIndex) - 测试CSS类添加（rowIndex默认为0）
 8. testSupplementCheck(rowIndex) - 测试补充勾选（rowIndex默认为0）
 9. testCategoryMatch(productName, keyword) - 测试品类匹配
-10. debugHelp() - 显示此帮助信息
+10. testFirstRow() - 测试第一行商品匹配
+11. testAllCategories() - 测试所有品类配置
+12. testScroll() - 测试滚动功能
+13. triggerScrollCheck() - 手动触发滚动检查
+14. checkScrollContainers() - 检查页面滚动容器
+15. debugHelp() - 显示此帮助信息
 
 示例用法:
-- testPageElements()
+- testPageElements()  // 检查页面元素
+- testFirstRow()  // 测试第一行匹配
+- testAllCategories()  // 测试所有品类
+- checkScrollContainers()  // 检查滚动容器
+- testScroll()  // 测试滚动功能
+- triggerScrollCheck()  // 手动触发滚动检查
 - testCheckbox(0)  // 测试第一行的勾选
 - testCustomCheckbox()  // 测试自定义checkbox
 - testForceCheck(0)  // 强制勾选第一行

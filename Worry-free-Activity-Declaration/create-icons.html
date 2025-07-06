@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>创建插件图标</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .icon-preview { margin: 20px 0; }
+        canvas { border: 1px solid #ccc; margin: 10px; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>🎯 活动申报助手 - 图标生成器</h1>
+    <p>点击下面的按钮下载不同尺寸的图标文件，然后替换 icons/ 目录中的文件。</p>
+    
+    <div class="icon-preview">
+        <h3>16x16 图标</h3>
+        <canvas id="canvas16" width="16" height="16"></canvas>
+        <button onclick="downloadIcon(16)">下载 icon16.png</button>
+    </div>
+    
+    <div class="icon-preview">
+        <h3>48x48 图标</h3>
+        <canvas id="canvas48" width="48" height="48"></canvas>
+        <button onclick="downloadIcon(48)">下载 icon48.png</button>
+    </div>
+    
+    <div class="icon-preview">
+        <h3>128x128 图标</h3>
+        <canvas id="canvas128" width="128" height="128"></canvas>
+        <button onclick="downloadIcon(128)">下载 icon128.png</button>
+    </div>
+
+    <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+        <h3>📋 使用说明：</h3>
+        <ol>
+            <li>点击上面的按钮下载图标文件</li>
+            <li>将下载的文件重命名为 icon16.png、icon48.png、icon128.png</li>
+            <li>替换 icons/ 目录中的现有文件</li>
+            <li>重新加载Chrome插件</li>
+        </ol>
+    </div>
+
+    <script>
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            
+            // 创建渐变背景
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#28a745');  // 绿色
+            gradient.addColorStop(1, '#20c997');  // 青色
+            
+            // 绘制背景圆形
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2 - 2, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // 绘制边框
+            ctx.strokeStyle = '#155724';
+            ctx.lineWidth = Math.max(1, size / 32);
+            ctx.stroke();
+            
+            // 绘制勾选标记
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = Math.max(1, size / 16);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            const margin = size * 0.25;
+            const checkSize = size * 0.3;
+            
+            ctx.beginPath();
+            ctx.moveTo(margin, size/2);
+            ctx.lineTo(margin + checkSize/2, size/2 + checkSize/2);
+            ctx.lineTo(size - margin, margin + checkSize/2);
+            ctx.stroke();
+            
+            // 在小尺寸图标上添加文字
+            if (size >= 48) {
+                ctx.fillStyle = 'white';
+                ctx.font = `bold ${size/8}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText('申报', size/2, size * 0.85);
+            }
+        }
+        
+        function downloadIcon(size) {
+            const canvas = document.getElementById(`canvas${size}`);
+            const link = document.createElement('a');
+            link.download = `icon${size}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // 绘制所有图标
+        window.onload = function() {
+            drawIcon(document.getElementById('canvas16'), 16);
+            drawIcon(document.getElementById('canvas48'), 48);
+            drawIcon(document.getElementById('canvas128'), 128);
+        };
+    </script>
+</body>
+</html> 

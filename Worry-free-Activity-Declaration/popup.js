@@ -3,6 +3,9 @@ class PopupManager {
     constructor() {
         this.categories = [];
         this.isRunning = false;
+        this.checkedCount = 0;
+        this.maxCheckedItems = 200;
+        this.statusUpdateInterval = null;
         this.init();
     }
 
@@ -11,6 +14,7 @@ class PopupManager {
         this.loadCategories();
         this.bindEvents();
         this.renderCategories();
+        this.startStatusUpdates();
     }
 
     // 绑定事件监听器
@@ -26,6 +30,77 @@ class PopupManager {
         document.getElementById('stopBtn').addEventListener('click', () => {
             this.stopAutoCheck();
         });
+    }
+
+    // 开始状态更新
+    startStatusUpdates() {
+        // 每2秒更新一次状态
+        this.statusUpdateInterval = setInterval(() => {
+            this.updateStatus();
+        }, 2000);
+        
+        // 立即更新一次
+        this.updateStatus();
+    }
+
+    // 停止状态更新
+    stopStatusUpdates() {
+        if (this.statusUpdateInterval) {
+            clearInterval(this.statusUpdateInterval);
+            this.statusUpdateInterval = null;
+        }
+    }
+
+    // 更新状态显示
+    async updateStatus() {
+        try {
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            const response = await chrome.tabs.sendMessage(tab.id, { action: 'getStatus' });
+            
+            if (response && response.success) {
+                const status = response.data;
+                this.isRunning = status.isRunning;
+                this.checkedCount = status.checkedCount || 0;
+                this.maxCheckedItems = status.maxCheckedItems || 200;
+                
+                this.updateButtonStates();
+                this.updateStatusDisplay(status);
+            }
+        } catch (error) {
+            // 如果无法获取状态，假设已停止
+            this.isRunning = false;
+            this.updateButtonStates();
+            this.showStatus('无法获取插件状态', 'warning');
+        }
+    }
+
+    // 更新状态显示
+    updateStatusDisplay(status) {
+        const statusEl = document.getElementById('status');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progress');
+        const progressText = document.getElementById('progressText');
+        
+        if (status.isRunning) {
+            const progress = Math.round((status.checkedCount / status.maxCheckedItems) * 100);
+            statusEl.textContent = `正在运行中... 已勾选 ${status.checkedCount}/${status.maxCheckedItems}`;
+            statusEl.className = 'status success';
+            
+            // 显示进度条
+            if (progressContainer && progressFill && progressText) {
+                progressContainer.style.display = 'block';
+                progressFill.style.width = `${progress}%`;
+                progressText.textContent = `${progress}%`;
+            }
+        } else {
+            statusEl.textContent = `已停止 - 共勾选 ${status.checkedCount} 个商品`;
+            statusEl.className = 'status info';
+            
+            // 隐藏进度条
+            if (progressContainer) {
+                progressContainer.style.display = 'none';
+            }
+        }
     }
 
     // 从存储中加载品类配置
@@ -199,7 +274,13 @@ class PopupManager {
             
             this.isRunning = false;
             this.updateButtonStates();
-            this.showStatus('自动勾选已停止', 'info');
+            this.showStatus('正在停止自动勾选...', 'info');
+            
+            // 延迟更新状态显示
+            setTimeout(() => {
+                this.updateStatus();
+            }, 1000);
+            
         } catch (error) {
             console.error('停止自动勾选失败:', error);
             // 即使停止失败，也要更新状态
@@ -216,6 +297,15 @@ class PopupManager {
         
         startBtn.disabled = this.isRunning;
         stopBtn.disabled = !this.isRunning;
+        
+        // 更新按钮文本
+        if (this.isRunning) {
+            startBtn.textContent = '运行中...';
+            stopBtn.textContent = '停止';
+        } else {
+            startBtn.textContent = '开始自动勾选';
+            stopBtn.textContent = '已停止';
+        }
     }
 
     // 显示状态信息
@@ -236,5 +326,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // 初始化弹出窗口
 document.addEventListener('DOMContentLoaded', () => {
-    new PopupManager();
+    const popupManager = new PopupManager();
+    
+    // 页面卸载时清理定时器
+    window.addEventListener('beforeunload', () => {
+        popupManager.stopStatusUpdates();
+    });
 }); 
