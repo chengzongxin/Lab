@@ -85,11 +85,11 @@ if (typeof window.autoCheckManager === 'undefined') {
         }, 3000); // 每3秒检查一次，减少频率
         
         // 设置定时滚动检查
-        this.scrollInterval = setInterval(() => {
-            if (this.isRunning) {
-                this.checkAndScroll();
-            }
-        }, 5000); // 每5秒检查一次是否需要滚动
+        // this.scrollInterval = setInterval(() => {
+        //     if (this.isRunning) {
+        //         this.checkAndScroll();
+        //     }
+        // }, 5000); // 每5秒检查一次是否需要滚动
         
         // 监听DOM变化
         this.startObserving();
@@ -246,11 +246,12 @@ if (typeof window.autoCheckManager === 'undefined') {
             if (checkedCount === 0) {
                 this.noMatchCount++;
                 console.log(`⚠️ 本次检查无匹配商品，连续无匹配次数: ${this.noMatchCount}`);
-                console.log('🔄 开始滚动加载更多内容');
-                this.scrollToBottom();
             } else {
                 this.noMatchCount = 0; // 重置计数
             }
+
+            console.log('🔄 开始滚动加载更多内容');
+            this.scrollToBottom();
             
             // 通知popup更新状态
             try {
