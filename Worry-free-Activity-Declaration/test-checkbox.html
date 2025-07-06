@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>勾选功能测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .checkbox-test {
+            margin: 10px 0;
+        }
+        button {
+            margin: 5px;
+            padding: 8px 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 勾选功能测试页面</h1>
+    
+    <div class="test-section">
+        <h3>测试1: 标准HTML Checkbox</h3>
+        <div class="checkbox-test">
+            <input type="checkbox" id="test1"> <label for="test1">标准复选框</label>
+            <button onclick="testStandardCheckbox()">测试勾选</button>
+            <div class="result" id="result1"></div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>测试2: 模拟页面结构的Checkbox</h3>
+        <div class="checkbox-test">
+            <label class="CBX_outerWrapper_5-118-0 CBX_checkbox_5-118-0 CBX_medium_5-118-0">
+                <div class="CBX_squareInputWrapper_5-118-0">
+                    <input mode="checkbox" class="CBX_input_5-118-0" type="checkbox" id="test2">
+                    <div class="CBX_square_5-118-0"></div>
+                </div>
+            </label>
+            <span>模拟页面复选框</span>
+            <button onclick="testPageCheckbox()">测试勾选</button>
+            <div class="result" id="result2"></div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>测试3: 模拟表格行（自定义checkbox）</h3>
+        <table border="1" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>选择</th>
+                    <th>商品信息</th>
+                    <th>价格</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr data-testid="beast-core-table-body-tr">
+                    <td>
+                        <label class="CBX_outerWrapper_5-118-0 CBX_checkbox_5-118-0 CBX_medium_5-118-0"
+                              data-testid="beast-core-checkbox" data-checked="false" data-indeterminate="false">
+                            <div class="CBX_squareInputWrapper_5-118-0" data-testid="beast-core-checkbox-checkIcon">
+                                <input mode="checkbox" class="CBX_input_5-118-0" type="checkbox">
+                                <div class="CBX_square_5-118-0 CBX_groupDisabled_5-118-0 CBX_hasCheckSquare_5-118-0 CBX_mount_5-118-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+                                         data-testid="beast-core-icon-check"
+                                         class="ICN_outerWrapper_5-118-0 ICN_svgIcon_5-118-0 CBX_iconCheck_5-118-0">
+                                        <path d="M778.748 225.79c16.72-20.641 46.95-23.775 67.523-6.999 20.572 16.776 23.695 47.108 6.975 67.749l-408 503.677c-18.8 23.208-53.912 23.794-73.47 1.227l-200-230.769c-17.395-20.07-15.28-50.49 4.724-67.944 20.005-17.453 50.323-15.33 67.718 4.74l162.538 187.544 371.992-459.226z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </label>
+                    </td>
+                    <td>
+                        <div class="goods-info_goodsInfo__Sm9OR">
+                            <div class="goods-info_title__yHBeG">测试袜子商品</div>
+                        </div>
+                    </td>
+                    <td>¥15.00</td>
+                </tr>
+            </tbody>
+        </table>
+        <button onclick="testTableRow()">测试表格行勾选</button>
+        <button onclick="testCustomCheckbox()">测试自定义checkbox</button>
+        <div class="result" id="result3"></div>
+    </div>
+
+    <script>
+        function testStandardCheckbox() {
+            const checkbox = document.getElementById('test1');
+            const result = document.getElementById('result1');
+            
+            console.log('测试标准checkbox:', checkbox);
+            console.log('当前状态:', checkbox.checked);
+            
+            // 尝试勾选
+            checkbox.checked = true;
+            checkbox.click();
+            
+            console.log('勾选后状态:', checkbox.checked);
+            
+            result.innerHTML = `
+                <strong>测试结果:</strong><br>
+                当前状态: ${checkbox.checked ? '已勾选' : '未勾选'}<br>
+                元素类型: ${checkbox.type}<br>
+                元素ID: ${checkbox.id}
+            `;
+        }
+        
+        function testPageCheckbox() {
+            const checkbox = document.querySelector('.CBX_input_5-118-0');
+            const result = document.getElementById('result2');
+            
+            console.log('测试页面checkbox:', checkbox);
+            console.log('当前状态:', checkbox.checked);
+            
+            // 尝试多种勾选方式
+            checkbox.checked = true;
+            
+            // 触发change事件
+            const changeEvent = new Event('change', { bubbles: true });
+            checkbox.dispatchEvent(changeEvent);
+            
+            // 触发click事件
+            checkbox.click();
+            
+            // 点击label
+            const label = checkbox.closest('label');
+            if (label) {
+                label.click();
+            }
+            
+            console.log('勾选后状态:', checkbox.checked);
+            
+            result.innerHTML = `
+                <strong>测试结果:</strong><br>
+                当前状态: ${checkbox.checked ? '已勾选' : '未勾选'}<br>
+                元素类型: ${checkbox.type}<br>
+                元素类名: ${checkbox.className}<br>
+                是否有label: ${label ? '是' : '否'}
+            `;
+        }
+        
+        function testTableRow() {
+            const row = document.querySelector('tr[data-testid="beast-core-table-body-tr"]');
+            const label = row.querySelector('label[data-testid="beast-core-checkbox"]');
+            const input = label.querySelector('input[type="checkbox"]');
+            const result = document.getElementById('result3');
+            
+            console.log('测试表格行:', row);
+            console.log('找到label:', label);
+            console.log('找到input:', input);
+            console.log('当前data-checked状态:', label.getAttribute('data-checked'));
+            console.log('当前input状态:', input.checked);
+            
+            // 使用插件的方法
+            if (window.autoCheckManager) {
+                window.autoCheckManager.checkRow(row);
+            } else {
+                // 手动勾选
+                label.setAttribute('data-checked', 'true');
+                input.checked = true;
+                label.click();
+                
+                // 添加勾选样式
+                const squareElement = label.querySelector('.CBX_square_5-118-0');
+                if (squareElement) {
+                    squareElement.classList.add('CBX_checked_5-118-0');
+                }
+            }
+            
+            console.log('勾选后data-checked状态:', label.getAttribute('data-checked'));
+            console.log('勾选后input状态:', input.checked);
+            
+            result.innerHTML = `
+                <strong>测试结果:</strong><br>
+                data-checked状态: ${label.getAttribute('data-checked')}<br>
+                input状态: ${input.checked ? '已勾选' : '未勾选'}<br>
+                插件管理器: ${window.autoCheckManager ? '已加载' : '未加载'}<br>
+                行元素: ${row ? '找到' : '未找到'}<br>
+                Label元素: ${label ? '找到' : '未找到'}<br>
+                Input元素: ${input ? '找到' : '未找到'}
+            `;
+        }
+        
+        function testCustomCheckbox() {
+            const label = document.querySelector('label[data-testid="beast-core-checkbox"]');
+            const result = document.getElementById('result3');
+            
+            if (!label) {
+                result.innerHTML = '<strong>错误:</strong> 未找到自定义checkbox';
+                return;
+            }
+            
+            console.log('测试自定义checkbox:', label);
+            
+            // 查找相关元素
+            const input = label.querySelector('input[type="checkbox"]');
+            const square = label.querySelector('.CBX_square_5-118-0');
+            const icon = label.querySelector('.CBX_iconCheck_5-118-0');
+            
+            console.log('相关元素:', { input, square, icon });
+            
+            // 切换状态
+            const currentState = label.getAttribute('data-checked') === 'true';
+            const newState = !currentState;
+            
+            console.log(`切换状态: ${currentState} -> ${newState}`);
+            
+            // 修改状态
+            label.setAttribute('data-checked', newState.toString());
+            if (input) {
+                input.checked = newState;
+            }
+            
+            // 添加或移除勾选样式
+            if (square) {
+                if (newState) {
+                    square.classList.add('CBX_checked_5-118-0');
+                } else {
+                    square.classList.remove('CBX_checked_5-118-0');
+                }
+            }
+            
+            result.innerHTML = `
+                <strong>自定义checkbox测试结果:</strong><br>
+                data-checked: ${label.getAttribute('data-checked')}<br>
+                input.checked: ${input ? input.checked : 'N/A'}<br>
+                square类名: ${square ? square.className : 'N/A'}<br>
+                状态切换: ${currentState} -> ${newState}
+            `;
+        }
+        
+        // 页面加载完成后显示帮助信息
+        window.addEventListener('load', () => {
+            console.log(`
+🔧 勾选功能测试页面已加载
+
+可用测试:
+1. testStandardCheckbox() - 测试标准HTML checkbox
+2. testPageCheckbox() - 测试模拟页面结构的checkbox  
+3. testTableRow() - 测试表格行勾选
+
+如果插件已加载，还可以使用:
+- testCheckbox(0) - 测试第一行勾选
+- testPageElements() - 测试页面元素
+            `);
+        });
+    </script>
+</body>
+</html> 
