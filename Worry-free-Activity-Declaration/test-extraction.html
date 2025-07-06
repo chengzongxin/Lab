@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品名称提取测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-item {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+        }
+        .original {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .extracted {
+            background-color: #e8f5e8;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .beast-core-ellipsis-1 {
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>商品名称提取测试</h1>
+        <p>测试官方大促页面的商品名称提取逻辑</p>
+        
+        <div class="test-item">
+            <h3>测试用例 1：包含style标签的商品名称</h3>
+            <div class="original">
+                <strong>原始HTML:</strong>
+                <div class="elli_outerWrapper_5-118-0 elli_lineClamp_5-118-0 beast-core-ellipsis-1" style="font-weight: 600;">
+                    <style data-testid="beast-core-ellipsis-style">
+                        .beast-core-ellipsis-1 {
+                            -webkit-line-clamp: 1;
+                            -webkit-box-orient: vertical;
+                        }
+                    </style>Angry Pingu Peeking Official Merch Drawstring Bags
+                </div>
+            </div>
+            <div class="extracted">
+                <strong>提取结果:</strong> <span id="result1"></span>
+            </div>
+        </div>
+        
+        <div class="test-item">
+            <h3>测试用例 2：普通商品名称</h3>
+            <div class="original">
+                <strong>原始HTML:</strong>
+                <div class="elli_outerWrapper_5-118-0 elli_lineClamp_5-118-0 beast-core-ellipsis-1" style="font-weight: 600;">
+                    Rainbow Socks Pride Flag
+                </div>
+            </div>
+            <div class="extracted">
+                <strong>提取结果:</strong> <span id="result2"></span>
+            </div>
+        </div>
+        
+        <div class="test-item">
+            <h3>测试用例 3：活动申报页面的商品名称</h3>
+            <div class="original">
+                <strong>原始HTML:</strong>
+                <div class="goods-info_title__yHBeG">
+                    Kitchen Apron Chef Style
+                </div>
+            </div>
+            <div class="extracted">
+                <strong>提取结果:</strong> <span id="result3"></span>
+            </div>
+        </div>
+        
+        <button onclick="runTests()" style="padding: 10px 20px; background: #1890ff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            运行测试
+        </button>
+    </div>
+
+    <script>
+        // 复制content.js中的提取逻辑
+        function extractProductName(element) {
+            if (!element) return '';
+            
+            let productName = '';
+            
+            // 方法1：获取所有文本节点，排除style标签
+            const walker = document.createTreeWalker(
+                element,
+                NodeFilter.SHOW_TEXT,
+                {
+                    acceptNode: function(node) {
+                        // 排除style标签内的文本
+                        let parent = node.parentElement;
+                        while (parent && parent !== element) {
+                            if (parent.tagName === 'STYLE') {
+                                return NodeFilter.FILTER_REJECT;
+                            }
+                            parent = parent.parentElement;
+                        }
+                        return NodeFilter.FILTER_ACCEPT;
+                    }
+                },
+                false
+            );
+            
+            const textNodes = [];
+            let node;
+            while (node = walker.nextNode()) {
+                const text = node.textContent.trim();
+                if (text && !text.includes('{') && !text.includes('}')) {
+                    textNodes.push(text);
+                }
+            }
+            
+            if (textNodes.length > 0) {
+                productName = textNodes.join(' ').trim();
+            } else {
+                // 方法2：直接获取textContent并清理
+                productName = element.textContent.trim();
+                // 移除CSS样式代码和style标签内容
+                productName = productName.replace(/\{[^}]*\}/g, '').trim();
+                // 移除可能的style标签内容
+                productName = productName.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '').trim();
+            }
+            
+            return productName;
+        }
+        
+        function runTests() {
+            // 测试用例1
+            const element1 = document.querySelector('.test-item:nth-child(2) .beast-core-ellipsis-1');
+            const result1 = extractProductName(element1);
+            document.getElementById('result1').textContent = result1;
+            
+            // 测试用例2
+            const element2 = document.querySelector('.test-item:nth-child(3) .beast-core-ellipsis-1');
+            const result2 = extractProductName(element2);
+            document.getElementById('result2').textContent = result2;
+            
+            // 测试用例3
+            const element3 = document.querySelector('.test-item:nth-child(4) .goods-info_title__yHBeG');
+            const result3 = extractProductName(element3);
+            document.getElementById('result3').textContent = result3;
+            
+            console.log('测试结果:');
+            console.log('用例1:', result1);
+            console.log('用例2:', result2);
+            console.log('用例3:', result3);
+        }
+        
+        // 页面加载完成后自动运行测试
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(runTests, 100);
+        });
+    </script>
+</body>
+</html> 

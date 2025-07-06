@@ -226,6 +226,10 @@ class PopupManager {
             // 获取当前活动标签页
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
             
+            // 检测页面类型
+            const pageType = await this.detectPageType(tab.id);
+            console.log('检测到页面类型:', pageType);
+            
             // 首先尝试注入内容脚本
             try {
                 await chrome.scripting.executeScript({
@@ -253,16 +257,44 @@ class PopupManager {
             // 发送消息到内容脚本开始自动勾选
             const response = await chrome.tabs.sendMessage(tab.id, {
                 action: 'startAutoCheck',
-                categories: this.categories
+                categories: this.categories,
+                pageType: pageType // 传递页面类型信息
             });
 
             this.isRunning = true;
             this.updateButtonStates();
-            this.showStatus('自动勾选已开始，正在扫描页面...', 'success');
+            this.showStatus(`自动勾选已开始 (${pageType})，正在扫描页面...`, 'success');
 
         } catch (error) {
             console.error('启动自动勾选失败:', error);
             this.showStatus('启动失败，请刷新页面后重试', 'error');
+        }
+    }
+
+    // 检测页面类型
+    async detectPageType(tabId) {
+        try {
+            const results = await chrome.scripting.executeScript({
+                target: { tabId: tabId },
+                func: () => {
+                    // 检测页面类型
+                    const hasOfficialPromotion = document.querySelector('.beast-core-ellipsis-1');
+                    const hasActivityDeclaration = document.querySelector('.goods-info_title__yHBeG');
+                    
+                    if (hasOfficialPromotion) {
+                        return '官方大促';
+                    } else if (hasActivityDeclaration) {
+                        return '活动申报';
+                    } else {
+                        return '未知页面';
+                    }
+                }
+            });
+            
+            return results[0].result;
+        } catch (error) {
+            console.error('检测页面类型失败:', error);
+            return '未知页面';
         }
     }
 

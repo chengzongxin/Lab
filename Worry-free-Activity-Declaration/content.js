@@ -17,6 +17,7 @@ if (typeof window.autoCheckManager === 'undefined') {
             this.scrollThrottle = 2000; // 滚动间隔（毫秒）
             this.noMatchCount = 0; // 连续无匹配次数
             this.maxNoMatchCount = 3; // 最大连续无匹配次数，超过后开始滚动
+            this.pageType = '未知页面'; // 添加页面类型属性
             this.init();
         }
 
@@ -34,7 +35,7 @@ if (typeof window.autoCheckManager === 'undefined') {
             try {
                 switch (message.action) {
                     case 'startAutoCheck':
-                        this.startAutoCheck(message.categories);
+                        this.startAutoCheck(message.categories, message.pageType);
                         sendResponse({ success: true, message: '自动勾选已开始' });
                         break;
                     case 'stopAutoCheck':
@@ -64,9 +65,10 @@ if (typeof window.autoCheckManager === 'undefined') {
     }
 
     // 开始自动勾选
-    startAutoCheck(categories) {
-        console.log('🚀 开始自动勾选，配置:', categories);
+    startAutoCheck(categories, pageType = '未知页面') {
+        console.log('🚀 开始自动勾选，配置:', categories, '页面类型:', pageType);
         this.categories = categories;
+        this.pageType = pageType; // 保存页面类型
         this.isRunning = true;
         this.processedRows.clear();
         this.checkedCount = 0;
@@ -94,7 +96,7 @@ if (typeof window.autoCheckManager === 'undefined') {
         // 监听DOM变化
         this.startObserving();
         
-        this.showNotification('自动勾选已开始', 'success');
+        this.showNotification(`自动勾选已开始 (${pageType})`, 'success');
     }
 
     // 停止自动勾选
@@ -429,7 +431,13 @@ if (typeof window.autoCheckManager === 'undefined') {
     shouldCheckRow(row) {
         try {
             // 获取商品名称 - 尝试多种方式获取纯文本
-            const titleElement = row.querySelector('.goods-info_title__yHBeG');
+            // 支持两种页面结构：活动申报页面和官方大促页面
+            let titleElement = row.querySelector('.goods-info_title__yHBeG');
+            if (!titleElement) {
+                // 官方大促页面的商品名称选择器
+                titleElement = row.querySelector('.beast-core-ellipsis-1');
+            }
+            
             if (!titleElement) {
                 console.log('❌ 未找到商品名称元素');
                 return false;
@@ -438,11 +446,23 @@ if (typeof window.autoCheckManager === 'undefined') {
             // 获取纯文本内容，排除样式代码
             let productName = '';
             
-            // 方法1：获取所有文本节点
+            // 方法1：获取所有文本节点，排除style标签
             const walker = document.createTreeWalker(
                 titleElement,
                 NodeFilter.SHOW_TEXT,
-                null,
+                {
+                    acceptNode: function(node) {
+                        // 排除style标签内的文本
+                        let parent = node.parentElement;
+                        while (parent && parent !== titleElement) {
+                            if (parent.tagName === 'STYLE') {
+                                return NodeFilter.FILTER_REJECT;
+                            }
+                            parent = parent.parentElement;
+                        }
+                        return NodeFilter.FILTER_ACCEPT;
+                    }
+                },
                 false
             );
             
@@ -460,8 +480,10 @@ if (typeof window.autoCheckManager === 'undefined') {
             } else {
                 // 方法2：直接获取textContent并清理
                 productName = titleElement.textContent.trim();
-                // 移除CSS样式代码
+                // 移除CSS样式代码和style标签内容
                 productName = productName.replace(/\{[^}]*\}/g, '').trim();
+                // 移除可能的style标签内容
+                productName = productName.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '').trim();
             }
             
             if (!productName) {
@@ -470,6 +492,7 @@ if (typeof window.autoCheckManager === 'undefined') {
             }
 
             // 获取申报价格 - 尝试多种选择器
+            // 支持两种页面结构
             let priceElement = row.querySelector('td:nth-child(5) span span:last-child');
             if (!priceElement) {
                 // 备用选择器
@@ -496,22 +519,22 @@ if (typeof window.autoCheckManager === 'undefined') {
             }
 
             // 调试：打印商品信息
-            // console.log(`🔍 检查商品: "${productName}" (¥${price})`);
+            console.log(`🔍 检查商品: "${productName}" (¥${price}) [${this.pageType}]`);
 
             // 检查是否匹配任何品类
             for (const category of this.categories) {
                 const isMatch = this.matchesCategory(productName, category.keyword);
                 const priceOK = price >= category.minPrice;
                 
-                // console.log(`  - 品类 "${category.keyword}": 匹配=${isMatch}, 价格=${priceOK} (需要≥${category.minPrice})`);
+                console.log(`  - 品类 "${category.keyword}": 匹配=${isMatch}, 价格=${priceOK} (需要≥${category.minPrice})`);
                 
                 if (isMatch && priceOK) {
-                    // console.log(`✅ 匹配成功: "${productName}" (¥${price}) 匹配品类 "${category.keyword}" (最低价¥${category.minPrice})`);
+                    console.log(`✅ 匹配成功: "${productName}" (¥${price}) 匹配品类 "${category.keyword}" (最低价¥${category.minPrice})`);
                     return true;
                 }
             }
 
-            // console.log(`❌ 未匹配任何品类: "${productName}" (¥${price})`);
+            console.log(`❌ 未匹配任何品类: "${productName}" (¥${price})`);
             return false;
         } catch (error) {
             console.error('检查行时出错:', error);

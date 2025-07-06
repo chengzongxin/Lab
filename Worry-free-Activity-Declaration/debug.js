@@ -503,4 +503,329 @@ class DebugTool {
 }
 
 // 初始化调试工具
-const debugTool = new DebugTool(); 
+const debugTool = new DebugTool();
+
+// 调试工具 - 在控制台中使用
+// 防止重复声明
+if (typeof window.debugTools === 'undefined') {
+    window.debugTools = {
+        // 检测页面类型
+        detectPageType() {
+            const hasOfficialPromotion = document.querySelector('.beast-core-ellipsis-1');
+            const hasActivityDeclaration = document.querySelector('.goods-info_title__yHBeG');
+            
+            if (hasOfficialPromotion) {
+                console.log('🎯 检测到页面类型: 官方大促');
+                return '官方大促';
+            } else if (hasActivityDeclaration) {
+                console.log('🎯 检测到页面类型: 活动申报');
+                return '活动申报';
+            } else {
+                console.log('❌ 未知页面类型');
+                return '未知页面';
+            }
+        },
+
+        // 检查页面元素
+        checkPageElements() {
+            console.log('🔍 检查页面元素...');
+            
+            // 检查商品名称元素
+            const titleElements = document.querySelectorAll('.goods-info_title__yHBeG, .beast-core-ellipsis-1');
+            console.log(`📦 找到商品名称元素: ${titleElements.length} 个`);
+            
+            titleElements.forEach((el, index) => {
+                // 使用与content.js相同的逻辑提取文本
+                let text = '';
+                
+                // 方法1：获取所有文本节点，排除style标签
+                const walker = document.createTreeWalker(
+                    el,
+                    NodeFilter.SHOW_TEXT,
+                    {
+                        acceptNode: function(node) {
+                            // 排除style标签内的文本
+                            let parent = node.parentElement;
+                            while (parent && parent !== el) {
+                                if (parent.tagName === 'STYLE') {
+                                    return NodeFilter.FILTER_REJECT;
+                                }
+                                parent = parent.parentElement;
+                            }
+                            return NodeFilter.FILTER_ACCEPT;
+                        }
+                    },
+                    false
+                );
+                
+                const textNodes = [];
+                let node;
+                while (node = walker.nextNode()) {
+                    const nodeText = node.textContent.trim();
+                    if (nodeText && !nodeText.includes('{') && !nodeText.includes('}')) {
+                        textNodes.push(nodeText);
+                    }
+                }
+                
+                if (textNodes.length > 0) {
+                    text = textNodes.join(' ').trim();
+                } else {
+                    // 方法2：直接获取textContent并清理
+                    text = el.textContent.trim();
+                    // 移除CSS样式代码和style标签内容
+                    text = text.replace(/\{[^}]*\}/g, '').trim();
+                    // 移除可能的style标签内容
+                    text = text.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '').trim();
+                }
+                
+                console.log(`  ${index + 1}. "${text}"`);
+            });
+            
+            // 检查价格元素
+            const priceElements = document.querySelectorAll('td:nth-child(5)');
+            console.log(`💰 找到价格元素: ${priceElements.length} 个`);
+            
+            priceElements.forEach((el, index) => {
+                const text = el.textContent.trim();
+                console.log(`  ${index + 1}. "${text}"`);
+            });
+            
+            // 检查checkbox元素
+            const checkboxElements = document.querySelectorAll('[data-testid="beast-core-checkbox"]');
+            console.log(`☑️ 找到checkbox元素: ${checkboxElements.length} 个`);
+            
+            checkboxElements.forEach((el, index) => {
+                const isChecked = el.getAttribute('data-checked') === 'true';
+                console.log(`  ${index + 1}. 状态: ${isChecked ? '已勾选' : '未勾选'}`);
+            });
+        },
+
+        // 测试商品名称匹配
+        testProductMatch(keyword) {
+            console.log(`🔍 测试关键词匹配: "${keyword}"`);
+            
+            const titleElements = document.querySelectorAll('.goods-info_title__yHBeG, .beast-core-ellipsis-1');
+            let matchCount = 0;
+            
+            titleElements.forEach((el, index) => {
+                // 使用与content.js相同的逻辑提取文本
+                let productName = '';
+                
+                // 方法1：获取所有文本节点，排除style标签
+                const walker = document.createTreeWalker(
+                    el,
+                    NodeFilter.SHOW_TEXT,
+                    {
+                        acceptNode: function(node) {
+                            // 排除style标签内的文本
+                            let parent = node.parentElement;
+                            while (parent && parent !== el) {
+                                if (parent.tagName === 'STYLE') {
+                                    return NodeFilter.FILTER_REJECT;
+                                }
+                                parent = parent.parentElement;
+                            }
+                            return NodeFilter.FILTER_ACCEPT;
+                        }
+                    },
+                    false
+                );
+                
+                const textNodes = [];
+                let node;
+                while (node = walker.nextNode()) {
+                    const nodeText = node.textContent.trim();
+                    if (nodeText && !nodeText.includes('{') && !nodeText.includes('}')) {
+                        textNodes.push(nodeText);
+                    }
+                }
+                
+                if (textNodes.length > 0) {
+                    productName = textNodes.join(' ').trim();
+                } else {
+                    // 方法2：直接获取textContent并清理
+                    productName = el.textContent.trim();
+                    // 移除CSS样式代码和style标签内容
+                    productName = productName.replace(/\{[^}]*\}/g, '').trim();
+                    // 移除可能的style标签内容
+                    productName = productName.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '').trim();
+                }
+                
+                const isMatch = productName.toLowerCase().includes(keyword.toLowerCase());
+                
+                console.log(`  ${index + 1}. "${productName}" - ${isMatch ? '✅ 匹配' : '❌ 不匹配'}`);
+                
+                if (isMatch) matchCount++;
+            });
+            
+            console.log(`📊 匹配结果: ${matchCount}/${titleElements.length} 个商品匹配关键词 "${keyword}"`);
+            return matchCount;
+        },
+
+        // 测试价格解析
+        testPriceParsing() {
+            console.log('💰 测试价格解析...');
+            
+            const priceElements = document.querySelectorAll('td:nth-child(5)');
+            
+            priceElements.forEach((el, index) => {
+                const priceText = el.textContent.trim();
+                const priceMatch = priceText.match(/[\d.]+/);
+                const price = priceMatch ? parseFloat(priceMatch[0]) : 0;
+                
+                console.log(`  ${index + 1}. 原始文本: "${priceText}" -> 解析价格: ${price}`);
+            });
+        },
+
+        // 测试checkbox勾选
+        testCheckboxCheck() {
+            console.log('☑️ 测试checkbox勾选功能...');
+            
+            const checkboxElements = document.querySelectorAll('[data-testid="beast-core-checkbox"]');
+            
+            checkboxElements.forEach((el, index) => {
+                const beforeState = el.getAttribute('data-checked') === 'true';
+                console.log(`  ${index + 1}. 勾选前状态: ${beforeState ? '已勾选' : '未勾选'}`);
+                
+                // 模拟勾选
+                el.click();
+                
+                setTimeout(() => {
+                    const afterState = el.getAttribute('data-checked') === 'true';
+                    console.log(`  ${index + 1}. 勾选后状态: ${afterState ? '已勾选' : '未勾选'}`);
+                }, 100);
+            });
+        },
+
+        // 检查滚动容器
+        checkScrollContainers() {
+            console.log('📜 检查滚动容器...');
+            
+            // 查找所有可能的滚动容器
+            const scrollContainers = document.querySelectorAll('[style*="overflow"], [class*="scroll"], [class*="table"], .ant-table-body, .el-table__body-wrapper');
+            
+            console.log(`找到 ${scrollContainers.length} 个可能的滚动容器:`);
+            
+            scrollContainers.forEach((container, index) => {
+                const style = window.getComputedStyle(container);
+                const hasScroll = style.overflow === 'auto' || style.overflow === 'scroll' || style.overflowY === 'auto' || style.overflowY === 'scroll';
+                const scrollHeight = container.scrollHeight;
+                const clientHeight = container.clientHeight;
+                const canScroll = scrollHeight > clientHeight;
+                
+                console.log(`  ${index + 1}. 元素:`, container);
+                console.log(`     overflow: ${style.overflow}, overflowY: ${style.overflowY}`);
+                console.log(`     scrollHeight: ${scrollHeight}, clientHeight: ${clientHeight}`);
+                console.log(`     可滚动: ${hasScroll && canScroll ? '✅ 是' : '❌ 否'}`);
+            });
+        },
+
+        // 测试滚动功能
+        testScroll() {
+            console.log('📜 测试滚动功能...');
+            
+            // 方法1：查找表格容器并滚动
+            const tableContainer = this.findTableContainer();
+            if (tableContainer) {
+                console.log('找到表格容器，执行滚动:', tableContainer);
+                tableContainer.scrollTo({
+                    top: tableContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
+            
+            // 方法2：查找所有可能的滚动容器
+            const scrollContainers = document.querySelectorAll('[style*="overflow"], [class*="scroll"], [class*="table"], .ant-table-body, .el-table__body-wrapper');
+            console.log('找到滚动容器数量:', scrollContainers.length);
+            
+            scrollContainers.forEach((container, index) => {
+                if (container.scrollHeight > container.clientHeight) {
+                    console.log(`滚动容器 ${index}:`, container);
+                    container.scrollTo({
+                        top: container.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+            
+            // 方法3：直接滚动页面
+            const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const maxScrollTop = document.body.scrollHeight - window.innerHeight;
+            
+            console.log('页面滚动信息:', {
+                currentScrollTop,
+                maxScrollTop,
+                documentHeight: document.body.scrollHeight,
+                windowHeight: window.innerHeight
+            });
+            
+            if (maxScrollTop > currentScrollTop) {
+                window.scrollTo({
+                    top: maxScrollTop,
+                    behavior: 'smooth'
+                });
+            }
+        },
+
+        // 查找表格容器
+        findTableContainer() {
+            // 查找包含表格的容器
+            const table = document.querySelector('table, [data-testid*="table"]');
+            if (table) {
+                // 向上查找可滚动的父容器
+                let container = table.parentElement;
+                while (container && container !== document.body) {
+                    const style = window.getComputedStyle(container);
+                    if (style.overflow === 'auto' || style.overflow === 'scroll' || style.overflowY === 'auto' || style.overflowY === 'scroll') {
+                        return container;
+                    }
+                    container = container.parentElement;
+                }
+            }
+            
+            // 查找常见的表格容器类名
+            const commonContainers = [
+                '.ant-table-body',
+                '.el-table__body-wrapper',
+                '.table-container',
+                '.scroll-container',
+                '[class*="table"]',
+                '[class*="scroll"]'
+            ];
+            
+            for (const selector of commonContainers) {
+                const container = document.querySelector(selector);
+                if (container && container.scrollHeight > container.clientHeight) {
+                    return container;
+                }
+            }
+            
+            return null;
+        },
+
+        // 显示帮助信息
+        help() {
+            console.log(`
+🎯 活动申报助手 - 调试工具
+
+可用命令:
+• debugTools.detectPageType() - 检测页面类型
+• debugTools.checkPageElements() - 检查页面元素
+• debugTools.testProductMatch('关键词') - 测试商品名称匹配
+• debugTools.testPriceParsing() - 测试价格解析
+• debugTools.testCheckboxCheck() - 测试checkbox勾选
+• debugTools.checkScrollContainers() - 检查滚动容器
+• debugTools.testScroll() - 测试滚动功能
+• debugTools.help() - 显示此帮助信息
+
+示例:
+• debugTools.testProductMatch('袜子') - 测试匹配包含"袜子"的商品
+• debugTools.testProductMatch('围裙') - 测试匹配包含"围裙"的商品
+            `);
+        }
+    };
+
+    // 自动显示帮助信息
+    console.log('🎯 活动申报助手调试工具已加载');
+    console.log('输入 debugTools.help() 查看可用命令');
+} 

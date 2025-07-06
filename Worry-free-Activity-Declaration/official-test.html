@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>官方大促测试页面</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: #1890ff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        th {
+            background-color: #fafafa;
+            font-weight: 600;
+        }
+        .goods-info_goodsInfo__9Dk9d {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .goods-info_imgWrapper__0NMaI img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .goods-info_info__96weG {
+            flex: 1;
+        }
+        .beast-core-ellipsis-1 {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .goods-info_spu__Uy7R9 {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        .goods-info_siteName__NoCPp {
+            color: #999;
+            font-size: 12px;
+        }
+        .CBX_checkbox_5-118-0 {
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            background: white;
+            transition: all 0.3s;
+        }
+        .CBX_checkbox_5-118-0.CBX_active_5-118-0 {
+            background: #1890ff;
+            border-color: #1890ff;
+        }
+        .CBX_square_5-118-0 {
+            width: 16px;
+            height: 16px;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            background: white;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .CBX_square_5-118-0.CBX_active_5-118-0 {
+            background: #1890ff;
+            border-color: #1890ff;
+        }
+        .CBX_iconCheck_5-118-0 {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .CBX_iconCheck_5-118-0.CBX_active_5-118-0 {
+            opacity: 1;
+        }
+        .CBX_iconCheck_5-118-0 svg {
+            width: 12px;
+            height: 12px;
+        }
+        .price {
+            color: #ff4d4f;
+            font-weight: 600;
+        }
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            z-index: 10000;
+            max-width: 300px;
+        }
+        .status.success { background-color: #28a745; }
+        .status.error { background-color: #dc3545; }
+        .status.warning { background-color: #ffc107; color: #212529; }
+        .status.info { background-color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>官方大促活动 - 商品报名</h1>
+            <p>测试页面 - 用于验证活动申报助手插件功能</p>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">
+                            <label class="CBX_checkbox_5-118-0" data-testid="beast-core-checkbox" data-checked="false">
+                                <div class="CBX_square_5-118-0">
+                                    <svg class="CBX_iconCheck_5-118-0" viewBox="0 0 1024 1024">
+                                        <path d="M778.748 225.79c16.72-20.641 46.95-23.775 67.523-6.999 20.572 16.776 23.695 47.108 6.975 67.749l-408 503.677c-18.8 23.208-53.912 23.794-73.47 1.227l-200-230.769c-17.395-20.07-15.28-50.49 4.724-67.944 20.005-17.453 50.323-15.33 67.718 4.74l162.538 187.544 371.992-459.226z"></path>
+                                    </svg>
+                                </div>
+                            </label>
+                        </th>
+                        <th>商品信息</th>
+                        <th>商品ID</th>
+                        <th>规格</th>
+                        <th>申报价格</th>
+                        <th>可报名场次</th>
+                        <th>活动价格</th>
+                        <th>库存</th>
+                        <th>活动申报价</th>
+                        <th>活动库存</th>
+                    </tr>
+                </thead>
+                <tbody data-testid="beast-core-table-middle-tbody">
+                    <tr data-testid="beast-core-table-body-tr" class="TB_tr_5-118-0 TB_whiteTr_5-118-0">
+                        <td class="TB_checkCell_5-118-0 TB_td_5-118-0">
+                            <label class="CBX_outerWrapper_5-118-0 CBX_checkbox_5-118-0 CBX_medium_5-118-0" data-testid="beast-core-checkbox" data-checked="false" data-indeterminate="false">
+                                <div class="CBX_squareInputWrapper_5-118-0">
+                                    <input mode="checkbox" class="CBX_input_5-118-0" type="checkbox">
+                                    <div class="CBX_square_5-118-0 CBX_groupDisabled_5-118-0 CBX_hasCheckSquare_5-118-0 CBX_mount_5-118-0">
+                                        <svg class="CBX_iconCheck_5-118-0" viewBox="0 0 1024 1024">
+                                            <path d="M778.748 225.79c16.72-20.641 46.95-23.775 67.523-6.999 20.572 16.776 23.695 47.108 6.975 67.749l-408 503.677c-18.8 23.208-53.912 23.794-73.47 1.227l-200-230.769c-17.395-20.07-15.28-50.49 4.724-67.944 20.005-17.453 50.323-15.33 67.718 4.74l162.538 187.544 371.992-459.226z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </label>
+                        </td>
+                        <td>
+                            <div class="goods-info_goodsInfo__9Dk9d">
+                                <div class="goods-info_imgWrapper__0NMaI">
+                                    <img src="https://via.placeholder.com/60x60/ff6b6b/ffffff?text=1" alt="商品图片">
+                                </div>
+                                <div class="goods-info_info__96weG">
+                                    <div class="beast-core-ellipsis-1">彩虹袜子 Pride Flag Socks</div>
+                                    <div class="goods-info_spu__Uy7R9">SPU ID: 9987809362</div>
+                                    <div class="goods-info_siteName__NoCPp">经营站点：美国站、加拿大站、英国站</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>28653009202</td>
+                        <td>Multicolor-单尺码</td>
+                        <td><span class="price">¥19.60</span></td>
+                        <td>40</td>
+                        <td><span class="price">¥17.64</span></td>
+                        <td>30</td>
+                        <td><input type="text" placeholder="请输入" disabled></td>
+                        <td><input type="text" placeholder="请输入" disabled></td>
+                    </tr>
+                    
+                    <tr data-testid="beast-core-table-body-tr" class="TB_tr_5-118-0 TB_greyTr_5-118-0">
+                        <td class="TB_checkCell_5-118-0 TB_td_5-118-0">
+                            <label class="CBX_outerWrapper_5-118-0 CBX_checkbox_5-118-0 CBX_medium_5-118-0" data-testid="beast-core-checkbox" data-checked="false" data-indeterminate="false">
+                                <div class="CBX_squareInputWrapper_5-118-0">
+                                    <input mode="checkbox" class="CBX_input_5-118-0" type="checkbox">
+                                    <div class="CBX_square_5-118-0 CBX_groupDisabled_5-118-0 CBX_hasCheckSquare_5-118-0 CBX_mount_5-118-0">
+                                        <svg class="CBX_iconCheck_5-118-0" viewBox="0 0 1024 1024">
+                                            <path d="M778.748 225.79c16.72-20.641 46.95-23.775 67.523-6.999 20.572 16.776 23.695 47.108 6.975 67.749l-408 503.677c-18.8 23.208-53.912 23.794-73.47 1.227l-200-230.769c-17.395-20.07-15.28-50.49 4.724-67.944 20.005-17.453 50.323-15.33 67.718 4.74l162.538 187.544 371.992-459.226z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </label>
+                        </td>
+                        <td>
+                            <div class="goods-info_goodsInfo__9Dk9d">
+                                <div class="goods-info_imgWrapper__0NMaI">
+                                    <img src="https://via.placeholder.com/60x60/4ecdc4/ffffff?text=2" alt="商品图片">
+                                </div>
+                                <div class="goods-info_info__96weG">
+                                    <div class="beast-core-ellipsis-1">厨房围裙 Chef Apron</div>
+                                    <div class="goods-info_spu__Uy7R9">SPU ID: 9989444330</div>
+                                    <div class="goods-info_siteName__NoCPp">经营站点：美国站、加拿大站、英国站</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>60506726746</td>
+                        <td>Multicolor-单尺码</td>
+                        <td><span class="price">¥21.78</span></td>
+                        <td>52</td>
+                        <td><span class="price">¥19.60</span></td>
+                        <td>30</td>
+                        <td><input type="text" placeholder="请输入" disabled></td>
+                        <td><input type="text" placeholder="请输入" disabled></td>
+                    </tr>
+                    
+                    <tr data-testid="beast-core-table-body-tr" class="TB_tr_5-118-0 TB_whiteTr_5-118-0">
+                        <td class="TB_checkCell_5-118-0 TB_td_5-118-0">
+                            <label class="CBX_outerWrapper_5-118-0 CBX_checkbox_5-118-0 CBX_medium_5-118-0" data-testid="beast-core-checkbox" data-checked="false" data-indeterminate="false">
+                                <div class="CBX_squareInputWrapper_5-118-0">
+                                    <input mode="checkbox" class="CBX_input_5-118-0" type="checkbox">
+                                    <div class="CBX_square_5-118-0 CBX_groupDisabled_5-118-0 CBX_hasCheckSquare_5-118-0 CBX_mount_5-118-0">
+                                        <svg class="CBX_iconCheck_5-118-0" viewBox="0 0 1024 1024">
+                                            <path d="M778.748 225.79c16.72-20.641 46.95-23.775 67.523-6.999 20.572 16.776 23.695 47.108 6.975 67.749l-408 503.677c-18.8 23.208-53.912 23.794-73.47 1.227l-200-230.769c-17.395-20.07-15.28-50.49 4.724-67.944 20.005-17.453 50.323-15.33 67.718 4.74l162.538 187.544 371.992-459.226z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </label>
+                        </td>
+                        <td>
+                            <div class="goods-info_goodsInfo__9Dk9d">
+                                <div class="goods-info_imgWrapper__0NMaI">
+                                    <img src="https://via.placeholder.com/60x60/45b7d1/ffffff?text=3" alt="商品图片">
+                                </div>
+                                <div class="goods-info_info__96weG">
+                                    <div class="beast-core-ellipsis-1">普通T恤 T-Shirt</div>
+                                    <div class="goods-info_spu__Uy7R9">SPU ID: 9989444331</div>
+                                    <div class="goods-info_siteName__NoCPp">经营站点：美国站、加拿大站、英国站</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>60506726747</td>
+                        <td>Multicolor-单尺码</td>
+                        <td><span class="price">¥8.50</span></td>
+                        <td>25</td>
+                        <td><span class="price">¥7.65</span></td>
+                        <td>50</td>
+                        <td><input type="text" placeholder="请输入" disabled></td>
+                        <td><input type="text" placeholder="请输入" disabled></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // 模拟checkbox点击功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('[data-testid="beast-core-checkbox"]');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('click', function() {
+                    const isChecked = this.getAttribute('data-checked') === 'true';
+                    this.setAttribute('data-checked', !isChecked);
+                    
+                    const square = this.querySelector('.CBX_square_5-118-0');
+                    const icon = this.querySelector('.CBX_iconCheck_5-118-0');
+                    const input = this.querySelector('input[type="checkbox"]');
+                    
+                    if (!isChecked) {
+                        // 勾选
+                        this.classList.add('CBX_active_5-118-0');
+                        square.classList.add('CBX_active_5-118-0');
+                        icon.classList.add('CBX_active_5-118-0');
+                        if (input) input.checked = true;
+                    } else {
+                        // 取消勾选
+                        this.classList.remove('CBX_active_5-118-0');
+                        square.classList.remove('CBX_active_5-118-0');
+                        icon.classList.remove('CBX_active_5-118-0');
+                        if (input) input.checked = false;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
