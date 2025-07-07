@@ -57,8 +57,9 @@ const ConfigPage: React.FC = () => {
     }
   };
 
+  // 64 Header ， 48 Card Padding
   return (
-    <Card title="配置管理">
+    <Card title="配置管理" style={{ height: 'calc(100vh - 64px - 48px)' }}> 
       <Form form={form} labelCol={{ span: 4 }} wrapperCol={{ span: 8 }} onFinish={onFinish}>
         <Form.Item label="商家中心Cookie" name="seller_cookie"><Input /></Form.Item>
         <Form.Item label="合规中心Cookie" name="compliance_cookie"><Input /></Form.Item>

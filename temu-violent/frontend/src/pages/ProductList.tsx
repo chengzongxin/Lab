@@ -58,7 +58,7 @@ const ProductList: React.FC = () => {
     const res = await fetch("/api/temu/seller/offline", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         productIds: selectedRowKeys.map(String),
         max_threads: 8  // 批量下架使用更多线程
       }),
@@ -87,7 +87,7 @@ const ProductList: React.FC = () => {
       const isAllSite = record.site_num === 1 &&
         Array.isArray(record.punish_detail_list) &&
         record.punish_detail_list.some((d: any) => d.site_id === -1);
-      
+
       // 根据筛选范围进行过滤
       if (filterRange === "80+") {
         // 80以上：包括全站违规 + 80站以上
@@ -100,7 +100,7 @@ const ProductList: React.FC = () => {
           return record.site_num >= customMin && record.site_num <= customMax;
         }
       }
-      
+
       return false;
     })
     : products;
@@ -169,69 +169,64 @@ const ProductList: React.FC = () => {
           </Space>
         </div>
       }
-      style={{ display: 'flex', flexDirection: 'column', height: 'auto', minHeight: 0 }}
+      style={{ height: 'calc(100vh - 64px - 48px)' }}
     >
-
-      <div style={{ flex: 1, height: '100%' }}>
-
-        <Table
-          rowKey="spu_id"
-          rowSelection={{
-            selectedRowKeys,
-            onChange: setSelectedRowKeys,
-          }}
-          size='large'
-          columns={[
-            { title: "图片", dataIndex: "goods_img_url", render: (url: string) => url ? <Image width={160} src={url} /> : null },
-            { 
-              title: "商品ID", 
-              dataIndex: "spu_id",
-              render: (text: string) => <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{text}</span>
-            },
-            { title: "商品名称", dataIndex: "goods_name" },
-            {
-              title: "违规描述",
-              dataIndex: "violation_desc",
-              render: (desc: string) => desc || "-"
-            },
-            {
-              title: "违规站点",
-              dataIndex: "site_num",
-              render: (_, record) => {
-                const isAllSite = record.site_num === 1 &&
-                  Array.isArray(record.punish_detail_list) &&
-                  record.punish_detail_list.some((d: any) => d.site_id === -1);
-                if (isAllSite) return <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#ff4d4f' }}>全部站点违规</span>;
-                return <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{record.site_num}</span>;
-              }
-            },
-            {
-              title: "操作",
-              render: (_, record) => (
-                <Button type="link" style={{ fontSize: 16, padding: 20, border: '1px solid #00f' }} onClick={() => openDetail(record)}>
-                  详情
-                </Button>
-              ),
-            },
-          ]}
-          dataSource={filteredProducts}
-          loading={loading}
-          pagination={{
-            current: page,
-            pageSize: pageSize,
-            total: total,
-            showSizeChanger: true,
-            showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条违规记录`,
-            onChange: (p, ps) => {
-              setPage(p);
-              setPageSize(ps);
-              fetchProducts(p, ps); // 分页时主动刷新
-            },
-          }}
-          scroll={{ y: 800 }}
-          rowClassName={record => viewedIds.includes(record.spu_id) ? "viewed-row" : ""}
-        />
-      </div>
+      <Table
+        rowKey="spu_id"
+        rowSelection={{
+          selectedRowKeys,
+          onChange: setSelectedRowKeys,
+        }}
+        size='large'
+        columns={[
+          { title: "图片", dataIndex: "goods_img_url", render: (url: string) => url ? <Image width={160} src={url} /> : null },
+          {
+            title: "商品ID",
+            dataIndex: "spu_id",
+            render: (text: string) => <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{text}</span>
+          },
+          { title: "商品名称", dataIndex: "goods_name" },
+          {
+            title: "违规描述",
+            dataIndex: "violation_desc",
+            render: (desc: string) => desc || "-"
+          },
+          {
+            title: "违规站点",
+            dataIndex: "site_num",
+            render: (_, record) => {
+              const isAllSite = record.site_num === 1 &&
+                Array.isArray(record.punish_detail_list) &&
+                record.punish_detail_list.some((d: any) => d.site_id === -1);
+              if (isAllSite) return <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#ff4d4f' }}>全部站点违规</span>;
+              return <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{record.site_num}</span>;
+            }
+          },
+          {
+            title: "操作",
+            render: (_, record) => (
+              <Button type="link" style={{ fontSize: 16, padding: 20, border: '1px solid #00f' }} onClick={() => openDetail(record)}>
+                详情
+              </Button>
+            ),
+          },
+        ]}
+        dataSource={filteredProducts}
+        loading={loading}
+        pagination={{
+          current: page,
+          pageSize: pageSize,
+          total: total,
+          showSizeChanger: true,
+          showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条违规记录`,
+          onChange: (p, ps) => {
+            setPage(p);
+            setPageSize(ps);
+            fetchProducts(p, ps); // 分页时主动刷新
+          },
+        }}
+        rowClassName={record => viewedIds.includes(record.spu_id) ? "viewed-row" : ""}
+      />
       <Drawer
         title="违规商品详情"
         width={1600}

@@ -48,7 +48,8 @@ function AppLayout() {
           margin: '0',
           background: '#fff',
           padding: 24,
-          // minHeight: '100%',
+          height: 'calc(100vh - 64px)',
+          overflowY: 'auto',
           flex: 1,
         }}>
           <Routes>
