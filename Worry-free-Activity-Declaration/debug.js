@@ -203,6 +203,81 @@ class DebugTool {
             }
         };
 
+                // 分析价格分布
+        window.analyzePrices = () => {
+            console.log('💰 分析页面价格分布...');
+            
+            if (window.autoCheckManager && window.autoCheckManager.analyzePriceDistribution) {
+                const result = window.autoCheckManager.analyzePriceDistribution();
+                
+                console.log('📊 总体价格统计:', {
+                    总商品数: result.stats.total,
+                    最低价格: `¥${result.stats.min}`,
+                    最高价格: `¥${result.stats.max}`,
+                    平均价格: `¥${result.stats.avg.toFixed(2)}`
+                });
+                
+                console.log('📈 按品类价格统计:');
+                for (const [keyword, stats] of Object.entries(result.categoryStats)) {
+                    console.log(`  ${keyword}:`, {
+                        商品数量: stats.count,
+                        最低价格: `¥${stats.min}`,
+                        最高价格: `¥${stats.max}`,
+                        平均价格: `¥${stats.avg.toFixed(2)}`,
+                        价格范围: `${stats.prices.slice(0, 5).join(', ')}${stats.prices.length > 5 ? '...' : ''}`
+                    });
+                }
+                
+                // 建议最低价格设置
+                console.log('💡 建议的最低价格设置:');
+                for (const [keyword, stats] of Object.entries(result.categoryStats)) {
+                    const suggestedPrice = Math.floor(stats.avg * 0.8); // 建议设为平均价格的80%
+                    console.log(`  ${keyword}: 建议最低价 ¥${suggestedPrice} (当前平均价 ¥${stats.avg.toFixed(2)})`);
+                }
+                
+                return result;
+            } else {
+                console.log('❌ 价格分析功能未找到');
+                return null;
+            }
+        };
+
+        // 测试关键词匹配
+        window.testKeywordMatch = (productName, keyword) => {
+            console.log('🔍 测试关键词匹配...');
+            
+            if (window.autoCheckManager) {
+                const result = window.autoCheckManager.matchesCategory(productName, keyword);
+                console.log(`测试结果: "${productName}" 匹配 "${keyword}" = ${result}`);
+                
+                // 详细分析匹配过程
+                const name = productName.toLowerCase();
+                const key = keyword.toLowerCase();
+                
+                console.log('匹配详情:');
+                console.log(`  商品名称: "${name}"`);
+                console.log(`  关键词: "${key}"`);
+                console.log(`  直接匹配: ${name.includes(key)}`);
+                
+                if (key.endsWith('s')) {
+                    const singular = key.slice(0, -1);
+                    console.log(`  单数匹配: ${name.includes(singular)} (关键词: "${singular}")`);
+                } else {
+                    const plural = key + 's';
+                    console.log(`  复数匹配: ${name.includes(plural)} (关键词: "${plural}")`);
+                }
+                
+                if (key === 'drawstring bags') {
+                    console.log(`  特殊匹配: ${name.includes('drawstring bag')} (关键词: "drawstring bag")`);
+                }
+                
+                return result;
+            } else {
+                console.log('❌ 插件管理器未找到');
+                return false;
+            }
+        };
+
         // 测试所有配置的品类
         window.testAllCategories = () => {
             console.log('🔍 测试所有品类配置...');
@@ -816,11 +891,14 @@ if (typeof window.debugTools === 'undefined') {
 • debugTools.testCheckboxCheck() - 测试checkbox勾选
 • debugTools.checkScrollContainers() - 检查滚动容器
 • debugTools.testScroll() - 测试滚动功能
+• analyzePrices() - 分析价格分布并给出建议
+• testKeywordMatch('商品名称', '关键词') - 测试关键词匹配
 • debugTools.help() - 显示此帮助信息
 
 示例:
 • debugTools.testProductMatch('袜子') - 测试匹配包含"袜子"的商品
 • debugTools.testProductMatch('围裙') - 测试匹配包含"围裙"的商品
+• analyzePrices() - 分析当前页面所有商品的价格分布
             `);
         }
     };

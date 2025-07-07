@@ -30,7 +30,7 @@ if (typeof window.autoCheckManager === 'undefined') {
     // 绑定消息监听器
     bindMessageListener() {
         chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-            console.log('🎯 收到消息:', message);
+            // console.log('🎯 收到消息:', message);
             
             try {
                 switch (message.action) {
@@ -324,7 +324,7 @@ if (typeof window.autoCheckManager === 'undefined') {
             
             scrollContainers.forEach((container, index) => {
                 if (container.scrollHeight > container.clientHeight) {
-                    console.log(`滚动容器 ${index}:`, container);
+                    // console.log(`滚动容器 ${index}:`, container);
                     container.scrollTo({
                         top: container.scrollHeight,
                         behavior: 'smooth'
@@ -491,24 +491,43 @@ if (typeof window.autoCheckManager === 'undefined') {
                 return false;
             }
 
-            // 获取申报价格 - 尝试多种选择器
-            // 支持两种页面结构
-            let priceElement = row.querySelector('td:nth-child(7) span span:last-child');
-            if (!priceElement) {
-                // 备用选择器
-                priceElement = row.querySelector('td:nth-child(7) span:last-child');
-            }
-            if (!priceElement) {
-                // 再备用选择器
-                priceElement = row.querySelector('td:nth-child(7)');
+            // 获取申报价格 - 根据页面类型选择不同的列
+            let priceElement = null;
+            
+            if (this.pageType === '官方大促') {
+                // 官方大促页面：价格在第7个td
+                priceElement = row.querySelector('td:nth-child(7) span span:last-child');
+                if (!priceElement) {
+                    priceElement = row.querySelector('td:nth-child(7) span:last-child');
+                }
+                if (!priceElement) {
+                    priceElement = row.querySelector('td:nth-child(7)');
+                }
+            } else {
+                // 省心报页面：价格在第5个td
+                priceElement = row.querySelector('td:nth-child(5) span span:last-child');
+                if (!priceElement) {
+                    priceElement = row.querySelector('td:nth-child(5) span:last-child');
+                }
+                if (!priceElement) {
+                    priceElement = row.querySelector('td:nth-child(5)');
+                }
             }
             
             if (!priceElement) {
-                console.log(`❌ 未找到价格元素，商品: "${productName}"`);
+                console.log(`❌ 未找到价格元素，商品: "${productName}"，页面类型: ${this.pageType}`);
+                // 调试：尝试查找所有td元素
+                const allTds = row.querySelectorAll('td');
+                console.log(`🔍 该行共有 ${allTds.length} 个td元素`);
+                allTds.forEach((td, index) => {
+                    console.log(`  td[${index + 1}]: ${td.textContent.trim()}`);
+                });
                 return false;
             }
             
             const priceText = priceElement.textContent.trim();
+            console.log(`💰 找到价格元素: "${priceText}" (页面类型: ${this.pageType})`);
+            
             // 提取数字
             const priceMatch = priceText.match(/[\d.]+/);
             const price = priceMatch ? parseFloat(priceMatch[0]) : 0;
@@ -522,19 +541,35 @@ if (typeof window.autoCheckManager === 'undefined') {
             console.log(`🔍 检查商品: "${productName}" (¥${price}) [${this.pageType}]`);
 
             // 检查是否匹配任何品类
+            let matchedAny = false;
             for (const category of this.categories) {
                 const isMatch = this.matchesCategory(productName, category.keyword);
                 const priceOK = price >= category.minPrice;
                 
-                console.log(`  - 品类 "${category.keyword}": 匹配=${isMatch}, 价格=${priceOK} (需要≥${category.minPrice})`);
+                // 调试：显示匹配过程
+                if (isMatch) {
+                    console.log(`🔍 匹配详情: "${productName}" 匹配关键词 "${category.keyword}"`);
+                }
                 
                 if (isMatch && priceOK) {
                     console.log(`✅ 匹配成功: "${productName}" (¥${price}) 匹配品类 "${category.keyword}" (最低价¥${category.minPrice})`);
                     return true;
                 }
+                
+                if (isMatch) {
+                    matchedAny = true;
+                    console.log(`⚠️ 关键词匹配但价格不足: "${productName}" (¥${price}) 匹配 "${category.keyword}" 但价格低于最低要求 ¥${category.minPrice}`);
+                }
+            }
+            
+            if (matchedAny) {
+                console.log(`💰 价格不足的商品: "${productName}" (¥${price})`);
+            } else {
+                console.log(`❌ 未匹配任何品类: "${productName}" (¥${price})`);
+                // 调试：显示所有配置的关键词
+                console.log(`🔍 当前配置的关键词: ${this.categories.map(c => c.keyword).join(', ')}`);
             }
 
-            console.log(`❌ 未匹配任何品类: "${productName}" (¥${price})`);
             return false;
         } catch (error) {
             console.error('检查行时出错:', error);
@@ -553,7 +588,28 @@ if (typeof window.autoCheckManager === 'undefined') {
         // 支持多个关键词（用逗号分隔）
         const keywords = key.split(',').map(k => k.trim());
         
-        return keywords.some(k => name.includes(k));
+        return keywords.some(k => {
+            // 直接匹配
+            if (name.includes(k)) return true;
+            
+            // 智能匹配：处理单复数形式
+            if (k.endsWith('s')) {
+                // 如果关键词以s结尾，也匹配去掉s的形式
+                const singular = k.slice(0, -1);
+                if (name.includes(singular)) return true;
+            } else {
+                // 如果关键词不以s结尾，也匹配加上s的形式
+                const plural = k + 's';
+                if (name.includes(plural)) return true;
+            }
+            
+            // 处理特殊情况：Drawstring Bags -> Drawstring Bag
+            if (k === 'drawstring bags') {
+                if (name.includes('drawstring bag')) return true;
+            }
+            
+            return false;
+        });
     }
 
     // 勾选某一行
@@ -625,11 +681,11 @@ if (typeof window.autoCheckManager === 'undefined') {
                 setTimeout(() => {
                     const finalState = label.getAttribute('data-checked');
                     const hasActiveClass = label.classList.contains('CBX_active_5-118-0');
-                    console.log('🔍 验证结果:', {
-                        dataChecked: finalState,
-                        hasActiveClass: hasActiveClass,
-                        inputChecked: input ? input.checked : 'N/A'
-                    });
+                    // console.log('🔍 验证结果:', {
+                    //     dataChecked: finalState,
+                    //     hasActiveClass: hasActiveClass,
+                    //     inputChecked: input ? input.checked : 'N/A'
+                    // });
                     
                     if (finalState !== 'true' || !hasActiveClass) {
                         console.log('⚠️ 勾选可能没有完全生效，尝试补充操作');

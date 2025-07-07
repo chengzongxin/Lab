@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>价格获取测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .price-cell {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .debug-info {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .result.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .result.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>价格获取测试页面</h1>
+        <p>这个页面用于测试插件在不同页面结构下的价格获取功能。</p>
+
+        <!-- 省心报页面结构测试 -->
+        <div class="test-section">
+            <h3>省心报页面结构测试</h3>
+            <p>模拟省心报页面的表格结构，价格在第5个td中。</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>选择</th>
+                        <th>商品信息</th>
+                        <th>原价</th>
+                        <th>折扣价</th>
+                        <th>申报价格</th>
+                        <th>库存</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-testid="beast-core-table-body-tr" class="TB_tr_5-118-0 TB_greyTr_5-118-0">
+                        <td class="TB_checkCell_5-118-0 TB_td_5-118-0">
+                            <span class="">
+                                <span style="display: inline-flex;">
+                                    <label class="CBX_outerWrapper_5-118-0 CBX_checkbox_5-118-0 CBX_medium_5-118-0" 
+                                           data-testid="beast-core-checkbox" 
+                                           data-checked="false" 
+                                           data-indeterminate="false">
+                                        <div class="CBX_squareInputWrapper_5-118-0" data-testid="beast-core-checkbox-checkIcon">
+                                            <input mode="checkbox" class="CBX_input_5-118-0" type="checkbox">
+                                            <div class="CBX_square_5-118-0 CBX_groupDisabled_5-118-0 CBX_hasCheckSquare_5-118-0 CBX_mount_5-118-0">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" data-testid="beast-core-icon-check" class="ICN_outerWrapper_5-118-0 ICN_svgIcon_5-118-0 CBX_iconCheck_5-118-0">
+                                                    <path d="M778.748 225.79c16.72-20.641 46.95-23.775 67.523-6.999 20.572 16.776 23.695 47.108 6.975 67.749l-408 503.677c-18.8 23.208-53.912 23.794-73.47 1.227l-200-230.769c-17.395-20.07-15.28-50.49 4.724-67.944 20.005-17.453 50.323-15.33 67.718 4.74l162.538 187.544 371.992-459.226z"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </span>
+                            </span>
+                        </td>
+                        <td data-testid="beast-core-table-td" class="TB_td_5-118-0 TB_cellTextAlignLeft_5-118-0 TB_cellVerticalAlignMiddle_5-118-0">
+                            <div class="goods-info_goodsInfo__Sm9OR">
+                                <div class="goods-info_imgWrapper__nXmaT" style="height: 64px;">
+                                    <img height="64" src="https://via.placeholder.com/64" style="object-fit: cover; cursor: pointer;">
+                                </div>
+                                <div class="goods-info_info__72xI5">
+                                    <div class="goods-info_title__yHBeG">
+                                        <div data-testid="beast-core-ellipsis">
+                                            <div class="elli_outerWrapper_5-118-0 elli_lineClamp_5-118-0 beast-core-ellipsis-1">
+                                                <style data-testid="beast-core-ellipsis-style">.beast-core-ellipsis-1{-webkit-line-clamp:1;-webkit-box-orient: vertical;}</style>
+                                                测试商品 - 围裙
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="goods-info_pair__lQvud">SPU ID：<span class="goods-info_value__R1-TB">123456789</span></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td data-testid="beast-core-table-td" class="TB_td_5-118-0 TB_cellTextAlignRight_5-118-0 TB_cellVerticalAlignMiddle_5-118-0">
+                            <span><span>¥</span><span>15.99</span></span>
+                        </td>
+                        <td data-testid="beast-core-table-td" class="TB_td_5-118-0 TB_cellTextAlignRight_5-118-0 TB_cellVerticalAlignMiddle_5-118-0">
+                            <div>
+                                <div><span><span>¥</span><span>12.99</span></span></div>
+                                <div class="table-goods_tips__0Xh0Y">折扣：约81.24%</div>
+                            </div>
+                        </td>
+                        <td data-testid="beast-core-table-td" class="TB_td_5-118-0 TB_cellTextAlignRight_5-118-0 TB_cellVerticalAlignMiddle_5-118-0 price-cell">
+                            <div data-testid="beast-core-form-item" class="Grid_row_5-118-0 Grid_rowHorizontal_5-118-0 Grid_rowJustifyStart_5-118-0 Form_item_5-118-0">
+                                <div data-testid="beast-core-grid-col-wrapper" class="Grid_col_5-118-0 Grid_colNotFixed_5-118-0 Form_itemWrapper_5-118-0">
+                                    <div data-testid="beast-core-grid-row" class="Grid_row_5-118-0 Grid_rowHorizontal_5-118-0 Grid_rowJustifyStart_5-118-0 Form_itemContent_5-118-0 Form_itemContentCenter_5-118-0">
+                                        <div data-testid="beast-core-grid-col-wrapper" class="Grid_col_5-118-0 Grid_colNotFixed_5-118-0 Form_itemContentBody_5-118-0">
+                                            <div value="[object Object]">
+                                                <span style="border-bottom: 1px dotted var(--bc-thirdlyTextColor, rgba(0, 0, 0, 0.4));">
+                                                    <span><span>¥</span><span>9.99</span></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td data-testid="beast-core-table-td" class="TB_td_5-118-0 TB_cellTextAlignRight_5-118-0 TB_cellVerticalAlignMiddle_5-118-0">200</td>
+                        <td data-testid="beast-core-table-td" class="TB_td_5-118-0 TB_cellTextAlignLeft_5-118-0 TB_cellVerticalAlignMiddle_5-118-0 TB_rightmostTd_5-118-0">已开启</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <button onclick="testWorryFreePrice()">测试省心报价格获取</button>
+            <div id="worryFreeResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- 官方大促页面结构测试 -->
+        <div class="test-section">
+            <h3>官方大促页面结构测试</h3>
+            <p>模拟官方大促页面的表格结构，价格在第7个td中。</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>选择</th>
+                        <th>商品信息</th>
+                        <th>原价</th>
+                        <th>折扣价</th>
+                        <th>申报价格</th>
+                        <th>库存</th>
+                        <th>申报价格</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-testid="beast-core-table-body-tr" class="TB_tr_5-118-0 TB_greyTr_5-118-0">
+                        <td class="TB_checkCell_5-118-0 TB_td_5-118-0">
+                            <span class="">
+                                <span style="display: inline-flex;">
+                                    <label class="CBX_outerWrapper_5-118-0 CBX_checkbox_5-118-0 CBX_medium_5-118-0" 
+                                           data-testid="beast-core-checkbox" 
+                                           data-checked="false" 
+                                           data-indeterminate="false">
+                                        <div class="CBX_squareInputWrapper_5-118-0" data-testid="beast-core-checkbox-checkIcon">
+                                            <input mode="checkbox" class="CBX_input_5-118-0" type="checkbox">
+                                            <div class="CBX_square_5-118-0 CBX_groupDisabled_5-118-0 CBX_hasCheckSquare_5-118-0 CBX_mount_5-118-0">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" data-testid="beast-core-icon-check" class="ICN_outerWrapper_5-118-0 ICN_svgIcon_5-118-0 CBX_iconCheck_5-118-0">
+                                                    <path d="M778.748 225.79c16.72-20.641 46.95-23.775 67.523-6.999 20.572 16.776 23.695 47.108 6.975 67.749l-408 503.677c-18.8 23.208-53.912 23.794-73.47 1.227l-200-230.769c-17.395-20.07-15.28-50.49 4.724-67.944 20.005-17.453 50.323-15.33 67.718 4.74l162.538 187.544 371.992-459.226z"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </span>
+                            </span>
+                        </td>
+                        <td data-testid="beast-core-table-td" class="TB_td_5-118-0 TB_cellTextAlignLeft_5-118-0 TB_cellVerticalAlignMiddle_5-118-0">
+                            <div class="goods-info_goodsInfo__Sm9OR">
+                                <div class="goods-info_imgWrapper__nXmaT" style="height: 64px;">
+                                    <img height="64" src="https://via.placeholder.com/64" style="object-fit: cover; cursor: pointer;">
+                                </div>
+                                <div class="goods-info_info__72xI5">
+                                    <div class="goods-info_title__yHBeG">
+                                        <div data-testid="beast-core-ellipsis">
+                                            <div class="elli_outerWrapper_5-118-0 elli_lineClamp_5-118-0 beast-core-ellipsis-1">
+                                                测试商品 - 袜子
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="goods-info_pair__lQvud">SPU ID：<span class="goods-info_value__R1-TB">987654321</span></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td data-testid="beast-core-table-td" class="TB_td_5-118-0 TB_cellTextAlignRight_5-118-0 TB_cellVerticalAlignMiddle_5-118-0">
+                            <span><span>¥</span><span>12.99</span></span>
+                        </td>
+                        <td data-testid="beast-core-table-td" class="TB_td_5-118-0 TB_cellTextAlignRight_5-118-0 TB_cellVerticalAlignMiddle_5-118-0">
+                            <div>
+                                <div><span><span>¥</span><span>10.99</span></span></div>
+                                <div class="table-goods_tips__0Xh0Y">折扣：约84.60%</div>
+                            </div>
+                        </td>
+                        <td data-testid="beast-core-table-td" class="TB_td_5-118-0 TB_cellTextAlignRight_5-118-0 TB_cellVerticalAlignMiddle_5-118-0">
+                            <div data-testid="beast-core-form-item" class="Grid_row_5-118-0 Grid_rowHorizontal_5-118-0 Grid_rowJustifyStart_5-118-0 Form_item_5-118-0">
+                                <div data-testid="beast-core-grid-col-wrapper" class="Grid_col_5-118-0 Grid_colNotFixed_5-118-0 Form_itemWrapper_5-118-0">
+                                    <div data-testid="beast-core-grid-row" class="Grid_row_5-118-0 Grid_rowHorizontal_5-118-0 Grid_rowJustifyStart_5-118-0 Form_itemContent_5-118-0 Form_itemContentCenter_5-118-0">
+                                        <div data-testid="beast-core-grid-col-wrapper" class="Grid_col_5-118-0 Grid_colNotFixed_5-118-0 Form_itemContentBody_5-118-0">
+                                            <div value="[object Object]">
+                                                <span style="border-bottom: 1px dotted var(--bc-thirdlyTextColor, rgba(0, 0, 0, 0.4));">
+                                                    <span><span>¥</span><span>8.99</span></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td data-testid="beast-core-table-td" class="TB_td_5-118-0 TB_cellTextAlignRight_5-118-0 TB_cellVerticalAlignMiddle_5-118-0">150</td>
+                        <td data-testid="beast-core-table-td" class="TB_td_5-118-0 TB_cellTextAlignRight_5-118-0 TB_cellVerticalAlignMiddle_5-118-0 price-cell">
+                            <span><span>¥</span><span>11.99</span></span>
+                        </td>
+                        <td data-testid="beast-core-table-td" class="TB_td_5-118-0 TB_cellTextAlignLeft_5-118-0 TB_cellVerticalAlignMiddle_5-118-0 TB_rightmostTd_5-118-0">已开启</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <button onclick="testOfficialPromotionPrice()">测试官方大促价格获取</button>
+            <div id="officialPromotionResult" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="debug-info">
+            <h4>调试信息</h4>
+            <p>这个测试页面模拟了两种不同的页面结构：</p>
+            <ul>
+                <li><strong>省心报页面</strong>：价格在第5个td中，包含复杂的嵌套结构</li>
+                <li><strong>官方大促页面</strong>：价格在第7个td中，结构相对简单</li>
+            </ul>
+            <p>点击测试按钮可以验证价格获取逻辑是否正确工作。</p>
+        </div>
+    </div>
+
+    <script>
+        // 模拟价格获取逻辑
+        function getPriceByPageType(row, pageType) {
+            let priceElement = null;
+            
+            if (pageType === '官方大促') {
+                // 官方大促页面：价格在第7个td
+                priceElement = row.querySelector('td:nth-child(7) span span:last-child');
+                if (!priceElement) {
+                    priceElement = row.querySelector('td:nth-child(7) span:last-child');
+                }
+                if (!priceElement) {
+                    priceElement = row.querySelector('td:nth-child(7)');
+                }
+            } else {
+                // 省心报页面：价格在第5个td
+                priceElement = row.querySelector('td:nth-child(5) span span:last-child');
+                if (!priceElement) {
+                    priceElement = row.querySelector('td:nth-child(5) span:last-child');
+                }
+                if (!priceElement) {
+                    priceElement = row.querySelector('td:nth-child(5)');
+                }
+            }
+            
+            if (!priceElement) {
+                return { success: false, error: '未找到价格元素' };
+            }
+            
+            const priceText = priceElement.textContent.trim();
+            const priceMatch = priceText.match(/[\d.]+/);
+            const price = priceMatch ? parseFloat(priceMatch[0]) : 0;
+            
+            return {
+                success: true,
+                priceText: priceText,
+                price: price,
+                element: priceElement
+            };
+        }
+
+        // 测试省心报价格获取
+        function testWorryFreePrice() {
+            const row = document.querySelector('.test-section:first-of-type tr[data-testid="beast-core-table-body-tr"]');
+            const result = getPriceByPageType(row, '省心报');
+            
+            const resultDiv = document.getElementById('worryFreeResult');
+            resultDiv.style.display = 'block';
+            
+            if (result.success) {
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `
+                    <strong>✅ 测试成功</strong><br>
+                    页面类型: 省心报<br>
+                    价格文本: "${result.priceText}"<br>
+                    提取价格: ¥${result.price}<br>
+                    预期价格: ¥9.99
+                `;
+            } else {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <strong>❌ 测试失败</strong><br>
+                    错误信息: ${result.error}
+                `;
+            }
+        }
+
+        // 测试官方大促价格获取
+        function testOfficialPromotionPrice() {
+            const row = document.querySelector('.test-section:last-of-type tr[data-testid="beast-core-table-body-tr"]');
+            const result = getPriceByPageType(row, '官方大促');
+            
+            const resultDiv = document.getElementById('officialPromotionResult');
+            resultDiv.style.display = 'block';
+            
+            if (result.success) {
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `
+                    <strong>✅ 测试成功</strong><br>
+                    页面类型: 官方大促<br>
+                    价格文本: "${result.priceText}"<br>
+                    提取价格: ¥${result.price}<br>
+                    预期价格: ¥11.99
+                `;
+            } else {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <strong>❌ 测试失败</strong><br>
+                    错误信息: ${result.error}
+                `;
+            }
+        }
+    </script>
+</body>
+</html> 

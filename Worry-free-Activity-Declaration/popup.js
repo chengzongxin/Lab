@@ -278,13 +278,13 @@ class PopupManager {
                 target: { tabId: tabId },
                 func: () => {
                     // 检测页面类型
+                    const hasWorryFree = document.querySelector('.worry-free-detail_table__unQvk');
                     const hasOfficialPromotion = document.querySelector('.beast-core-ellipsis-1');
-                    const hasActivityDeclaration = document.querySelector('.goods-info_title__yHBeG');
                     
-                    if (hasOfficialPromotion) {
+                    if (hasWorryFree) {
+                        return '省心报';
+                    } else if (hasOfficialPromotion) {
                         return '官方大促';
-                    } else if (hasActivityDeclaration) {
-                        return '活动申报';
                     } else {
                         return '未知页面';
                     }
