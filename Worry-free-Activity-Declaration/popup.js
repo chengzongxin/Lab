@@ -111,8 +111,13 @@ class PopupManager {
             if (this.categories.length === 0) {
                 // 添加默认配置
                 this.categories = [
-                    { keyword: '袜子', minPrice: 10 },
-                    { keyword: '围裙', minPrice: 15 }
+                    { keyword: 'Sock', minPrice: 12 },
+                    { keyword: 'Apron', minPrice: 11 },
+                    { keyword: 'Tote Bag', minPrice: 12 },
+                    { keyword: 'Drawstring Bags', minPrice: 14 },
+                    { keyword: 'Hair', minPrice: 10 },
+                    { keyword: 'Sleeve', minPrice: 13 },
+                    { keyword: 'Scarf', minPrice: 10 }
                 ];
             }
         } catch (error) {

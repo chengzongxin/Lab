@@ -6,9 +6,13 @@ chrome.runtime.onInstalled.addListener(() => {
     chrome.storage.sync.get(['categories'], (result) => {
         if (!result.categories) {
             const defaultCategories = [
-                { keyword: '袜子', minPrice: 10 },
-                { keyword: '围裙', minPrice: 15 },
-                { keyword: '帽子', minPrice: 20 }
+                { keyword: 'Sock', minPrice: 12 },
+                { keyword: 'Apron', minPrice: 11 },
+                { keyword: 'Tote Bag', minPrice: 12 },
+                { keyword: 'Drawstring Bags', minPrice: 14 },
+                { keyword: 'Hair', minPrice: 10 },
+                { keyword: 'Sleeve', minPrice: 13 },
+                { keyword: 'Scarf', minPrice: 10 }
             ];
             chrome.storage.sync.set({ categories: defaultCategories });
         }
