@@ -27,15 +27,17 @@ def download_image(url, filename):
         print(f"下载异常: {url}, 错误: {e}")
         return False
 
-def save_results(results, filename='products.csv'):
-    """
-    保存商品信息到CSV文件
-    参数：results - 商品信息列表，filename - 保存文件名
-    """
-    with open(filename, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=["title", "img", "link"])
+def save_results(results, filename="products.csv"):
+    if not results:
+        print("没有结果需要保存。")
+        return
+    # 自动获取所有字段名
+    fieldnames = list(results[0].keys())
+    with open(filename, "w", newline='', encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(results)
+    print(f"已保存结果到 {filename}")
 
 # 测试用例（可删除）
 if __name__ == "__main__":
@@ -45,6 +47,6 @@ if __name__ == "__main__":
     download_image(url, "results/test.jpg")
     # 测试保存CSV
     test_results = [
-        {"title": "test", "img": url, "link": "https://redbubble.com"}
+        {"title": "test", "img": url, "link": "https://redbubble.com","score":10}
     ]
     save_results(test_results) 
