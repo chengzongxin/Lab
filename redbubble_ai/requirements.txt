@@ -1,0 +1,5 @@
+playwright
+requests
+pillow
+tensorflow  # 如果只用简单评分可以先不装，后续可选
+keras       # 可选，用于NIMA等模型 
