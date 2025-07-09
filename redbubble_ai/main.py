@@ -2,7 +2,7 @@ import os
 from crawler import crawl_redbubble
 from download import download_image, save_results
 from generate_html import generate_html
-from scorer import aesthetic_clip_score
+from scorer import nima_score
 import webbrowser
 import re
 
@@ -14,7 +14,7 @@ if __name__ == "__main__":
     except ValueError:
         pages = 1
     limit = 20  # 可自定义
-    score_threshold = 6.5  # 评分阈值
+    score_threshold = 1  # 评分阈值
 
     # 1. 爬取商品信息
     print(f"正在爬取Redbubble商品（关键词：{keyword}，页数：{pages}）...")
@@ -30,7 +30,7 @@ if __name__ == "__main__":
         safe_title = re.sub(r'[\\/:*?"<>|]', '_', item["title"])[:50]
         img_path = f"results/{safe_title}.jpg"
         if download_image(img_url, img_path):
-            score = aesthetic_clip_score(img_path)
+            score = nima_score(img_path)
             print(f"商品{idx+1}: {item['title']}，评分：{score:.2f}")
             if score >= score_threshold:
                 good_items.append({

@@ -1,27 +1,46 @@
 import torch
-from transformers import CLIPProcessor, CLIPModel
+from transformers import AutoModelForImageClassification, AutoImageProcessor
 from PIL import Image
+from keras.applications.mobilenet import MobileNet
+from keras.layers import GlobalAveragePooling2D, Dropout, Dense, Input
+from keras.models import Model
+from keras.applications.mobilenet import preprocess_input
+from keras.preprocessing import image
+import numpy as np
+import os
 
-# 直接用 HuggingFace 上的美学微调模型
-clip_model = CLIPModel.from_pretrained("laion/CLIP-ViT-B-32-laion2B-s34B-b79K")
-clip_processor = CLIPProcessor.from_pretrained("laion/CLIP-ViT-B-32-laion2B-s34B-b79K")
+NIMA_WEIGHTS = 'weights_mobilenet_aesthetic_0.07.hdf5'
+if not os.path.exists(NIMA_WEIGHTS):
+    raise FileNotFoundError(f"未找到NIMA权重文件: {NIMA_WEIGHTS}")
 
-def aesthetic_clip_score(img_path):
+def build_nima_model():
+    input_layer = Input(shape=(224, 224, 3))
+    base_model = MobileNet(input_tensor=input_layer, include_top=False, weights=None)
+    x = base_model.output
+    x = GlobalAveragePooling2D()(x)
+    x = Dropout(0.75)(x)
+    x = Dense(10, activation='softmax')(x)
+    model = Model(inputs=input_layer, outputs=x)
+    return model
+
+nima_model = build_nima_model()
+nima_model.load_weights(NIMA_WEIGHTS)
+
+def nima_score(img_path, model=nima_model):
     """
-    用Aesthetic-CLIP对图片进行美学评分，分数越高越美观
+    用NIMA模型对图片进行美学评分，返回1~10分
     """
     try:
-        image = Image.open(img_path).convert("RGB")
-        inputs = clip_processor(images=image, return_tensors="pt")
-        with torch.no_grad():
-            img_features = clip_model.get_image_features(**inputs)
-            # 这里输出的是特征向量，可以用来做相似度或聚类
-            # 但没有线性头时，不能直接输出0-10分的美学分数
-            # 你可以用特征向量做聚类，或者用社区的aesthetic-head权重（如能找到）
-            return float(img_features.norm().item())  # 仅做示例
+        img = image.load_img(img_path, target_size=(224, 224))
+        x = image.img_to_array(img)
+        x = np.expand_dims(x, axis=0)
+        x = preprocess_input(x)
+        preds = model.predict(x)[0]
+        mean_score = sum([(i+1)*p for i, p in enumerate(preds)])
+        return mean_score
     except Exception as e:
         print(f"评分失败: {img_path}, 错误: {e}")
         return 0
 
 if __name__ == "__main__":
-    print(aesthetic_clip_score("results/test.jpg")) 
+    print(nima_score("results/test.jpg")) 
