@@ -4,6 +4,7 @@ import { Product } from "./types/product";
 import ProductList from "./components/ProductList";
 import { StagewiseToolbar } from '@stagewise/toolbar-react';
 import ReactPlugin from '@stagewise-plugins/react';
+import './App.css';
 
 const App: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -23,7 +24,7 @@ const App: React.FC = () => {
   return (
     <>
       <StagewiseToolbar config={{ plugins: [ReactPlugin] }} />
-      <div>
+      <div className="main-content">
         <div className="header">
           <h2>Redbubble 商品美学评分展示（React版）</h2>
         </div>

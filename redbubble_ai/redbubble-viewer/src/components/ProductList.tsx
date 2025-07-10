@@ -18,7 +18,6 @@ const ProductList: React.FC<Props> = ({ products }) => (
         <div className="card-content">
           <div className="title">{item.title}</div>
           <div className="score">美学评分：{item.score || "无"}</div>
-          <a className="link" href={item.link} target="_blank" rel="noopener noreferrer">查看商品</a>
         </div>
       </div>
     ))}

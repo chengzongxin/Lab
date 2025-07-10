@@ -1,3 +1,9 @@
+body {
+  margin: 24px;
+  color: #222;
+  background: #f6f8fa;
+}
+
 .App {
   text-align: center;
 }
@@ -35,4 +41,36 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.header h2 {
+  text-align: center;
+  color: #1976d2;
+}
+
+/* 主题色应用到主要提示文字 */
+input[type="file"] {
+  border: 1px solid #1976d2;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+input[type="file"]:hover {
+  border-color: #1565c0;
+}
+
+p {
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.container {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #1976d233;
+}
+
+.main-content {
+  margin-left: 40px;
+  margin-right: 40px;
 }
