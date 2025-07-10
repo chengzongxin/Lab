@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import Papa from "papaparse";
 import { Product } from "./types/product";
 import ProductList from "./components/ProductList";
+import { StagewiseToolbar } from '@stagewise/toolbar-react';
+import ReactPlugin from '@stagewise-plugins/react';
 
 const App: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -19,16 +21,19 @@ const App: React.FC = () => {
   };
 
   return (
-    <div>
-      <div className="header">
-        <h2>Redbubble 商品美学评分展示（React版）</h2>
+    <>
+      <StagewiseToolbar config={{ plugins: [ReactPlugin] }} />
+      <div>
+        <div className="header">
+          <h2>Redbubble 商品美学评分展示（React版）</h2>
+        </div>
+        <div style={{ textAlign: "center", marginBottom: 20 }}>
+          <input type="file" accept=".csv" onChange={handleFileChange} />
+          <p>请选择本地 products.csv 文件</p>
+        </div>
+        <ProductList products={products} />
       </div>
-      <div style={{ textAlign: "center", marginBottom: 20 }}>
-        <input type="file" accept=".csv" onChange={handleFileChange} />
-        <p>请选择本地 products.csv 文件</p>
-      </div>
-      <ProductList products={products} />
-    </div>
+    </>
   );
 };
 
