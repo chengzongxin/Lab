@@ -463,6 +463,13 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
           selectedRowKeys: selectedRelatedKeys,
           onChange: setSelectedRelatedKeys,
         }}
+        pagination={{
+          pageSize: 50,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条记录`,
+          pageSizeOptions: ['20', '50', '100'],
+        }}
       />
       
       {/* 固定在抽屉底部的下架按钮区域 */}
