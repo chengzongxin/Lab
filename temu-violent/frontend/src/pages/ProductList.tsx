@@ -120,11 +120,8 @@ const ProductList: React.FC = () => {
             <Button type="primary" onClick={() => {
               fetchProducts(page, pageSize);
               fetchTotal(page, pageSize);
-            }} loading={loading} style={{ marginRight: 8 }}>
+            }} loading={loading}>
               刷新
-            </Button>
-            <Button type="primary" onClick={handleOffline} loading={loading}>
-              批量下架
             </Button>
           </div>
           <Space>
@@ -179,21 +176,56 @@ const ProductList: React.FC = () => {
         }}
         size='large'
         columns={[
-          { title: "图片", dataIndex: "goods_img_url", render: (url: string) => url ? <Image width={160} src={url} /> : null },
-          {
-            title: "商品ID",
-            dataIndex: "spu_id",
-            render: (text: string) => <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{text}</span>
-          },
-          { title: "商品名称", dataIndex: "goods_name" },
           {
             title: "违规描述",
             dataIndex: "violation_desc",
-            render: (desc: string) => desc || "-"
+            width: 150,
+            render: (desc: string) => (
+              <div style={{ 
+                maxWidth: 150, 
+                wordBreak: 'break-word',
+                lineHeight: '1.4',
+                fontSize: '13px'
+              }}>
+                {desc || "-"}
+              </div>
+            )
+          },
+          { 
+            title: "图片", 
+            dataIndex: "goods_img_url", 
+            width: 160,
+            render: (url: string) => url ? <Image width={120} src={url} /> : null 
+          },
+          {
+            title: "商品ID",
+            dataIndex: "spu_id",
+            width: 120,
+            render: (text: string) => <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{text}</span>
+          },
+          { 
+            title: "商品名称", 
+            dataIndex: "goods_name",
+            width: 300,
+            render: (name: string) => (
+              <div style={{ 
+                maxWidth: 300, 
+                wordBreak: 'break-word',
+                lineHeight: '1.4',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}>
+                {name}
+              </div>
+            )
           },
           {
             title: "违规站点",
             dataIndex: "site_num",
+            width: 120,
             render: (_, record) => {
               const isAllSite = record.site_num === 1 &&
                 Array.isArray(record.punish_detail_list) &&
@@ -204,6 +236,7 @@ const ProductList: React.FC = () => {
           },
           {
             title: "操作",
+            width: 100,
             render: (_, record) => (
               <Button type="link" style={{ fontSize: 16, padding: 20, border: '1px solid #00f' }} onClick={() => openDetail(record)}>
                 详情

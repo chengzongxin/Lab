@@ -343,6 +343,34 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
             render: (text: string) => <span style={{ fontSize: '16px' }}>{text}</span>
           },
           {
+            title: "价格",
+            dataIndex: "price",
+            width: 120,
+            render: (price: number, record: any) => {
+              // 从 productSkuSummaries 数组中获取 supplierPrice
+              const skuSummaries = record.productSkuSummaries;
+              if (!skuSummaries || skuSummaries.length === 0) {
+                return <span style={{ fontSize: '16px', color: '#999' }}>-</span>;
+              }
+              
+              // 查找第一个有 supplierPrice 值的 SKU
+              const skuWithPrice = skuSummaries.find((sku: any) => sku.supplierPrice && sku.supplierPrice > 0);
+              if (!skuWithPrice) {
+                return <span style={{ fontSize: '16px', color: '#999' }}>-</span>;
+              }
+              
+              return (
+                <span style={{ 
+                  fontSize: '16px', 
+                  fontWeight: 'bold',
+                  color: '#52c41a'
+                }}>
+                  ${(skuWithPrice.supplierPrice / 100).toFixed(2)}
+                </span>
+              );
+            },
+          },
+          {
             title: "主图",
             dataIndex: "mainImageUrl",
             render: (url: string) => (url ? <Image width={150} src={url} /> : null),
