@@ -462,6 +462,7 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
         rowSelection={{
           selectedRowKeys: selectedRelatedKeys,
           onChange: setSelectedRelatedKeys,
+          columnWidth: 60,
         }}
         pagination={{
           pageSize: 50,
