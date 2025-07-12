@@ -21,6 +21,8 @@ const ProductList: React.FC = () => {
   // 获取违规商品列表
   const fetchProducts = async (pageNum = page, size = pageSize) => {
     setLoading(true);
+    // 清理选择状态，避免缓存问题
+    setSelectedRowKeys([]);
     const res = await fetch(`/api/temu/compliance/list?page=${pageNum}&page_size=${size}`);
     const data = await res.json();
     if (data.success) {
@@ -169,12 +171,13 @@ const ProductList: React.FC = () => {
       style={{ height: 'calc(100vh - 64px - 48px)' }}
     >
       <Table
-        rowKey="spu_id"
+        rowKey={(record) => record.spu_id?.toString() || Math.random().toString()}
         rowSelection={{
           selectedRowKeys,
           onChange: setSelectedRowKeys,
         }}
         size='large'
+        key={`table-${page}-${pageSize}`}
         columns={[
           {
             title: "违规描述",
