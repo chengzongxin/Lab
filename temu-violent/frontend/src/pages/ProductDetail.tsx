@@ -371,6 +371,21 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
             },
           },
           {
+            title: "创建时间",
+            dataIndex: "createdAt",
+            width: 160,
+            render: (createdAt: string) => {
+              if (!createdAt) {
+                return <span style={{ fontSize: '16px', color: '#999' }}>-</span>;
+              }
+              return (
+                <span style={{ fontSize: '16px' }}>
+                  {new Date(createdAt).toLocaleString('zh-CN')}
+                </span>
+              );
+            },
+          },
+          {
             title: "主图",
             dataIndex: "mainImageUrl",
             render: (url: string) => (url ? <Image width={150} src={url} /> : null),
