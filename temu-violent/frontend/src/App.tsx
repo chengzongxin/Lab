@@ -21,6 +21,9 @@ import ProductPage from './pages/ProductPage';
 import GalleryPage from './pages/GalleryPage';
 import { ProductListProvider } from './pages/ProductListContext';
 import { GlobalNotificationProvider } from './pages/GlobalNotification';
+// 导入 stagewise 工具栏组件
+import { StagewiseToolbar } from '@stagewise/toolbar-react';
+import ReactPlugin from '@stagewise-plugins/react';
 
 const { Header, Sider, Content } = Layout;
 
@@ -73,6 +76,12 @@ function App() {
       <GlobalNotificationProvider>
         <ProductListProvider>
           <AppLayout />
+          {/* 添加 stagewise 工具栏 - 仅在开发模式下显示 */}
+          <StagewiseToolbar 
+            config={{
+              plugins: [ReactPlugin]
+            }}
+          />
         </ProductListProvider>
       </GlobalNotificationProvider>
     </Router>
