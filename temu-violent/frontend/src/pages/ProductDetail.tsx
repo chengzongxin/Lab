@@ -392,11 +392,45 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
           },
           {
             title: "发布状态",
-            render: (_: any, record: any) => (
-              <span style={{ fontSize: '16px' }}>
-                {getProductStatus(record.skcStatus, record.skcSiteStatus)}
-              </span>
-            ),
+            width: 120,
+            render: (_: any, record: any) => {
+              const status = getProductStatus(record.skcStatus, record.skcSiteStatus);
+              let color = '#666';
+              let backgroundColor = '#f5f5f5';
+              
+              switch (status) {
+                case '在售中':
+                  color = '#52c41a';
+                  backgroundColor = '#f6ffed';
+                  break;
+                case '已下架':
+                  color = '#ff4d4f';
+                  backgroundColor = '#fff2f0';
+                  break;
+                case '未发布':
+                  color = '#faad14';
+                  backgroundColor = '#fffbe6';
+                  break;
+                default:
+                  color = '#666';
+                  backgroundColor = '#f5f5f5';
+              }
+              
+              return (
+                <span style={{ 
+                  fontSize: '16px',
+                  color: color,
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  fontWeight: 'bold',
+                  display: 'inline-block',
+                  minWidth: '60px',
+                  textAlign: 'center'
+                }}>
+                  {status}
+                </span>
+              );
+            },
           },
           {
             title: "虚拟库存",
