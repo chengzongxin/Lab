@@ -230,7 +230,7 @@ def get_product(
     productIds: Optional[List[int]] = Body(None, embed=True),
     productName: Optional[str] = Body(None, embed=True),
     page: int = Body(1, embed=True),
-    pageSize: int = Body(20, embed=True)
+    pageSize: int = Body(500, embed=True)
 ):
     req = NetworkRequest(config_type="seller")
     url = "https://seller.kuajingmaihuo.com/bg-visage-mms/product/skc/pageQuery"
