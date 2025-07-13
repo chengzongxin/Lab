@@ -171,7 +171,7 @@ const ProductList: React.FC = () => {
       style={{ height: 'calc(100vh - 64px - 48px)' }}
     >
       <Table
-        rowKey={(record) => record.spu_id?.toString() || Math.random().toString()}
+        rowKey={(record) => record.spu_id}
         rowSelection={{
           selectedRowKeys,
           onChange: setSelectedRowKeys,
