@@ -81,6 +81,7 @@ function App() {
             config={{
               plugins: [ReactPlugin]
             }}
+            enabled={false}
           />
         </ProductListProvider>
       </GlobalNotificationProvider>
