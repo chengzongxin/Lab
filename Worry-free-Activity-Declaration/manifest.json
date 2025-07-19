@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "活动申报助手",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "自动根据配置的品类和最低价格勾选符合条件的商品",
   "permissions": [
     "storage",
