@@ -278,6 +278,241 @@ class DebugTool {
             }
         };
 
+        // 测试停止功能
+        window.testStop = () => {
+            console.log('🛑 测试停止功能...');
+            
+            if (window.autoCheckManager) {
+                console.log('当前运行状态:', window.autoCheckManager.isRunning);
+                console.log('当前定时器状态:', {
+                    checkInterval: !!window.autoCheckManager.checkInterval,
+                    scrollInterval: !!window.autoCheckManager.scrollInterval,
+                    observer: !!window.autoCheckManager.observer
+                });
+                
+                // 执行停止操作
+                window.autoCheckManager.stopAutoCheck();
+                
+                // 延迟检查停止结果
+                setTimeout(() => {
+                    console.log('停止后状态检查:');
+                    console.log('运行状态:', window.autoCheckManager.isRunning);
+                    console.log('定时器状态:', {
+                        checkInterval: !!window.autoCheckManager.checkInterval,
+                        scrollInterval: !!window.autoCheckManager.scrollInterval,
+                        observer: !!window.autoCheckManager.observer
+                    });
+                }, 1000);
+            } else {
+                console.log('❌ 插件管理器未找到');
+            }
+        };
+
+        // 清理处理标记
+        window.clearProcessedMarks = () => {
+            console.log('🧹 清理所有处理标记...');
+            
+            const processedRows = document.querySelectorAll('[data-auto-check-processed]');
+            const processingRows = document.querySelectorAll('[data-auto-check-processing]');
+            
+            processedRows.forEach(row => {
+                row.removeAttribute('data-auto-check-processed');
+            });
+            
+            processingRows.forEach(row => {
+                row.removeAttribute('data-auto-check-processing');
+            });
+            
+            console.log(`✅ 已清理 ${processedRows.length} 个已处理标记和 ${processingRows.length} 个处理中标记`);
+            
+            // 清理AutoCheckManager的processedRows
+            if (window.autoCheckManager) {
+                window.autoCheckManager.processedRows.clear();
+                console.log('✅ 已清理插件内部的处理记录');
+            }
+        };
+
+        // 手动创建批量权益按钮
+        window.createBatchRightsButton = () => {
+            console.log('🔧 手动创建批量权益按钮...');
+            
+            if (window.autoCheckManager) {
+                window.autoCheckManager.createBatchRightsButton();
+                console.log('✅ 批量权益按钮创建完成');
+            } else {
+                console.log('❌ 插件管理器未找到');
+            }
+        };
+
+        // 诊断批量权益按钮问题
+        window.diagnoseBatchRightsButton = () => {
+            console.log('🔍 诊断批量权益按钮问题...');
+            
+            // 检查页面类型
+            const pageType = window.autoCheckManager ? window.autoCheckManager.pageType : '未知';
+            console.log('📄 当前页面类型:', pageType);
+            
+            // 检查提交按钮容器
+            const submitBtnContainer = document.querySelector('.table-goods_footer__RXisB');
+            console.log('📦 提交按钮容器:', submitBtnContainer ? '找到' : '未找到');
+            if (submitBtnContainer) {
+                console.log('容器内容:', submitBtnContainer.innerHTML.substring(0, 200) + '...');
+            }
+            
+            // 检查原始提交按钮
+            const originalSubmitBtn = document.querySelector('.table-goods_footer__RXisB button[data-testid="beast-core-button"]');
+            console.log('🔘 原始提交按钮:', originalSubmitBtn ? '找到' : '未找到');
+            if (originalSubmitBtn) {
+                console.log('按钮文本:', originalSubmitBtn.textContent);
+            }
+            
+            // 检查是否已有批量权益按钮
+            const existingBtn = document.querySelector('#batch-rights-btn');
+            console.log('🔘 批量权益按钮:', existingBtn ? '已存在' : '不存在');
+            
+            // 检查批量选择按钮
+            const batchSelectLinks = document.querySelectorAll('th a[data-testid="beast-core-button-link"]');
+            console.log('🔗 表头链接数量:', batchSelectLinks.length);
+            batchSelectLinks.forEach((link, index) => {
+                console.log(`  链接 ${index + 1}: "${link.textContent}"`);
+            });
+            
+            // 检查是否在限时秒杀页面
+            const flashSaleTitle = document.querySelector('.block-title-module__title___3MkQp');
+            if (flashSaleTitle) {
+                console.log('🎯 页面标题:', flashSaleTitle.textContent);
+                console.log('📄 是否限时秒杀页面:', flashSaleTitle.textContent.includes('限时秒杀'));
+            } else {
+                console.log('❌ 未找到页面标题元素');
+            }
+            
+            return {
+                pageType,
+                hasContainer: !!submitBtnContainer,
+                hasOriginalBtn: !!originalSubmitBtn,
+                hasExistingBtn: !!existingBtn,
+                batchSelectLinksCount: batchSelectLinks.length,
+                isFlashSalePage: flashSaleTitle ? flashSaleTitle.textContent.includes('限时秒杀') : false
+            };
+        };
+
+        // 测试批量选择基础权益
+        window.testBatchRights = async () => {
+            console.log('🔧 测试批量选择基础权益...');
+            
+            if (window.autoCheckManager) {
+                const success = await window.autoCheckManager.batchSelectBasicRights();
+                console.log('测试结果:', success ? '成功' : '失败');
+                return success;
+            } else {
+                console.log('❌ 插件管理器未找到');
+                return false;
+            }
+        };
+
+        // 手动启用提交按钮
+        window.enableSubmitButton = () => {
+            console.log('🔧 手动启用提交按钮...');
+            
+            if (window.autoCheckManager) {
+                window.autoCheckManager.enableSubmitButton();
+            } else {
+                console.log('❌ 插件管理器未找到，尝试直接操作...');
+                
+                // 直接查找提交按钮
+                const buttons = document.querySelectorAll('button[data-testid="beast-core-button"]');
+                buttons.forEach((btn, index) => {
+                    if (btn.textContent.includes('提交') && btn.id !== 'batch-rights-btn') {
+                        console.log(`找到提交按钮 ${index}: "${btn.textContent}"`);
+                        btn.disabled = false;
+                        btn.style.opacity = '1';
+                        btn.style.cursor = 'pointer';
+                        btn.style.pointerEvents = 'auto';
+                        btn.style.boxShadow = '0 0 0 2px #52c41a';
+                        console.log('✅ 提交按钮已手动启用');
+                    }
+                });
+            }
+        };
+
+        // 检查计数差异
+        window.checkCountDifference = () => {
+            console.log('🔍 检查计数差异...');
+            
+            // 获取所有表格行
+            const allRows = document.querySelectorAll('tr[data-testid="beast-core-table-body-tr"]');
+            console.log(`📊 总行数: ${allRows.length}`);
+            
+            // 检查实际勾选的行
+            let actualCheckedCount = 0;
+            const checkedRows = [];
+            
+            allRows.forEach((row, index) => {
+                const checkbox = row.querySelector('label[data-testid="beast-core-checkbox"]');
+                if (checkbox) {
+                    const isChecked = checkbox.getAttribute('data-checked') === 'true';
+                    if (isChecked) {
+                        actualCheckedCount++;
+                        
+                        // 获取商品名称用于调试
+                        let productName = 'Unknown';
+                        const titleElement = row.querySelector('.goods-info_title__yHBeG, .beast-core-ellipsis-1');
+                        if (titleElement) {
+                            productName = titleElement.textContent.trim().replace(/\{[^}]*\}/g, '').trim();
+                            if (productName.length > 50) {
+                                productName = productName.substring(0, 50) + '...';
+                            }
+                        }
+                        
+                        checkedRows.push({
+                            index: index + 1,
+                            name: productName
+                        });
+                    }
+                }
+            });
+            
+            // 获取插件内部计数
+            const pluginCount = window.autoCheckManager ? window.autoCheckManager.checkedCount : 0;
+            
+            console.log('📈 计数对比:');
+            console.log(`  页面实际勾选: ${actualCheckedCount} 个`);
+            console.log(`  插件内部计数: ${pluginCount} 个`);
+            console.log(`  差异: ${Math.abs(actualCheckedCount - pluginCount)} 个`);
+            
+            if (actualCheckedCount !== pluginCount) {
+                console.warn('⚠️ 发现计数不一致！');
+                
+                if (window.autoCheckManager) {
+                    console.log('🔧 同步计数...');
+                    window.autoCheckManager.checkedCount = actualCheckedCount;
+                    console.log('✅ 已将插件计数同步为页面实际勾选数');
+                }
+            } else {
+                console.log('✅ 计数一致');
+            }
+            
+            // 显示前10个已勾选的商品
+            if (checkedRows.length > 0) {
+                console.log('📋 已勾选的商品（前10个）:');
+                checkedRows.slice(0, 10).forEach(item => {
+                    console.log(`  ${item.index}. ${item.name}`);
+                });
+                
+                if (checkedRows.length > 10) {
+                    console.log(`  ... 还有 ${checkedRows.length - 10} 个`);
+                }
+            }
+            
+            return {
+                totalRows: allRows.length,
+                actualChecked: actualCheckedCount,
+                pluginCount: pluginCount,
+                difference: Math.abs(actualCheckedCount - pluginCount),
+                checkedItems: checkedRows
+            };
+        };
+
         // 测试所有配置的品类
         window.testAllCategories = () => {
             console.log('🔍 测试所有品类配置...');
@@ -586,15 +821,19 @@ if (typeof window.debugTools === 'undefined') {
     window.debugTools = {
         // 检测页面类型
         detectPageType() {
+            const hasWorryFree = document.querySelector('.worry-free-detail_table__unQvk');
             const hasOfficialPromotion = document.querySelector('.beast-core-ellipsis-1');
-            const hasActivityDeclaration = document.querySelector('.goods-info_title__yHBeG');
+            const hasFlashSale = document.querySelector('.block-title-module__title___3MkQp');
             
-            if (hasOfficialPromotion) {
+            if (hasWorryFree) {
+                console.log('🎯 检测到页面类型: 省心报');
+                return '省心报';
+            } else if (hasOfficialPromotion) {
                 console.log('🎯 检测到页面类型: 官方大促');
                 return '官方大促';
-            } else if (hasActivityDeclaration) {
-                console.log('🎯 检测到页面类型: 活动申报');
-                return '活动申报';
+            } else if (hasFlashSale && hasFlashSale.textContent.includes('限时秒杀')) {
+                console.log('🎯 检测到页面类型: 限时秒杀');
+                return '限时秒杀';
             } else {
                 console.log('❌ 未知页面类型');
                 return '未知页面';
@@ -893,6 +1132,13 @@ if (typeof window.debugTools === 'undefined') {
 • debugTools.testScroll() - 测试滚动功能
 • analyzePrices() - 分析价格分布并给出建议
 • testKeywordMatch('商品名称', '关键词') - 测试关键词匹配
+• testStop() - 测试停止功能
+• clearProcessedMarks() - 清理处理标记
+• checkCountDifference() - 检查计数差异
+• createBatchRightsButton() - 手动创建批量权益按钮
+• testBatchRights() - 测试批量选择基础权益
+• diagnoseBatchRightsButton() - 诊断批量权益按钮问题
+• enableSubmitButton() - 手动启用提交按钮
 • debugTools.help() - 显示此帮助信息
 
 示例:

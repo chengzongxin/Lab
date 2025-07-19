@@ -284,12 +284,15 @@ class PopupManager {
                 func: () => {
                     // 检测页面类型
                     const hasWorryFree = document.querySelector('.worry-free-detail_table__unQvk');
-                    const hasOfficialPromotion = document.querySelector('.beast-core-ellipsis-1');
+                    const hasOfficialPromotion = document.querySelector('.block-title-module__title___3MkQp');
+                    const hasFlashSale = document.querySelector('.block-title-module__title___3MkQp');
                     
                     if (hasWorryFree) {
                         return '省心报';
-                    } else if (hasOfficialPromotion) {
+                    } else if (hasOfficialPromotion && hasOfficialPromotion.textContent.includes('官方大促')) {
                         return '官方大促';
+                    } else if (hasFlashSale && hasFlashSale.textContent.includes('限时秒杀')) {
+                        return '限时秒杀';
                     } else {
                         return '未知页面';
                     }
@@ -306,20 +309,33 @@ class PopupManager {
     // 停止自动勾选
     async stopAutoCheck() {
         try {
-            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-            await chrome.tabs.sendMessage(tab.id, { action: 'stopAutoCheck' });
+            console.log('🛑 开始停止自动勾选...');
             
+            // 立即更新UI状态
             this.isRunning = false;
             this.updateButtonStates();
             this.showStatus('正在停止自动勾选...', 'info');
             
-            // 延迟更新状态显示
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            
+            // 发送停止消息到内容脚本
+            try {
+                const response = await chrome.tabs.sendMessage(tab.id, { action: 'stopAutoCheck' });
+                console.log('✅ 停止消息发送成功:', response);
+            } catch (messageError) {
+                console.warn('⚠️ 发送停止消息失败，但继续执行停止操作:', messageError);
+            }
+            
+            // 立即更新状态显示
             setTimeout(() => {
                 this.updateStatus();
-            }, 1000);
+            }, 500);
+            
+            this.showStatus('自动勾选已停止', 'success');
+            console.log('✅ 停止操作完成');
             
         } catch (error) {
-            console.error('停止自动勾选失败:', error);
+            console.error('❌ 停止自动勾选失败:', error);
             // 即使停止失败，也要更新状态
             this.isRunning = false;
             this.updateButtonStates();
