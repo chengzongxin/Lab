@@ -1279,7 +1279,15 @@ if (typeof window.autoCheckManager === 'undefined') {
             await new Promise(resolve => setTimeout(resolve, 1000));
             
             console.log('✅ 批量选择基础权益完成');
-            this.showNotification('批量选择基础权益完成，现在可以提交了', 'success');
+            
+            // 步骤6：自动点击"一键填入参考价"
+            const fillPriceSuccess = await this.clickFillReferencePrice();
+            
+            if (fillPriceSuccess) {
+                this.showNotification('批量权益选择和价格填入完成，现在可以提交了', 'success');
+            } else {
+                this.showNotification('批量选择基础权益完成，但一键填入参考价失败', 'warning');
+            }
             
             // 激活提交按钮
             this.enableSubmitButton();
@@ -1306,6 +1314,65 @@ if (typeof window.autoCheckManager === 'undefined') {
         }
         
         throw new Error(`元素 ${selector} 在 ${timeout}ms 内未出现`);
+    }
+
+    // 点击一键填入参考价
+    async clickFillReferencePrice() {
+        try {
+            console.log('🔧 开始查找一键填入参考价按钮...');
+            
+            // 查找表头中的"一键填入参考价"按钮
+            const allThLinks = document.querySelectorAll('th a[data-testid="beast-core-button-link"]');
+            let fillPriceBtn = null;
+            
+            console.log(`🔍 找到 ${allThLinks.length} 个表头链接`);
+            
+            for (const link of allThLinks) {
+                const linkText = link.textContent.trim();
+                console.log(`  检查表头链接: "${linkText}"`);
+                
+                if (linkText.includes('一键填入参考价')) {
+                    fillPriceBtn = link;
+                    console.log('✅ 找到一键填入参考价按钮');
+                    break;
+                }
+            }
+            
+            if (!fillPriceBtn) {
+                // 如果在th中没找到，尝试在整个页面查找
+                console.log('🔍 在表头中未找到，尝试在整个页面查找...');
+                
+                const allLinks = document.querySelectorAll('a[data-testid="beast-core-button-link"]');
+                console.log(`🔍 页面中找到 ${allLinks.length} 个链接`);
+                
+                for (const link of allLinks) {
+                    const linkText = link.textContent.trim();
+                    if (linkText.includes('一键填入参考价')) {
+                        fillPriceBtn = link;
+                        console.log('✅ 在页面中找到一键填入参考价按钮');
+                        break;
+                    }
+                }
+            }
+            
+            if (!fillPriceBtn) {
+                console.log('❌ 未找到一键填入参考价按钮');
+                return false;
+            }
+            
+            console.log('🔧 点击一键填入参考价按钮...');
+            fillPriceBtn.click();
+            
+            // 等待一下让操作完成
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            console.log('✅ 一键填入参考价完成');
+            return true;
+            
+        } catch (error) {
+            console.error('点击一键填入参考价失败:', error);
+            return false;
+        }
     }
 
     // 激活提交按钮
@@ -1459,7 +1526,7 @@ if (typeof window.autoCheckManager === 'undefined') {
             `;
             
             const batchBtnSpan = document.createElement('span');
-            batchBtnSpan.textContent = '批量基础权益';
+            batchBtnSpan.textContent = '基础权益+填价';
             batchBtn.appendChild(batchBtnSpan);
             
             // 添加点击事件
@@ -1475,7 +1542,7 @@ if (typeof window.autoCheckManager === 'undefined') {
                     batchBtn.style.borderColor = '#52c41a';
                 } else {
                     batchBtn.disabled = false;
-                    batchBtnSpan.textContent = '批量基础权益';
+                    batchBtnSpan.textContent = '基础权益+填价';
                 }
             });
             

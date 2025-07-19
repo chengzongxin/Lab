@@ -435,6 +435,20 @@ class DebugTool {
             }
         };
 
+        // 测试一键填入参考价
+        window.testFillReferencePrice = async () => {
+            console.log('🔧 测试一键填入参考价...');
+            
+            if (window.autoCheckManager) {
+                const success = await window.autoCheckManager.clickFillReferencePrice();
+                console.log('测试结果:', success ? '成功' : '失败');
+                return success;
+            } else {
+                console.log('❌ 插件管理器未找到');
+                return false;
+            }
+        };
+
         // 检查计数差异
         window.checkCountDifference = () => {
             console.log('🔍 检查计数差异...');
@@ -1139,6 +1153,7 @@ if (typeof window.debugTools === 'undefined') {
 • testBatchRights() - 测试批量选择基础权益
 • diagnoseBatchRightsButton() - 诊断批量权益按钮问题
 • enableSubmitButton() - 手动启用提交按钮
+• testFillReferencePrice() - 测试一键填入参考价
 • debugTools.help() - 显示此帮助信息
 
 示例:
