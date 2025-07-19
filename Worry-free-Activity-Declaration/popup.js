@@ -12,6 +12,7 @@ class PopupManager {
     // 初始化弹出窗口
     init() {
         this.loadCategories();
+        this.loadMaxCheckedItems();
         this.bindEvents();
         this.renderCategories();
         this.startStatusUpdates();
@@ -29,6 +30,11 @@ class PopupManager {
 
         document.getElementById('stopBtn').addEventListener('click', () => {
             this.stopAutoCheck();
+        });
+
+        // 绑定最大勾选数量输入框事件
+        document.getElementById('maxCheckedItems').addEventListener('input', (e) => {
+            this.updateMaxCheckedItems(parseInt(e.target.value) || 200);
         });
     }
 
@@ -55,13 +61,24 @@ class PopupManager {
     async updateStatus() {
         try {
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            
+            // 先同步最大勾选数量到content.js
+            if (this.isRunning) {
+                await chrome.tabs.sendMessage(tab.id, { 
+                    action: 'updateMaxCheckedItems',
+                    maxCheckedItems: this.maxCheckedItems 
+                });
+            }
+            
             const response = await chrome.tabs.sendMessage(tab.id, { action: 'getStatus' });
             
             if (response && response.success) {
                 const status = response.data;
                 this.isRunning = status.isRunning;
                 this.checkedCount = status.checkedCount || 0;
-                this.maxCheckedItems = status.maxCheckedItems || 200;
+                
+                // 使用popup中的maxCheckedItems更新status对象用于显示
+                status.maxCheckedItems = this.maxCheckedItems;
                 
                 this.updateButtonStates();
                 this.updateStatusDisplay(status);
@@ -133,6 +150,55 @@ class PopupManager {
         } catch (error) {
             console.error('保存配置失败:', error);
             this.showStatus('保存配置失败', 'error');
+        }
+    }
+
+    // 从存储中加载最大勾选数量
+    async loadMaxCheckedItems() {
+        try {
+            const result = await chrome.storage.sync.get(['maxCheckedItems']);
+            this.maxCheckedItems = result.maxCheckedItems || 200;
+            
+            // 更新UI
+            const maxItemsInput = document.getElementById('maxCheckedItems');
+            if (maxItemsInput) {
+                maxItemsInput.value = this.maxCheckedItems;
+            }
+        } catch (error) {
+            console.error('加载最大勾选数量失败:', error);
+            this.maxCheckedItems = 200;
+        }
+    }
+
+    // 更新最大勾选数量
+    async updateMaxCheckedItems(value) {
+        if (value < 1 || value > 1000) {
+            this.showStatus('最大勾选数量应在1-1000之间', 'error');
+            return;
+        }
+        
+        this.maxCheckedItems = value;
+        
+        try {
+            await chrome.storage.sync.set({ maxCheckedItems: this.maxCheckedItems });
+            console.log('最大勾选数量已更新为:', this.maxCheckedItems);
+            
+            // 如果插件正在运行，立即同步到content.js
+            if (this.isRunning) {
+                try {
+                    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+                    await chrome.tabs.sendMessage(tab.id, { 
+                        action: 'updateMaxCheckedItems',
+                        maxCheckedItems: this.maxCheckedItems 
+                    });
+                    console.log('✅ 已同步最大勾选数量到内容脚本');
+                } catch (error) {
+                    console.error('同步到内容脚本失败:', error);
+                }
+            }
+        } catch (error) {
+            console.error('保存最大勾选数量失败:', error);
+            this.showStatus('保存最大勾选数量失败', 'error');
         }
     }
 
@@ -263,7 +329,8 @@ class PopupManager {
             const response = await chrome.tabs.sendMessage(tab.id, {
                 action: 'startAutoCheck',
                 categories: this.categories,
-                pageType: pageType // 传递页面类型信息
+                pageType: pageType, // 传递页面类型信息
+                maxCheckedItems: this.maxCheckedItems // 传递最大勾选数量
             });
 
             this.isRunning = true;

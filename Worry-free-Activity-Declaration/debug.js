@@ -449,6 +449,76 @@ class DebugTool {
             }
         };
 
+        // 设置最大勾选数量
+        window.setMaxCheckedItems = (count) => {
+            console.log(`🔧 设置最大勾选数量为: ${count}`);
+            
+            if (window.autoCheckManager) {
+                const oldCount = window.autoCheckManager.maxCheckedItems;
+                window.autoCheckManager.maxCheckedItems = count;
+                console.log(`✅ 最大勾选数量已从 ${oldCount} 更新为 ${count}`);
+                
+                // 显示当前状态
+                console.log('📊 当前状态:', {
+                    已勾选: window.autoCheckManager.checkedCount,
+                    最大限制: window.autoCheckManager.maxCheckedItems,
+                    剩余可勾选: window.autoCheckManager.maxCheckedItems - window.autoCheckManager.checkedCount
+                });
+            } else {
+                console.log('❌ 插件管理器未找到');
+            }
+        };
+
+        // 查看勾选统计
+        window.getCheckStats = () => {
+            console.log('📊 勾选统计信息:');
+            
+            if (window.autoCheckManager) {
+                const stats = {
+                    已勾选数量: window.autoCheckManager.checkedCount,
+                    最大限制: window.autoCheckManager.maxCheckedItems,
+                    剩余可勾选: window.autoCheckManager.maxCheckedItems - window.autoCheckManager.checkedCount,
+                    运行状态: window.autoCheckManager.isRunning ? '运行中' : '已停止',
+                    处理过的行数: window.autoCheckManager.processedRows.size
+                };
+                
+                console.table(stats);
+                return stats;
+            } else {
+                console.log('❌ 插件管理器未找到');
+                return null;
+            }
+        };
+
+        // 检查数量同步状态
+        window.checkMaxItemsSync = async () => {
+            console.log('🔍 检查最大勾选数量同步状态...');
+            
+            // 从storage读取
+            try {
+                const result = await chrome.storage.sync.get(['maxCheckedItems']);
+                const storageValue = result.maxCheckedItems || 200;
+                
+                // 从content.js获取
+                const contentValue = window.autoCheckManager ? window.autoCheckManager.maxCheckedItems : 'N/A';
+                
+                console.table({
+                    '存储中的值': storageValue,
+                    'Content脚本中的值': contentValue,
+                    '是否同步': storageValue === contentValue ? '✅ 是' : '❌ 否'
+                });
+                
+                return {
+                    storage: storageValue,
+                    content: contentValue,
+                    synced: storageValue === contentValue
+                };
+            } catch (error) {
+                console.error('检查同步状态失败:', error);
+                return null;
+            }
+        };
+
         // 检查计数差异
         window.checkCountDifference = () => {
             console.log('🔍 检查计数差异...');
@@ -1154,6 +1224,9 @@ if (typeof window.debugTools === 'undefined') {
 • diagnoseBatchRightsButton() - 诊断批量权益按钮问题
 • enableSubmitButton() - 手动启用提交按钮
 • testFillReferencePrice() - 测试一键填入参考价
+• setMaxCheckedItems(数量) - 设置最大勾选数量
+• getCheckStats() - 查看勾选统计信息
+• checkMaxItemsSync() - 检查数量同步状态
 • debugTools.help() - 显示此帮助信息
 
 示例:

@@ -180,13 +180,26 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎯 活动申报助手 V1.0.8</h1>
+        <h1>🎯 活动申报助手 V1.0.9</h1>
         
         <div class="category-list" id="categoryList">
             <!-- 品类配置项将在这里动态生成 -->
         </div>
         
         <button class="add-btn" id="addCategoryBtn">➕ 添加品类配置</button>
+        
+        <!-- 勾选数量限制设置 -->
+        <div class="category-item" style="margin-bottom: 16px;">
+            <div style="flex: 1;">
+                <div class="label">最大勾选数量</div>
+                <input type="number" id="maxCheckedItems" class="category-input" 
+                       value="200" min="1" max="1000" 
+                       placeholder="默认200个">
+            </div>
+            <div style="margin-left: 8px; color: #666; font-size: 12px; align-self: center;">
+                个商品
+            </div>
+        </div>
         
         <button class="action-btn" id="startBtn">🚀 开始自动勾选</button>
         <button class="action-btn" id="stopBtn" disabled>⏹️ 停止自动勾选</button>

@@ -36,12 +36,18 @@ if (typeof window.autoCheckManager === 'undefined') {
             try {
                 switch (message.action) {
                     case 'startAutoCheck':
-                        this.startAutoCheck(message.categories, message.pageType);
+                        this.startAutoCheck(message.categories, message.pageType, message.maxCheckedItems);
                         sendResponse({ success: true, message: '自动勾选已开始' });
                         break;
                     case 'stopAutoCheck':
                         this.stopAutoCheck();
                         sendResponse({ success: true, message: '自动勾选已停止' });
+                        break;
+
+                    case 'updateMaxCheckedItems':
+                        this.maxCheckedItems = message.maxCheckedItems || 200;
+                        console.log('🔧 更新最大勾选数量为:', this.maxCheckedItems);
+                        sendResponse({ success: true, message: '最大勾选数量已更新' });
                         break;
                     case 'getStatus':
                         const status = this.getStatus();
@@ -66,10 +72,11 @@ if (typeof window.autoCheckManager === 'undefined') {
     }
 
     // 开始自动勾选
-    startAutoCheck(categories, pageType = '未知页面') {
-        console.log('🚀 开始自动勾选，配置:', categories, '页面类型:', pageType);
+    startAutoCheck(categories, pageType = '未知页面', maxCheckedItems = 200) {
+        console.log('🚀 开始自动勾选，配置:', categories, '页面类型:', pageType, '最大勾选数量:', maxCheckedItems);
         this.categories = categories;
         this.pageType = pageType; // 保存页面类型
+        this.maxCheckedItems = maxCheckedItems; // 设置最大勾选数量
         this.isRunning = true;
         this.processedRows.clear();
         this.checkedCount = 0;
