@@ -10,7 +10,8 @@ import {
   SettingOutlined,
   TableOutlined,
   SearchOutlined,
-  PictureOutlined
+  PictureOutlined,
+  DatabaseOutlined
 } from '@ant-design/icons';
 import './App.css';
 import ProductList from './pages/ProductList';
@@ -19,8 +20,10 @@ import ProductForm from './pages/ProductForm';
 import ConfigPage from './pages/ConfigPage';
 import ProductPage from './pages/ProductPage';
 import GalleryPage from './pages/GalleryPage';
+import UnpublishedRecordsPage from './pages/UnpublishedRecordsPage';
 import { ProductListProvider } from './pages/ProductListContext';
 import { GlobalNotificationProvider } from './pages/GlobalNotification';
+import { UnpublishedRecordsProvider } from './contexts/UnpublishedRecordsContext';
 // 导入 stagewise 工具栏组件
 import { StagewiseToolbar } from '@stagewise/toolbar-react';
 import ReactPlugin from '@stagewise-plugins/react';
@@ -32,6 +35,7 @@ const menuItems = [
   { key: 'compliance', icon: <TableOutlined />, label: <Link to="/compliance">违规商品</Link> },
   { key: 'product', icon: <SearchOutlined />, label: <Link to="/product">商品搜索</Link> },
   { key: 'gallery', icon: <PictureOutlined />, label: <Link to="/gallery">图库管理</Link> },
+  { key: 'unpublished', icon: <DatabaseOutlined />, label: <Link to="/unpublished">未发布记录</Link> },
 ];
 
 function AppLayout() {
@@ -62,6 +66,7 @@ function AppLayout() {
             <Route path="/compliance/:spu_id" element={<ProductDetail />} />
             <Route path="/product" element={<ProductPage />} />
             <Route path="/gallery" element={<GalleryPage />} />
+            <Route path="/unpublished" element={<UnpublishedRecordsPage />} />
             <Route path="*" element={<ProductList />} />
           </Routes>
         </Content>
@@ -75,14 +80,16 @@ function App() {
     <Router>
       <GlobalNotificationProvider>
         <ProductListProvider>
-          <AppLayout />
-          {/* 添加 stagewise 工具栏 - 仅在开发模式下显示 */}
-          <StagewiseToolbar 
-            config={{
-              plugins: [ReactPlugin]
-            }}
-            enabled={false}
-          />
+          <UnpublishedRecordsProvider>
+            <AppLayout />
+            {/* 添加 stagewise 工具栏 - 仅在开发模式下显示 */}
+            <StagewiseToolbar 
+              config={{
+                plugins: [ReactPlugin]
+              }}
+              enabled={false}
+            />
+          </UnpublishedRecordsProvider>
         </ProductListProvider>
       </GlobalNotificationProvider>
     </Router>

@@ -3,6 +3,7 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Card, Button, Table, message, Image, Descriptions, Input, Modal, notification, Tag, Space } from "antd";
 import { CopyOutlined } from "@ant-design/icons";
 import { useGlobalNotification } from './GlobalNotification';
+import { useUnpublishedRecords } from '../contexts/UnpublishedRecordsContext';
 
 // 支持通过props传递spu_id、violationData和onClose
 const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: () => void }> = ({ spu_id: propSpuId, violationData: propViolationData, onClose }) => {
@@ -12,6 +13,7 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
   const spu_id = propSpuId || params.spu_id;
   const violationData = propViolationData || location.state;
   const notify = useGlobalNotification();
+  const { addRecords } = useUnpublishedRecords();
   const [product, setProduct] = useState<any>(null); // 商品详情
   const [related, setRelated] = useState<any[]>([]); // 关联商品列表
   const [detailLoading, setDetailLoading] = useState(false); // 详情页loading
@@ -168,9 +170,43 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
         }
         setOfflineResults(newResults);
         
+        // 收集未发布的SKC
+        const unpublishedSkcs = selectedRelatedKeys
+          .map(key => {
+            const product = related.find(r => r.productSkcId === key);
+            console.log('检查商品:', product); // 调试信息
+            if (product) {
+              const status = getProductStatus(product.skcStatus, product.skcSiteStatus);
+              console.log('商品状态:', status, 'SKC状态:', product.skcStatus, '站点状态:', product.skcSiteStatus); // 调试信息
+              if (status === '未发布') {
+                const record = {
+                  skcId: product.productSkcId,
+                  productId: product.productId,
+                  productName: product.productName,
+                  mainImageUrl: product.mainImageUrl,
+                  category: product.leafCat || { catId: 0, catName: '未知类目' },
+                  source: 'product-detail'
+                };
+                console.log('收集未发布SKC:', record); // 调试信息
+                return record;
+              }
+            }
+            return null;
+          })
+          .filter(Boolean);
+
+        console.log('最终收集的未发布SKC:', unpublishedSkcs); // 调试信息
+
+        if (unpublishedSkcs.length > 0) {
+          addRecords(unpublishedSkcs);
+        } else {
+          console.log('没有找到未发布的SKC'); // 调试信息
+        }
+
+        // 合并显示下架结果和SKC收集结果
         notify({
           type: 'info',
-          message: "下架结果",
+          message: "批量下架完成",
           description: (
             <div>
               <div style={{ marginBottom: 12 }}>
@@ -178,6 +214,13 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
                 <span style={{ color: 'red', marginLeft: 16 }}>下架失败：{failCount} 个</span>
                 <span style={{ color: 'blue', marginLeft: 16 }}>总计：{totalCount} 个</span>
               </div>
+              {unpublishedSkcs.length > 0 && (
+                <div style={{ marginBottom: 12, padding: '8px', backgroundColor: '#f6ffed', borderRadius: '4px', border: '1px solid #b7eb8f' }}>
+                  <span style={{ color: '#52c41a', fontWeight: 'bold' }}>
+                    ✓ 已收集 {unpublishedSkcs.length} 个未发布SKC到记录中
+                  </span>
+                </div>
+              )}
               {data.results && data.results.map((item: any) => (
                 <div key={item.productId} style={{ marginBottom: 8 }}>
                   商品ID: {item.productId} - {item.success ? (
@@ -190,6 +233,7 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
             </div>
           ) as any,
         });
+        
         handleRelatedSearch(); // 下架后刷新关联商品列表
         setSelectedRelatedKeys([]); // 清空多选
       } else {
