@@ -330,12 +330,41 @@ const ProductDetail: React.FC<{ spu_id?: string, violationData?: any, onClose?: 
           { 
             title: "SKC ID", 
             dataIndex: "productSkcId",
-            render: (text: string) => <span style={{ fontSize: '16px' }}>{text}</span>
+            render: (text: string) => (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '16px' }}>{text}</span>
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<CopyOutlined />}
+                  onClick={() => handleCopy(text)}
+                  style={{ padding: '2px 4px', minWidth: 'auto' }}
+                  title="复制SKC ID"
+                />
+              </div>
+            )
           },
           { 
             title: "商品ID", 
             dataIndex: "productId", 
-            render: (text: string) => text === spu_id ? <span style={{ color: 'red', fontSize: '16px' }}>{text}</span> : <span style={{ fontSize: '16px' }}>{text}</span>
+            render: (text: string) => (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ 
+                  color: text === spu_id ? 'red' : 'inherit', 
+                  fontSize: '16px' 
+                }}>
+                  {text}
+                </span>
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<CopyOutlined />}
+                  onClick={() => handleCopy(text)}
+                  style={{ padding: '2px 4px', minWidth: 'auto' }}
+                  title="复制商品ID"
+                />
+              </div>
+            )
           },
           { 
             title: "商品名称", 

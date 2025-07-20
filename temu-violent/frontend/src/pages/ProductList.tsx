@@ -17,6 +17,7 @@ const ProductList: React.FC = () => {
   const [filterRange, setFilterRange] = useState<string>("80+"); // 默认筛选80以上
   const [customMin, setCustomMin] = useState<number>(80); // 自定义最小值
   const [customMax, setCustomMax] = useState<number>(999); // 自定义最大值
+  const [showUSViolation, setShowUSViolation] = useState<boolean>(false); // 美国站违规筛选
 
   // 获取违规商品列表
   const fetchProducts = async (pageNum = page, size = pageSize) => {
@@ -84,8 +85,16 @@ const ProductList: React.FC = () => {
   };
 
   // 违规筛选逻辑
-  const filteredProducts = showMajorViolation
-    ? products.filter(record => {
+  const filteredProducts = products.filter(record => {
+    // 美国站违规筛选
+    if (showUSViolation) {
+      const hasUSViolation = Array.isArray(record.punish_detail_list) &&
+        record.punish_detail_list.some((d: any) => d.site_id === 100);
+      if (!hasUSViolation) return false;
+    }
+
+    // 违规站点数量筛选
+    if (showMajorViolation) {
       const isAllSite = record.site_num === 1 &&
         Array.isArray(record.punish_detail_list) &&
         record.punish_detail_list.some((d: any) => d.site_id === -1);
@@ -104,8 +113,10 @@ const ProductList: React.FC = () => {
       }
 
       return false;
-    })
-    : products;
+    }
+
+    return true;
+  });
 
   // 打开详情抽屉
   const openDetail = (record: any) => {
@@ -127,6 +138,10 @@ const ProductList: React.FC = () => {
             </Button>
           </div>
           <Space>
+            <Switch checked={showUSViolation} onChange={setShowUSViolation} />
+            <span style={{ marginLeft: 8 }}>
+              美国站违规
+            </span>
             <Switch checked={showMajorViolation} onChange={setShowMajorViolation} />
             <span style={{ marginLeft: 8 }}>
               违规筛选
@@ -226,15 +241,57 @@ const ProductList: React.FC = () => {
             )
           },
           {
-            title: "违规站点",
+            title: "违规信息",
             dataIndex: "site_num",
-            width: 120,
+            width: 160,
             render: (_, record) => {
               const isAllSite = record.site_num === 1 &&
                 Array.isArray(record.punish_detail_list) &&
                 record.punish_detail_list.some((d: any) => d.site_id === -1);
-              if (isAllSite) return <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#ff4d4f' }}>全部站点违规</span>;
-              return <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{record.site_num}</span>;
+              
+              // 检查是否包含美国站违规
+              const hasUSViolation = Array.isArray(record.punish_detail_list) &&
+                record.punish_detail_list.some((d: any) => d.site_id === 100);
+              
+              const punishNum = (record as any).punish_num || 0;
+              
+              return (
+                <div style={{ fontSize: '14px' }}>
+                  {/* 违规站点数 */}
+                  <div style={{ marginBottom: '4px' }}>
+                    {isAllSite ? (
+                      <span style={{ fontWeight: 'bold', color: '#ff4d4f' }}>
+                        全部站点违规
+                      </span>
+                    ) : (
+                      <span style={{ fontWeight: 'bold' }}>
+                        {record.site_num} 个站点
+                      </span>
+                    )}
+                  </div>
+                  
+                  {/* 违规记录数 */}
+                  <div style={{ marginBottom: '2px', color: '#666' }}>
+                    {punishNum} 条记录
+                  </div>
+                  
+                  {/* 美国站标识 */}
+                  {hasUSViolation && (
+                    <div>
+                      <span style={{ 
+                        backgroundColor: '#ff4d4f',
+                        color: '#fff',
+                        padding: '2px 6px',
+                        borderRadius: '3px',
+                        fontSize: '12px',
+                        fontWeight: 'bold'
+                      }}>
+                        含美国站
+                      </span>
+                    </div>
+                  )}
+                </div>
+              );
             }
           },
           {
