@@ -602,6 +602,19 @@ if (typeof window.autoCheckManager === 'undefined') {
                 if (!priceElement) {
                     priceElement = row.querySelector('td:nth-child(7)');
                 }
+            } else if (
+                this.pageType === '新品专区' ||
+                this.pageType === '大流量扶持' ||
+                this.pageType === '爆款冲刺'
+            ) {
+                // 新活动页面：价格在第6个td
+                priceElement = row.querySelector('td:nth-child(6) span span:last-child');
+                if (!priceElement) {
+                    priceElement = row.querySelector('td:nth-child(6) span:last-child');
+                }
+                if (!priceElement) {
+                    priceElement = row.querySelector('td:nth-child(6)');
+                }
             } else {
                 // 省心报页面：价格在第5个td
                 priceElement = row.querySelector('td:nth-child(5) span span:last-child');
@@ -1105,7 +1118,7 @@ if (typeof window.autoCheckManager === 'undefined') {
                 } else if (this.pageType === '官方大促') {
                     priceElement = row.querySelector('td:nth-child(7) span span:last-child');
                 } else {
-                    priceElement = row.querySelector('td:nth-child(5) span span:last-child');
+                priceElement = row.querySelector('td:nth-child(5) span span:last-child');
                 }
                 
                 if (!priceElement) return;

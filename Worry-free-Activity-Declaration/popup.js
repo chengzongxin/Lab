@@ -351,15 +351,26 @@ class PopupManager {
                 func: () => {
                     // 检测页面类型
                     const hasWorryFree = document.querySelector('.worry-free-detail_table__unQvk');
-                    const hasOfficialPromotion = document.querySelector('.block-title-module__title___3MkQp');
-                    const hasFlashSale = document.querySelector('.block-title-module__title___3MkQp');
-                    
+                    const titleElement = document.querySelector('.block-title-module__title___3MkQp');
+
+                    const hasOfficialPromotion = titleElement && titleElement.textContent.includes('官方大促');
+                    const hasFlashSale = titleElement && titleElement.textContent.includes('限时秒杀');
+                    const hasNewProduct = titleElement && titleElement.textContent.includes('新品专区');
+                    const hasBigTraffic = titleElement && titleElement.textContent.includes('大流量扶持');
+                    const hasHotSale = titleElement && titleElement.textContent.includes('爆款冲刺');
+
                     if (hasWorryFree) {
                         return '省心报';
-                    } else if (hasOfficialPromotion && hasOfficialPromotion.textContent.includes('官方大促')) {
+                    } else if (hasOfficialPromotion) {
                         return '官方大促';
-                    } else if (hasFlashSale && hasFlashSale.textContent.includes('限时秒杀')) {
+                    } else if (hasFlashSale) {
                         return '限时秒杀';
+                    } else if (hasNewProduct) {
+                        return '新品专区';
+                    } else if (hasBigTraffic) {
+                        return '大流量扶持';
+                    } else if (hasHotSale) {
+                        return '爆款冲刺';
                     } else {
                         return '未知页面';
                     }
