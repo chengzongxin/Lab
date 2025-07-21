@@ -212,12 +212,14 @@ const ProductPage: React.FC = () => {
           value={searchIds}
           onChange={e => setSearchIds(e.target.value)}
           style={{ width: 260 }}
+          onPressEnter={handleSearch}
         />
         <Input
           placeholder="输入商品名称"
           value={searchName}
           onChange={e => setSearchName(e.target.value)}
           style={{ width: 200 }}
+          onPressEnter={handleSearch}
         />
         <Button type="primary" onClick={handleSearch} loading={loading}>搜索</Button>
         <Button
