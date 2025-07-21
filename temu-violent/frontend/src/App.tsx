@@ -24,6 +24,7 @@ import UnpublishedRecordsPage from './pages/UnpublishedRecordsPage';
 import { ProductListProvider } from './pages/ProductListContext';
 import { GlobalNotificationProvider } from './pages/GlobalNotification';
 import { UnpublishedRecordsProvider } from './contexts/UnpublishedRecordsContext';
+import { ProductSearchProvider } from './pages/ProductSearchContext';
 // 导入 stagewise 工具栏组件
 import { StagewiseToolbar } from '@stagewise/toolbar-react';
 import ReactPlugin from '@stagewise-plugins/react';
@@ -81,14 +82,16 @@ function App() {
       <GlobalNotificationProvider>
         <ProductListProvider>
           <UnpublishedRecordsProvider>
-            <AppLayout />
-            {/* 添加 stagewise 工具栏 - 仅在开发模式下显示 */}
-            <StagewiseToolbar 
-              config={{
-                plugins: [ReactPlugin]
-              }}
-              enabled={false}
-            />
+            <ProductSearchProvider>
+              <AppLayout />
+              {/* 添加 stagewise 工具栏 - 仅在开发模式下显示 */}
+              <StagewiseToolbar 
+                config={{
+                  plugins: [ReactPlugin]
+                }}
+                enabled={false}
+              />
+            </ProductSearchProvider>
           </UnpublishedRecordsProvider>
         </ProductListProvider>
       </GlobalNotificationProvider>

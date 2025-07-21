@@ -3,6 +3,7 @@ import { Card, Input, Button, Table, message, Space, Image, Tag } from "antd";
 import { CopyOutlined } from "@ant-design/icons";
 import { useGlobalNotification } from './GlobalNotification';
 import { useUnpublishedRecords } from '../contexts/UnpublishedRecordsContext';
+import { useProductSearchContext } from './ProductSearchContext';
 
 interface Product {
   productId: string;
@@ -20,11 +21,13 @@ interface Product {
 }
 
 const ProductPage: React.FC = () => {
-  const [searchName, setSearchName] = useState("");
-  const [searchIds, setSearchIds] = useState("");
-  const [products, setProducts] = useState<Product[]>([]);
+  const {
+    searchName, setSearchName,
+    searchIds, setSearchIds,
+    products, setProducts,
+    selectedRowKeys, setSelectedRowKeys
+  } = useProductSearchContext();
   const [loading, setLoading] = useState(false);
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]); // 多选商品ID
   const [offlineResults, setOfflineResults] = useState<{[key: string]: {success: boolean, message: string}}>({}); // 下架结果缓存
 
   const notify = useGlobalNotification();
