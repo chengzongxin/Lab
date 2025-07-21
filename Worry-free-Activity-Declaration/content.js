@@ -605,7 +605,8 @@ if (typeof window.autoCheckManager === 'undefined') {
             } else if (
                 this.pageType === '新品专区' ||
                 this.pageType === '大流量扶持' ||
-                this.pageType === '爆款冲刺'
+                this.pageType === '爆款冲刺' ||
+                this.pageType === '营销热点'
             ) {
                 // 新活动页面：价格在第6个td
                 priceElement = row.querySelector('td:nth-child(6) span span:last-child');

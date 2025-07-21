@@ -358,6 +358,8 @@ class PopupManager {
                     const hasNewProduct = titleElement && titleElement.textContent.includes('新品专区');
                     const hasBigTraffic = titleElement && titleElement.textContent.includes('大流量扶持');
                     const hasHotSale = titleElement && titleElement.textContent.includes('爆款冲刺');
+                    const hasHotMarketing = titleElement && titleElement.textContent.includes('营销热点');
+                    
 
                     if (hasWorryFree) {
                         return '省心报';
@@ -371,6 +373,8 @@ class PopupManager {
                         return '大流量扶持';
                     } else if (hasHotSale) {
                         return '爆款冲刺';
+                    } else if (hasHotMarketing) {
+                        return '营销热点';
                     } else {
                         return '未知页面';
                     }
