@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redbubble AI 设计预览</title>
+    <style>
+        body {
+            background: #f8f9fa;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            color: #333;
+        }
+
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #e1e5e9;
+            padding: 20px 0;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+
+        .header h2 {
+            margin: 0 0 8px 0;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            letter-spacing: -0.025em;
+        }
+
+        .subtitle {
+            margin: 0;
+            font-size: 1rem;
+            color: #666;
+            font-weight: 400;
+        }
+
+        .search-container {
+            padding: 20px 24px;
+            background: #fff;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .search-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 48px 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+            background: #fff;
+        }
+
+        .search-input:focus {
+            border-color: #1a1a1a;
+        }
+
+        .search-button {
+            position: absolute;
+            right: 8px;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+
+        .sort-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 24px;
+            background: #fff;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .sort-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .sort-select {
+            padding: 8px 12px;
+            border: 1px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background: #fff;
+            color: #1a1a1a;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s ease-in-out;
+            position: relative;
+            border: 1px solid #f0f0f0;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-color: #e1e5e9;
+        }
+
+        .card-img-box {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: #f8f9fa;
+            overflow: hidden;
+        }
+
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover .card-img {
+            transform: scale(1.05);
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 107, 53, 0.9);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 12px;
+            backdrop-filter: blur(4px);
+        }
+
+        .card-content {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .title {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #1a1a1a;
+            line-height: 1.4;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-height: 2.8em;
+        }
+
+        .score {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.875rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .score::before {
+            content: "★";
+            color: #ff6b35;
+            font-size: 1rem;
+        }
+
+        .score-value {
+            color: #ff6b35;
+            font-weight: 600;
+        }
+
+        .link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 10px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .link:hover {
+            background: #333;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            padding: 32px 24px;
+            background: #fff;
+            border-top: 1px solid #e1e5e9;
+            margin-top: 32px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #666;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+                gap: 16px;
+                padding: 20px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Redbubble AI 商品美学平台</h2>
+        <p class="subtitle">基于 AI 的美学评分，发现优质设计商品</p>
+    </div>
+    
+    <div class="search-container">
+        <div class="search-form">
+            <div class="search-input-wrapper">
+                <input type="text" class="search-input" placeholder="搜索商品名称...">
+                <button class="search-button">🔍</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="sort-container">
+        <div class="sort-label">排序方式：</div>
+        <select class="sort-select">
+            <option>默认排序</option>
+            <option>评分从高到低</option>
+            <option>评分从低到高</option>
+            <option>按名称排序</option>
+        </select>
+    </div>
+    
+    <div class="container">
+        <div class="card">
+            <div class="card-img-box">
+                <img class="card-img" src="https://via.placeholder.com/300x300/f0f0f0/666?text=商品图片" alt="示例商品">
+                <div class="product-badge">8.5 分</div>
+            </div>
+            <div class="card-content">
+                <div class="title">创意猫咪设计 T恤 - 高质量印刷</div>
+                <div class="score">
+                    <span class="score-value">8.5</span>
+                    <span>美学评分</span>
+                </div>
+                <a class="link" href="#">查看商品</a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-img-box">
+                <img class="card-img" src="https://via.placeholder.com/300x300/e8f4f8/666?text=商品图片" alt="示例商品">
+                <div class="product-badge">7.2 分</div>
+            </div>
+            <div class="card-content">
+                <div class="title">极简主义几何图案手机壳</div>
+                <div class="score">
+                    <span class="score-value">7.2</span>
+                    <span>美学评分</span>
+                </div>
+                <a class="link" href="#">查看商品</a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-img-box">
+                <img class="card-img" src="https://via.placeholder.com/300x300/f8f0e8/666?text=商品图片" alt="示例商品">
+                <div class="product-badge">9.1 分</div>
+            </div>
+            <div class="card-content">
+                <div class="title">复古风格艺术海报 - 限量版设计</div>
+                <div class="score">
+                    <span class="score-value">9.1</span>
+                    <span>美学评分</span>
+                </div>
+                <a class="link" href="#">查看商品</a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-img-box">
+                <img class="card-img" src="https://via.placeholder.com/300x300/f0f8f0/666?text=商品图片" alt="示例商品">
+                <div class="product-badge">6.8 分</div>
+            </div>
+            <div class="card-content">
+                <div class="title">环保主题帆布包 - 可持续设计</div>
+                <div class="score">
+                    <span class="score-value">6.8</span>
+                    <span>美学评分</span>
+                </div>
+                <a class="link" href="#">查看商品</a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-img-box">
+                <img class="card-img" src="https://via.placeholder.com/300x300/f8f8f0/666?text=商品图片" alt="示例商品">
+                <div class="product-badge">8.9 分</div>
+            </div>
+            <div class="card-content">
+                <div class="title">抽象艺术马克杯 - 手工制作</div>
+                <div class="score">
+                    <span class="score-value">8.9</span>
+                    <span>美学评分</span>
+                </div>
+                <a class="link" href="#">查看商品</a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-img-box">
+                <img class="card-img" src="https://via.placeholder.com/300x300/f0f0f8/666?text=商品图片" alt="示例商品">
+                <div class="product-badge">7.5 分</div>
+            </div>
+            <div class="card-content">
+                <div class="title">科技感键盘贴纸套装</div>
+                <div class="score">
+                    <span class="score-value">7.5</span>
+                    <span>美学评分</span>
+                </div>
+                <a class="link" href="#">查看商品</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stats">
+        <div class="stat-item">
+            <span class="stat-number">6</span>
+            <span class="stat-label">个商品</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">8.0</span>
+            <span class="stat-label">平均评分</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">4</span>
+            <span class="stat-label">高分商品</span>
+        </div>
+    </div>
+</body>
+</html> 
