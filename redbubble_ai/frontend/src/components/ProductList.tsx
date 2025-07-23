@@ -80,7 +80,7 @@ const ProductList: React.FC<Props> = ({ products, loading, error, onRetry }) => 
                 <img 
                   className="card-img" 
                   src={item.img} 
-                  alt={item.title}
+                  alt={'Item preview' + item.title}
                   onError={(e) => {
                     // 图片加载失败时的处理
                     const target = e.target as HTMLImageElement;
