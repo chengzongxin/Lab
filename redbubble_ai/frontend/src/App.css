@@ -6,7 +6,7 @@
 .header {
   background: #fff;
   border-bottom: 1px solid #e1e5e9;
-  padding: 20px 0;
+  padding: 12px 0;
   text-align: center;
   position: sticky;
   top: 0;
@@ -15,8 +15,8 @@
 }
 
 .header h2 {
-  margin: 0 0 8px 0;
-  font-size: 1.75rem;
+  margin: 0 0 4px 0;
+  font-size: 1.25rem;
   font-weight: 600;
   color: #1a1a1a;
   letter-spacing: -0.025em;
@@ -24,7 +24,7 @@
 
 .subtitle {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.875rem;
   color: #666;
   font-weight: 400;
 }
@@ -62,15 +62,15 @@
 
 @media (max-width: 768px) {
   .header {
-    padding: 16px 0;
+    padding: 10px 0;
   }
   
   .header h2 {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
   }
   
   .subtitle {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   
   .stats {

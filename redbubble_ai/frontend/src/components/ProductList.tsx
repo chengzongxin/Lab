@@ -67,7 +67,14 @@ const ProductList: React.FC<Props> = ({ products, loading, error, onRetry }) => 
         const scoreValue = formatScore(item.score || 0);
         
         return (
-          <div className="card" key={item.id || item.link}>
+          <a 
+            href={item.link} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="card" 
+            key={item.id || item.link}
+            style={{ textDecoration: 'none' }}
+          >
             {/* 评分标签 */}
             {item.score && (
               <div className="product-badge">
@@ -76,22 +83,20 @@ const ProductList: React.FC<Props> = ({ products, loading, error, onRetry }) => 
             )}
             
             <div className="card-img-box">
-              <a href={item.link} target="_blank" rel="noopener noreferrer">
-                <img 
-                  className="card-img" 
-                  src={item.img} 
-                  alt={'Item preview' + item.title}
-                  onError={(e) => {
-                    // 图片加载失败时的处理
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    const parent = target.parentElement;
-                    if (parent) {
-                      parent.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #999; font-size: 0.9rem;">图片加载失败</div>';
-                    }
-                  }}
-                />
-              </a>
+              <img 
+                className="card-img" 
+                src={item.img} 
+                alt={'Item preview' + item.title}
+                onError={(e) => {
+                  // 图片加载失败时的处理
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #999; font-size: 0.9rem;">图片加载失败</div>';
+                  }
+                }}
+              />
             </div>
             
             <div className="card-content">
@@ -103,17 +108,8 @@ const ProductList: React.FC<Props> = ({ products, loading, error, onRetry }) => 
                   <span>美学评分</span>
                 </div>
               )}
-              
-              <a 
-                className="link" 
-                href={item.link} 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
-                查看商品
-              </a>
             </div>
-          </div>
+          </a>
         );
       })}
     </div>

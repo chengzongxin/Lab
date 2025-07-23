@@ -1,5 +1,5 @@
 .search-container {
-  padding: 20px 24px;
+  padding: 16px 24px;
   background: #fff;
   border-bottom: 1px solid #e1e5e9;
 }
@@ -52,7 +52,7 @@
 
 @media (max-width: 768px) {
   .search-container {
-    padding: 16px;
+    padding: 12px 16px;
   }
   
   .search-input {
