@@ -9,7 +9,10 @@ from keras.preprocessing import image
 import numpy as np
 import os
 
-NIMA_WEIGHTS = 'weights_mobilenet_aesthetic_0.07.hdf5'
+# 获取当前脚本文件的目录
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# 拼接权重文件的绝对路径，确保无论从哪里运行都能找到
+NIMA_WEIGHTS = os.path.join(BASE_DIR, 'weights_mobilenet_aesthetic_0.07.hdf5')
 if not os.path.exists(NIMA_WEIGHTS):
     raise FileNotFoundError(f"未找到NIMA权重文件: {NIMA_WEIGHTS}")
 

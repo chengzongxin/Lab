@@ -5,6 +5,46 @@ from generate_html import generate_html
 from scorer import nima_score
 import webbrowser
 import re
+import mysql.connector
+
+# 保存商品到MySQL数据库
+def save_to_mysql(products):
+    conn = mysql.connector.connect(
+        host="localhost",
+        port=3306,
+        user="root",
+        password="123456789"
+    )
+    cursor = conn.cursor()
+    # 创建数据库和表
+    cursor.execute("CREATE DATABASE IF NOT EXISTS redbubble_ai DEFAULT CHARACTER SET utf8mb4;")
+    cursor.execute("USE redbubble_ai;")
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS products (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      title VARCHAR(512),
+      img VARCHAR(1024),
+      score FLOAT,
+      link VARCHAR(1024),
+      local_img VARCHAR(1024)
+    )
+    """)
+    # 插入数据
+    for item in products:
+        cursor.execute(
+            "INSERT INTO products (title, img, score, link, local_img) VALUES (%s, %s, %s, %s, %s)",
+            (
+                item["title"],
+                item["img"],
+                float(item["score"]),
+                item["link"],
+                item.get("local_img", "")
+            )
+        )
+    conn.commit()
+    cursor.close()
+    conn.close()
+    print(f"已保存{len(products)}个商品到 MySQL 数据库。")
 
 # 主程序入口
 if __name__ == "__main__":
@@ -47,6 +87,8 @@ if __name__ == "__main__":
     save_results(good_items, filename="products.csv")
     print(f"已保存{len(good_items)}个高分商品到 products.csv")
     print("主图已保存在 results/ 目录下。")
+    if good_items:
+        save_to_mysql(good_items)
     generate_html("products.csv")
 
     # 使用 webbrowser 模块打开本地 HTML 文件
