@@ -23,10 +23,30 @@
 }
 
 .subtitle {
-  margin: 0;
+  margin: 0 0 12px 0;
   font-size: 0.875rem;
   color: #666;
   font-weight: 400;
+}
+
+.toggle-crawler-btn {
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.toggle-crawler-btn:hover {
+  background: #333;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .stats {
@@ -71,6 +91,11 @@
   
   .subtitle {
     font-size: 0.8rem;
+  }
+  
+  .toggle-crawler-btn {
+    padding: 6px 12px;
+    font-size: 0.75rem;
   }
   
   .stats {

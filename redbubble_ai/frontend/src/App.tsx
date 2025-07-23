@@ -4,6 +4,7 @@ import { Product } from "./types/product";
 import ProductList from "./components/ProductList";
 import SearchBar from "./components/SearchBar";
 import SortFilter, { SortOption } from "./components/SortFilter";
+import CrawlerControl from "./components/CrawlerControl";
 import "./App.css";
 
 const App: React.FC = () => {
@@ -13,6 +14,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('default');
+  const [showCrawlerControl, setShowCrawlerControl] = useState(false);
 
   const fetchProducts = async () => {
     try {
@@ -77,12 +79,26 @@ const App: React.FC = () => {
     fetchProducts();
   };
 
+  const handleCrawlComplete = () => {
+    fetchProducts();
+  };
+
   return (
     <div className="app">
       <div className="header">
         <h2>Redbubble AI 商品美学平台</h2>
         <p className="subtitle">基于 AI 的美学评分，发现优质设计商品</p>
+        <button 
+          className="toggle-crawler-btn"
+          onClick={() => setShowCrawlerControl(!showCrawlerControl)}
+        >
+          {showCrawlerControl ? '隐藏爬虫控制' : '显示爬虫控制'}
+        </button>
       </div>
+      
+      {showCrawlerControl && (
+        <CrawlerControl onCrawlComplete={handleCrawlComplete} />
+      )}
       
       <SearchBar onSearch={handleSearch} placeholder="搜索商品名称..." />
       
