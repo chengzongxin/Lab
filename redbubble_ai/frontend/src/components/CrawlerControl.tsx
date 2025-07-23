@@ -19,11 +19,26 @@ interface TaskStatus {
   title: string;
   created_at: string;
   updated_at: string;
-  current_score?: number; // Added for current product score
+  current_score?: number;
+  category?: string;
 }
+
+const categoryOptions = [
+  { value: 'u-clothing', label: '衣服' },
+  { value: 'u-bags', label: '包' },
+  { value: 'u-socks', label: '袜子' },
+  { value: 'u-masks', label: '口罩' },
+  { value: 'u-cases', label: '手机壳' },
+  { value: 'u-stickers', label: '贴纸' },
+  { value: 'u-wall-art', label: '墙饰' },
+  { value: 'u-home-decor', label: '家居' },
+  { value: 'u-stationery', label: '文具' },
+  { value: 'u-kids-babies', label: '儿童婴儿' },
+];
 
 const CrawlerControl: React.FC<CrawlerControlProps> = ({ onCrawlComplete }) => {
   const [keyword, setKeyword] = useState('');
+  const [category, setCategory] = useState('u-clothing');
   const [pages, setPages] = useState(1);
   const [isCrawling, setIsCrawling] = useState(false);
   const [message, setMessage] = useState('');
@@ -53,38 +68,28 @@ const CrawlerControl: React.FC<CrawlerControlProps> = ({ onCrawlComplete }) => {
 
   const startPollingStatus = () => {
     if (statusTimer.current) clearInterval(statusTimer.current);
-    console.log('开始轮询爬虫状态...');
     statusTimer.current = setInterval(async () => {
       try {
-        console.log('正在请求爬虫状态...');
         const res = await axios.get('http://localhost:8000/api/crawl/status');
-        console.log('收到爬虫状态:', res.data);
-        
         if (res.data.has_running_task) {
           setCurrentTask(res.data.current_task);
           setIsCrawling(true);
-          
-          // 如果任务完成或失败，停止轮询
           if (res.data.current_task.status === 'completed' || res.data.current_task.status === 'failed') {
-            console.log('任务完成，停止轮询');
             clearInterval(statusTimer.current!);
             statusTimer.current = null;
             setIsCrawling(false);
-            
             if (res.data.current_task.status === 'completed') {
               setMessage('爬取完成！');
               setMessageType('success');
-              onCrawlComplete(); // 自动刷新商品列表
-              setTimeout(() => window.location.reload(), 1000); // 1秒后自动刷新页面
+              onCrawlComplete();
+              setTimeout(() => window.location.reload(), 1000);
             } else {
               setMessage('爬取失败，请重试');
               setMessageType('error');
             }
-            
             setCurrentTask(null);
           }
         } else {
-          // 没有运行中的任务
           setCurrentTask(null);
           setIsCrawling(false);
           clearInterval(statusTimer.current!);
@@ -104,30 +109,19 @@ const CrawlerControl: React.FC<CrawlerControlProps> = ({ onCrawlComplete }) => {
   };
 
   const handleCrawl = async () => {
-    if (!keyword.trim()) {
-      setMessage('请输入搜索关键词');
-      setMessageType('error');
-      return;
-    }
-
     setIsCrawling(true);
     setMessage('正在启动爬虫...');
     setMessageType('info');
     setCurrentTask(null);
-    
-    // 先启动轮询
     startPollingStatus();
-
     try {
       const response = await axios.post('http://localhost:8000/api/crawl', {
         keyword: keyword.trim(),
-        pages: pages
+        pages,
+        category
       });
-      
-      // 启动成功，但不要立即停止轮询
       setMessage('爬虫已启动，正在后台运行...');
       setMessageType('info');
-      
     } catch (error: any) {
       const errorMessage = error.response?.data?.detail || '爬虫启动失败，请检查后端服务';
       setMessage(errorMessage);
@@ -139,11 +133,7 @@ const CrawlerControl: React.FC<CrawlerControlProps> = ({ onCrawlComplete }) => {
 
   const handleCancelTask = async () => {
     if (!currentTask) return;
-    
-    if (!window.confirm('确定要取消当前任务吗？')) {
-      return;
-    }
-
+    if (!window.confirm('确定要取消当前任务吗？')) return;
     try {
       await axios.delete(`http://localhost:8000/api/crawl/tasks/${currentTask.id}`);
       setMessage('任务已取消');
@@ -159,10 +149,7 @@ const CrawlerControl: React.FC<CrawlerControlProps> = ({ onCrawlComplete }) => {
   };
 
   const handleClearData = async () => {
-    if (!window.confirm('确定要清空所有商品数据吗？此操作不可恢复。')) {
-      return;
-    }
-
+    if (!window.confirm('确定要清空所有商品数据吗？此操作不可恢复。')) return;
     try {
       await axios.delete('http://localhost:8000/api/products');
       setMessage('已清空所有商品数据');
@@ -175,7 +162,6 @@ const CrawlerControl: React.FC<CrawlerControlProps> = ({ onCrawlComplete }) => {
     }
   };
 
-  // 组件卸载时清理定时器
   useEffect(() => {
     return () => {
       stopPollingStatus();
@@ -191,23 +177,35 @@ const CrawlerControl: React.FC<CrawlerControlProps> = ({ onCrawlComplete }) => {
     <div className="crawler-control">
       <div className="crawler-form">
         <div className="form-group">
-          <label htmlFor="keyword">搜索关键词：</label>
+          <label htmlFor="category">类目：</label>
+          <select
+            id="category"
+            value={category}
+            onChange={e => setCategory(e.target.value)}
+            disabled={isCrawling}
+          >
+            {categoryOptions.map(opt => (
+              <option value={opt.value} key={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+        <div className="form-group">
+          <label htmlFor="keyword">关键词（可选）：</label>
           <input
             id="keyword"
             type="text"
             value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            placeholder="例如：cats, dogs, nature..."
+            onChange={e => setKeyword(e.target.value)}
+            placeholder="如：cats, dogs, nature..."
             disabled={isCrawling}
           />
         </div>
-        
         <div className="form-group">
           <label htmlFor="pages">爬取页数：</label>
           <select
             id="pages"
             value={pages}
-            onChange={(e) => setPages(Number(e.target.value))}
+            onChange={e => setPages(Number(e.target.value))}
             disabled={isCrawling}
           >
             <option value={1}>1 页</option>
@@ -217,25 +215,17 @@ const CrawlerControl: React.FC<CrawlerControlProps> = ({ onCrawlComplete }) => {
             <option value={10}>10 页</option>
           </select>
         </div>
-        
         <div className="form-actions">
           <button
             className="crawl-button"
             onClick={handleCrawl}
-            disabled={isCrawling || !keyword.trim()}
+            disabled={isCrawling}
           >
             {isCrawling ? '爬取中...' : '开始爬取'}
           </button>
-          
           {isCrawling && currentTask && (
-            <button
-              className="cancel-button"
-              onClick={handleCancelTask}
-            >
-              取消任务
-            </button>
+            <button className="cancel-button" onClick={handleCancelTask}>取消任务</button>
           )}
-          
           <button
             className="clear-button"
             onClick={handleClearData}
@@ -245,18 +235,14 @@ const CrawlerControl: React.FC<CrawlerControlProps> = ({ onCrawlComplete }) => {
           </button>
         </div>
       </div>
-      
       {message && (
-        <div className={`message ${messageType}`}>
-          {message}
-        </div>
+        <div className={`message ${messageType}`}>{message}</div>
       )}
-
-      {/* 任务状态显示 */}
       {currentTask && (
         <div className="task-status">
           <div className="task-info">
             <h4>当前任务</h4>
+            <p><strong>类目:</strong> {categoryOptions.find(opt => opt.value === currentTask.category)?.label || currentTask.category}</p>
             <p><strong>关键词:</strong> {currentTask.keyword}</p>
             <p><strong>页数:</strong> {currentTask.pages}</p>
             <p><strong>状态:</strong> {currentTask.status}</p>
@@ -266,13 +252,9 @@ const CrawlerControl: React.FC<CrawlerControlProps> = ({ onCrawlComplete }) => {
             )}
             <p><strong>当前商品评分:</strong> {currentTask.current_score ?? '--'}</p>
           </div>
-          
           <div className="task-progress">
             <div className="progress-bar">
-              <div 
-                className="progress-fill" 
-                style={{ width: `${getProgressPercentage()}%` }}
-              ></div>
+              <div className="progress-fill" style={{ width: `${getProgressPercentage()}%` }}></div>
             </div>
             <div className="progress-text">
               {currentTask.progress.current}/{currentTask.progress.total} ({getProgressPercentage()}%)
@@ -280,7 +262,6 @@ const CrawlerControl: React.FC<CrawlerControlProps> = ({ onCrawlComplete }) => {
           </div>
         </div>
       )}
-      
       {isCrawling && !currentTask && (
         <div className="crawling-status">
           <div className="spinner"></div>

@@ -25,8 +25,9 @@ app.add_middleware(
 app.mount("/images", StaticFiles(directory="../crawler/results"), name="images")
 
 class CrawlRequest(BaseModel):
-    keyword: str
+    keyword: str = ""
     pages: int = 1
+    category: str = "u-clothing"  # 默认衣服
 
 def get_db_conn():
     return mysql.connector.connect(
@@ -60,6 +61,7 @@ def init_database():
       score DECIMAL(3,2),
       link VARCHAR(1000) NOT NULL,
       local_img VARCHAR(500),
+      category VARCHAR(50) DEFAULT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) DEFAULT CHARACTER SET utf8mb4;
     """)
@@ -70,6 +72,7 @@ def init_database():
         id VARCHAR(36) PRIMARY KEY,
         keyword VARCHAR(255) NOT NULL,
         pages INT NOT NULL,
+        category VARCHAR(50) DEFAULT NULL,
         status ENUM('pending', 'running', 'completed', 'failed') DEFAULT 'pending',
         progress_current INT DEFAULT 0,
         progress_total INT DEFAULT 0,
@@ -87,16 +90,16 @@ def init_database():
     cursor.close()
     conn.close()
 
-def create_task(keyword: str, pages: int) -> str:
+def create_task(keyword: str, pages: int, category: str) -> str:
     """创建新任务"""
     task_id = str(uuid.uuid4())
     conn = get_db_conn()
     cursor = conn.cursor()
     
     cursor.execute("""
-        INSERT INTO crawl_tasks (id, keyword, pages, status)
-        VALUES (%s, %s, %s, 'pending')
-    """, (task_id, keyword, pages))
+        INSERT INTO crawl_tasks (id, keyword, pages, category, status)
+        VALUES (%s, %s, %s, %s, 'pending')
+    """, (task_id, keyword, pages, category))
     
     conn.commit()
     cursor.close()
@@ -159,7 +162,7 @@ def update_task_status(task_id: str, status: str, current: int = 0, total: int =
     cursor.close()
     conn.close()
 
-def run_crawler(task_id: str, keyword: str, pages: int):
+def run_crawler(task_id: str, keyword: str, pages: int, category: str):
     """运行爬虫任务"""
     try:
         # 更新任务状态为运行中
@@ -170,7 +173,7 @@ def run_crawler(task_id: str, keyword: str, pages: int):
         import os
         crawler_dir = os.path.join(os.path.dirname(__file__), "..", "crawler")
         python_executable = sys.executable
-        script_input = f"{task_id}\n{keyword}\n{pages}\n"
+        script_input = f"{task_id}\n{keyword}\n{pages}\n{category}\n"
         
         process = subprocess.Popen(
             [python_executable, "main.py"],
@@ -196,22 +199,21 @@ def run_crawler(task_id: str, keyword: str, pages: int):
 init_database()
 
 @app.get("/api/products")
-def get_products():
+def get_products(category: str = None):
     conn = get_db_conn()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT id, title, img, score, link, local_img FROM products ORDER BY id DESC")
+    if category:
+        cursor.execute("SELECT id, title, img, score, link, local_img, category FROM products WHERE category = %s ORDER BY id DESC", (category,))
+    else:
+        cursor.execute("SELECT id, title, img, score, link, local_img, category FROM products ORDER BY id DESC")
     products = cursor.fetchall()
     cursor.close()
     conn.close()
-
     # 处理图片路径，使用本地图片
     for product in products:
         if product.get('local_img'):
-            # 从 local_img 路径中提取文件名
             filename = os.path.basename(product['local_img'])
-            # 构建本地图片的 URL
             product['img'] = f"http://localhost:8000/images/{filename}"
-
     return products
 
 @app.post("/api/crawl")
@@ -219,8 +221,8 @@ async def start_crawl(request: CrawlRequest, background_tasks: BackgroundTasks):
     """
     启动爬虫任务（异步后台执行）
     """
-    if not request.keyword.strip():
-        raise HTTPException(status_code=400, detail="关键词不能为空")
+    if not request.category:
+        raise HTTPException(status_code=400, detail="类目不能为空")
     if request.pages < 1 or request.pages > 10:
         raise HTTPException(status_code=400, detail="页数必须在1-10之间")
     
@@ -230,15 +232,15 @@ async def start_crawl(request: CrawlRequest, background_tasks: BackgroundTasks):
         raise HTTPException(status_code=400, detail="已有任务正在运行，请等待完成")
     
     # 创建新任务
-    task_id = create_task(request.keyword, request.pages)
+    task_id = create_task(request.keyword, request.pages, request.category)
     
     # 启动爬虫任务
-    background_tasks.add_task(run_crawler, task_id, request.keyword, request.pages)
+    background_tasks.add_task(run_crawler, task_id, request.keyword, request.pages, request.category)
     
     return {
         "success": True,
         "task_id": task_id,
-        "message": f"已启动爬虫任务，关键词 '{request.keyword}'，页数 {request.pages}"
+        "message": f"已启动爬虫任务，类目 '{request.category}'，关键词 '{request.keyword}'，页数 {request.pages}"
     }
 
 @app.get("/api/crawl/status")

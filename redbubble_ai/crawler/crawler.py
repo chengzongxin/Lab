@@ -4,7 +4,7 @@ from playwright.sync_api import sync_playwright
 # 参数：keyword - 搜索关键词，limit - 最多抓取商品数量
 # 返回：商品信息列表，每个元素是字典，包含title, img, link
 
-def crawl_redbubble(keyword, pages=1):
+def crawl_redbubble(keyword, pages, category):
     """
     爬取Redbubble多页商品信息
     :param keyword: 搜索关键词
@@ -28,7 +28,7 @@ def crawl_redbubble(keyword, pages=1):
         )
         page = context.new_page()
         for page_num in range(1, pages + 1):
-            url = f"https://www.redbubble.com/shop/?iaCode=u-clothing&query={keyword}&ref=search_box&page={page_num}"
+            url = f"https://www.redbubble.com/shop/?iaCode={category}&query={keyword}&ref=search_box&page={page_num}"
             page.goto(url)
             page.wait_for_selector('div[data-testid="search-result-card"]', timeout=30000)
             cards = page.query_selector_all('div[data-testid="search-result-card"]')
@@ -55,6 +55,6 @@ def crawl_redbubble(keyword, pages=1):
 # 测试用例（可删除）
 if __name__ == "__main__":
     keyword = "cat"
-    items = crawl_redbubble(keyword, pages=5)
+    items = crawl_redbubble(keyword, pages=5, category="u-clothing")
     for item in items:
         print(item) 

@@ -2,29 +2,44 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Product } from "./types/product";
 import ProductList from "./components/ProductList";
-import SearchBar from "./components/SearchBar";
 import SortFilter, { SortOption } from "./components/SortFilter";
 import CrawlerControl from "./components/CrawlerControl";
 import "./App.css";
+
+const categoryOptions = [
+  { value: 'all', label: '全部' },
+  { value: 'u-clothing', label: '衣服' },
+  { value: 'u-bags', label: '包' },
+  { value: 'u-socks', label: '袜子' },
+  { value: 'u-masks', label: '口罩' },
+  { value: 'u-cases', label: '手机壳' },
+  { value: 'u-stickers', label: '贴纸' },
+  { value: 'u-wall-art', label: '墙饰' },
+  { value: 'u-home-decor', label: '家居' },
+  { value: 'u-stationery', label: '文具' },
+  { value: 'u-kids-babies', label: '儿童婴儿' },
+];
 
 const App: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('default');
   const [showCrawlerControl, setShowCrawlerControl] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (category: string = 'all') => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get<Product[]>("http://localhost:8000/api/products");
+      const url = category === 'all'
+        ? "http://localhost:8000/api/products"
+        : `http://localhost:8000/api/products?category=${category}`;
+      const response = await axios.get<Product[]>(url);
       setProducts(response.data);
       setFilteredProducts(response.data);
     } catch (err) {
-      console.error("获取商品数据失败", err);
       setError("无法连接到后端服务器，请确保后端服务正在运行");
     } finally {
       setLoading(false);
@@ -32,22 +47,11 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    fetchProducts(selectedCategory);
+  }, [selectedCategory]);
 
-  // 搜索和排序功能
   useEffect(() => {
-    let filtered = products;
-    
-    // 搜索过滤
-    if (searchQuery.trim()) {
-      filtered = products.filter(product =>
-        product.title.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    
-    // 排序
-    const sorted = [...filtered].sort((a, b) => {
+    let sorted = [...products].sort((a, b) => {
       switch (sortOption) {
         case 'score-high':
           const scoreA = typeof a.score === 'number' ? a.score : parseFloat(a.score || '0');
@@ -63,24 +67,19 @@ const App: React.FC = () => {
           return 0;
       }
     });
-    
     setFilteredProducts(sorted);
-  }, [searchQuery, sortOption, products]);
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
+  }, [sortOption, products]);
 
   const handleSortChange = (sort: SortOption) => {
     setSortOption(sort);
   };
 
   const handleRetry = () => {
-    fetchProducts();
+    fetchProducts(selectedCategory);
   };
 
   const handleCrawlComplete = () => {
-    fetchProducts();
+    fetchProducts(selectedCategory);
   };
 
   return (
@@ -95,55 +94,33 @@ const App: React.FC = () => {
           {showCrawlerControl ? '隐藏爬虫控制' : '显示爬虫控制'}
         </button>
       </div>
-      
       {showCrawlerControl && (
         <CrawlerControl onCrawlComplete={handleCrawlComplete} />
       )}
-      
-      <SearchBar onSearch={handleSearch} placeholder="搜索商品名称..." />
-      
-      {!loading && !error && products.length > 0 && (
-        <SortFilter 
-          currentSort={sortOption}
-          onSortChange={handleSortChange}
-        />
-      )}
-      
-      <ProductList 
-        products={filteredProducts}
-        loading={loading}
-        error={error}
-        onRetry={handleRetry}
-      />
-      
-      {!loading && !error && products.length > 0 && (
-        <div className="stats">
-          <div className="stat-item">
-            <span className="stat-number">{filteredProducts.length}</span>
-            <span className="stat-label">
-              {searchQuery ? '搜索结果' : '个商品'}
-            </span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">
-              {filteredProducts.length > 0 
-                ? (filteredProducts.reduce((sum, p) => sum + (typeof p.score === 'number' ? p.score : parseFloat(p.score || '0')), 0) / filteredProducts.length).toFixed(1)
-                : '0.0'
-              }
-            </span>
-            <span className="stat-label">平均评分</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">
-              {filteredProducts.filter(p => {
-                const score = typeof p.score === 'number' ? p.score : parseFloat(p.score || '0');
-                return score >= 7;
-              }).length}
-            </span>
-            <span className="stat-label">高分商品</span>
-          </div>
+      <div className="filter-bar" style={{ display: 'flex', alignItems: 'center', gap: 24, padding: '12px 24px', background: '#fff', borderBottom: '1px solid #e1e5e9' }}>
+        <div className="category-filter-bar" style={{ margin: 0, padding: 0, border: 'none', background: 'none' }}>
+          <label htmlFor="category-filter">筛选类目：</label>
+          <select
+            id="category-filter"
+            value={selectedCategory}
+            onChange={e => setSelectedCategory(e.target.value)}
+          >
+            {categoryOptions.map(opt => (
+              <option value={opt.value} key={opt.value}>{opt.label}</option>
+            ))}
+          </select>
         </div>
-      )}
+        <SortFilter currentSort={sortOption} onSortChange={handleSortChange} />
+      </div>
+      <div className="main-content">
+        {loading ? (
+          <div className="loading">正在加载商品数据...</div>
+        ) : error ? (
+          <div className="error">{error} <button onClick={handleRetry}>重试</button></div>
+        ) : (
+          <ProductList products={filteredProducts} loading={loading} error={error} onRetry={handleRetry} />
+        )}
+      </div>
     </div>
   );
 };

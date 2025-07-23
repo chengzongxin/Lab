@@ -1,6 +1,7 @@
 import requests
 import os
 import csv
+import mysql.connector
 
 # 用户指定的请求头
 send_headers = {
@@ -38,6 +39,46 @@ def save_results(results, filename="products.csv"):
         writer.writeheader()
         writer.writerows(results)
     print(f"已保存结果到 {filename}")
+
+def save_to_mysql(products):
+    conn = mysql.connector.connect(
+        host="localhost",
+        port=3306,
+        user="root",
+        password="123456789"
+    )
+    cursor = conn.cursor()
+    # 创建数据库和表
+    cursor.execute("CREATE DATABASE IF NOT EXISTS redbubble_ai DEFAULT CHARACTER SET utf8mb4;")
+    cursor.execute("USE redbubble_ai;")
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS products (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      title VARCHAR(500) NOT NULL,
+      img VARCHAR(1000) NOT NULL,
+      score DECIMAL(3,2),
+      link VARCHAR(1000) NOT NULL,
+      local_img VARCHAR(500),
+      category VARCHAR(50) DEFAULT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) DEFAULT CHARACTER SET utf8mb4;
+    """)
+    # 插入商品数据
+    for product in products:
+        cursor.execute("""
+        INSERT INTO products (title, img, score, link, local_img, category)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """, (
+            product['title'],
+            product['img'],
+            product['score'],
+            product['link'],
+            product['local_img'],
+            product['category']
+        ))
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 # 测试用例（可删除）
 if __name__ == "__main__":
