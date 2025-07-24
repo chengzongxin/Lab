@@ -3,4 +3,6 @@ requests
 pillow
 tensorflow
 keras
-numpy 
+numpy
+transformers
+torch

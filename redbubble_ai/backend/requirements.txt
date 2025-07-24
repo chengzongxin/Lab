@@ -1,3 +1,21 @@
+# Backend API dependencies
 fastapi
-uvicorn
-mysql-connector-python 
+uvicorn[standard]
+mysql-connector-python
+
+# Crawler dependencies
+playwright
+requests
+pillow
+
+# AI model dependencies (fixed versions for compatibility)
+tensorflow==2.13.0
+keras
+numpy
+
+# Optional dependencies (uncomment if needed)
+# transformers
+# torch
+
+# Other utilities
+python-multipart 

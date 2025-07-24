@@ -13,10 +13,20 @@ send_headers = {
 
 def download_image(url, filename):
     """
-    下载图片到本地，使用用户指定的header
+    下载图片到本地，支持代理（从环境变量 HTTP_PROXY 读取），使用用户指定的header
+    :param url: 图片链接
+    :param filename: 保存的文件名
     """
     try:
-        response = requests.get(url, headers=send_headers)
+        # 从环境变量读取代理地址
+        proxy_addr = os.environ.get("HTTP_PROXY")
+        proxies = None
+        if proxy_addr:
+            proxies = {
+                "http": proxy_addr,
+                "https": proxy_addr
+            }
+        response = requests.get(url, headers=send_headers, proxies=proxies)
         if response.status_code == 200:
             with open(filename, 'wb') as f:
                 f.write(response.content)

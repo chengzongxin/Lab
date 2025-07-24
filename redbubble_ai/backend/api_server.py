@@ -4,12 +4,23 @@ from fastapi.staticfiles import StaticFiles
 from typing import List, Optional
 import mysql.connector
 import os
-import subprocess
-import sys
 import json
+import logging
 from datetime import datetime
 from pydantic import BaseModel
 import uuid
+
+# 配置日志
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('backend.log', encoding='utf-8')
+    ]
+)
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -22,7 +33,8 @@ app.add_middleware(
 )
 
 # 挂载静态文件目录，提供图片访问
-app.mount("/images", StaticFiles(directory="../crawler/results"), name="images")
+# 指向backend/results目录（迁移后的图片存储位置）
+app.mount("/images", StaticFiles(directory="results"), name="images")
 
 class CrawlRequest(BaseModel):
     keyword: str = ""
@@ -163,40 +175,133 @@ def update_task_status(task_id: str, status: str, current: int = 0, total: int =
     conn.close()
 
 def run_crawler(task_id: str, keyword: str, pages: int, category: str):
-    """运行爬虫任务"""
+    """运行爬虫任务 - 重构后直接调用迁移的函数"""
+    # 在函数开始就定义logger，避免作用域问题
+    task_logger = logging.getLogger(__name__)
+    
     try:
+        # 导入迁移的工具模块（使用绝对导入）
+        from crawler_utils import crawl_redbubble
+        from download_utils import download_image, save_to_mysql, get_image_save_path
+        from scorer_utils import nima_score
+        
+        task_logger.info(f"开始爬虫任务: {task_id}, 关键词: {keyword}, 页数: {pages}, 类目: {category}")
+        
         # 更新任务状态为运行中
         update_task_status(task_id, "running", 0, 0, "启动爬虫")
         
-        import subprocess
-        import sys
-        import os
-        crawler_dir = os.path.join(os.path.dirname(__file__), "..", "crawler")
-        python_executable = sys.executable
-        script_input = f"{task_id}\n{keyword}\n{pages}\n{category}\n"
+        # 第一步：爬取商品信息
+        update_task_status(task_id, "running", 0, 0, "正在爬取商品信息", keyword)
+        items = crawl_redbubble(keyword, pages, category)
         
-        process = subprocess.Popen(
-            [python_executable, "main.py"],
-            cwd=crawler_dir,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
-        )
+        if not items:
+            task_logger.warning("未找到任何商品")
+            update_task_status(task_id, "failed", 0, 0, "未找到商品", "", "未找到任何商品")
+            return
         
-        # 等待爬虫完成
-        stdout, stderr = process.communicate(input=script_input)
+        task_logger.info(f"找到 {len(items)} 个商品")
         
-        if process.returncode == 0:
-            update_task_status(task_id, "completed", 100, 100, "爬取完成")
-        else:
-            update_task_status(task_id, "failed", 0, 0, "爬取失败", "", stderr)
+        # 第二步：下载图片并评分
+        products = []
+        total_items = len(items)
+        
+        for idx, item in enumerate(items):
+            try:
+                current_progress = idx + 1
+                title = item['title'][:50] + "..." if len(item['title']) > 50 else item['title']
+                
+                task_logger.info(f"正在处理第 {current_progress}/{total_items} 个商品: {title}")
+                update_task_status(task_id, "running", current_progress, total_items, "下载图片", title)
+                
+                # 获取图片保存路径
+                img_path = get_image_save_path(item['title'], idx)
+                
+                # 下载图片
+                success = download_image(item['img'], img_path)
+                task_logger.info(f"图片下载成功: {success}")
+                
+                # AI美学评分
+                score = 0.0
+                if success and os.path.exists(img_path):
+                    try:
+                        score = nima_score(img_path)
+                        task_logger.info(f"AI评分: {score:.2f}")
+                    except Exception as e:
+                        task_logger.warning(f"评分失败: {e}")
+                        score = 0.0
+                else:
+                    task_logger.warning(f"图片未下载成功: {img_path}")
+                    score = 0.0
+                
+                # 更新任务状态，包含当前评分
+                update_task_status(task_id, "running", current_progress, total_items, "处理中", title, "", score)
+                
+                # 组装商品数据
+                product = {
+                    'title': item['title'],
+                    'img': item['img'],
+                    'score': score,
+                    'link': item['link'],
+                    'local_img': img_path,
+                    'category': category
+                }
+                
+                products.append(product)
+                task_logger.info(f"商品处理完成: {title}, 评分: {score:.2f}")
+                
+            except Exception as e:
+                task_logger.error(f"处理商品时出错: {e}")
+                continue
+        
+        if not products:
+            task_logger.error("没有成功处理任何商品")
+            update_task_status(task_id, "failed", 0, total_items, "处理失败", "", "没有成功处理任何商品")
+            return
+        
+        # 第三步：保存到数据库
+        task_logger.info(f"成功处理 {len(products)} 个商品，正在保存到数据库...")
+        update_task_status(task_id, "running", total_items, total_items, "保存数据", f"处理了{len(products)}个商品")
+        
+        try:
+            save_to_mysql(products)
+            task_logger.info("数据已保存到数据库")
+            update_task_status(task_id, "completed", total_items, total_items, "爬取完成", f"成功处理{len(products)}个商品")
+            task_logger.info(f"爬虫任务完成！任务ID: {task_id}, 共处理 {len(products)} 个商品")
+            
+        except Exception as e:
+            task_logger.error(f"保存数据时出错: {e}")
+            update_task_status(task_id, "failed", total_items, total_items, "保存失败", "", str(e))
             
     except Exception as e:
-        update_task_status(task_id, "failed", 0, 0, "启动失败", "", str(e))
+        task_logger.error(f"爬虫任务执行失败: {e}")
+        update_task_status(task_id, "failed", 0, 0, "执行失败", "", str(e))
 
 # 初始化数据库
 init_database()
+
+# 预加载NIMA模型（可选，提升首次评分速度）
+@app.on_event("startup")
+async def startup_event():
+    """应用启动时的初始化"""
+    try:
+        logger.info("应用启动中...")
+        
+        # 创建results目录
+        os.makedirs("results", exist_ok=True)
+        logger.info("已创建results目录")
+        
+        # 可选：预加载NIMA模型
+        # 注释掉以避免启动时间过长，首次使用时会自动加载
+        # from .scorer_utils import preload_nima_model
+        # if preload_nima_model():
+        #     logger.info("NIMA模型预加载成功")
+        # else:
+        #     logger.warning("NIMA模型预加载失败，将在首次使用时加载")
+            
+        logger.info("应用启动完成")
+        
+    except Exception as e:
+        logger.error(f"应用启动时出错: {e}")
 
 @app.get("/api/products")
 def get_products(category: str = None):
@@ -386,3 +491,7 @@ def get_crawler_progress():
             return {"step": "空闲", "current": 0, "total": 0, "title": ""}
     except Exception as e:
         return {"step": "空闲", "current": 0, "total": 0, "title": "", "error": str(e)} 
+
+
+if __name__ == "__main__":
+    run_crawler("123", "cat", 1, "u-clothing")
