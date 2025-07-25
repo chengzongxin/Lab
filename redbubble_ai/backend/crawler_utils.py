@@ -26,22 +26,27 @@ def crawl_redbubble(keyword, pages, category):
     results = []
     try:
         with sync_playwright() as p:
-            # 启动浏览器，使用headless模式
+            # 启动浏览器，使用headless模式，增加稳定性配置
             browser = p.chromium.launch(
-                headless=False,
+                headless=True,
                 args=[
                     "--no-sandbox",
                     "--disable-dev-shm-usage", 
                     "--disable-gpu",
+                    "--disable-web-security",
+                    "--disable-features=VizDisplayCompositor",
                     "--window-size=1920,1080"
                 ]
             )
             
-            # 创建浏览器上下文，设置用户代理
+            # 创建浏览器上下文，设置用户代理和超时
             context = browser.new_context(
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36",
                 locale="zh-CN"
             )
+            
+            # 设置页面超时
+            context.set_default_timeout(30000)  # 30秒超时
             
             page = context.new_page()
             

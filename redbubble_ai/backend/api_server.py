@@ -174,8 +174,8 @@ def update_task_status(task_id: str, status: str, current: int = 0, total: int =
     cursor.close()
     conn.close()
 
-def run_crawler(task_id: str, keyword: str, pages: int, category: str):
-    """运行爬虫任务 - 重构后直接调用迁移的函数"""
+def run_crawler_sync(task_id: str, keyword: str, pages: int, category: str):
+    """同步运行爬虫任务的内部函数"""
     # 在函数开始就定义logger，避免作用域问题
     task_logger = logging.getLogger(__name__)
     
@@ -275,6 +275,27 @@ def run_crawler(task_id: str, keyword: str, pages: int, category: str):
     except Exception as e:
         task_logger.error(f"爬虫任务执行失败: {e}")
         update_task_status(task_id, "failed", 0, 0, "执行失败", "", str(e))
+    finally:
+        # 确保清理资源
+        task_logger.info(f"爬虫任务资源清理完成: {task_id}")
+
+async def run_crawler_async(task_id: str, keyword: str, pages: int, category: str):
+    """异步运行爬虫任务 - 避免阻塞主线程"""
+    import asyncio
+    import concurrent.futures
+    
+    # 使用线程池执行同步的爬虫任务
+    loop = asyncio.get_event_loop()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+        try:
+            await loop.run_in_executor(
+                executor, 
+                run_crawler_sync, 
+                task_id, keyword, pages, category
+            )
+        except Exception as e:
+            logger.error(f"异步爬虫任务执行失败: {e}")
+            update_task_status(task_id, "failed", 0, 0, "异步执行失败", "", str(e))
 
 # 初始化数据库
 init_database()
@@ -339,8 +360,8 @@ async def start_crawl(request: CrawlRequest, background_tasks: BackgroundTasks):
     # 创建新任务
     task_id = create_task(request.keyword, request.pages, request.category)
     
-    # 启动爬虫任务
-    background_tasks.add_task(run_crawler, task_id, request.keyword, request.pages, request.category)
+    # 启动爬虫任务（异步）
+    background_tasks.add_task(run_crawler_async, task_id, request.keyword, request.pages, request.category)
     
     return {
         "success": True,

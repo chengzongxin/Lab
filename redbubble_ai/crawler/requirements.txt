@@ -1,8 +1,0 @@
-playwright
-requests
-pillow
-tensorflow
-keras
-numpy
-transformers
-torch
