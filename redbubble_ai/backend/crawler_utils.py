@@ -54,7 +54,11 @@ def crawl_redbubble(keyword, pages, category):
             for page_num in range(1, pages + 1):
                 try:
                     # 构建搜索URL
-                    url = f"https://www.redbubble.com/shop/?iaCode={category}&query={keyword}&ref=search_box&page={page_num}"
+                    # 判断keyword是否存在，如果不存在则不添加query参数
+                    if keyword:
+                        url = f"https://www.redbubble.com/shop/?iaCode={category}&query={keyword}&ref=search_box&page={page_num}&sortOrder=top%20selling"
+                    else:
+                        url = f"https://www.redbubble.com/shop/?iaCode={category}&ref=search_box&page={page_num}&sortOrder=top%20selling"
                     logger.info(f"正在爬取第{page_num}页: {url}")
                     
                     # 访问页面
