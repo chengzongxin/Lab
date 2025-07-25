@@ -84,3 +84,9 @@
 
 
 ./run_jpush.sh alias --alias "3000031_p" --title "测试通知" --content "这是测试内容" --router-url "/(order)/detail?orderNo=DD20241128000012" --audio-url "new.mp3" --extra customKey1 value1 --extra customKey2 value2
+
+
+./run_jpush.sh alias --alias "3000275_p" --title "测试通知" --content "这是测试内容" --router-url "/(order)/detail?orderNo=DD20241128000012" --audio-url "new.mp3" --extra customKey1 value1 --extra customKey2 value2
+
+
+./run_jpush.sh alias --alias "3000275_t" --title "测试通知" --content "这是测试内容" --router-url "/(order)/detail?orderNo=DD20241128000012" --audio-url "new.mp3" --extra customKey1 value1 --extra customKey2 value2

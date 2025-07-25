@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: redbubble-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456789
+      MYSQL_DATABASE: redbubble_ai
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build: ./backend
+    container_name: redbubble-backend
+    depends_on:
+      - mysql
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=123456789
+      - MYSQL_DATABASE=redbubble_ai
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./crawler/results:/app/results
+    restart: always
+
+  frontend:
+    build: ./frontend
+    container_name: redbubble-frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+    restart: always
+
+  crawler:
+    build: ./crawler
+    container_name: redbubble-crawler
+    depends_on:
+      - mysql
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=123456789
+      - MYSQL_DATABASE=redbubble_ai
+    volumes:
+      - ./crawler:/app
+      - ./crawler/results:/app/results
+    entrypoint: ["tail", "-f", "/dev/null"]
+
+volumes:
+  mysql_data: 
