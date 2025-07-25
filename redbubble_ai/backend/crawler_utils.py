@@ -5,9 +5,15 @@
 
 from playwright.sync_api import sync_playwright
 import logging
+import asyncio
+import sys
 
 # 配置日志
 logger = logging.getLogger(__name__)
+
+# 修复Windows下的事件循环问题
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
 def crawl_redbubble(keyword, pages, category):
     """
@@ -22,7 +28,7 @@ def crawl_redbubble(keyword, pages, category):
         with sync_playwright() as p:
             # 启动浏览器，使用headless模式
             browser = p.chromium.launch(
-                headless=True,
+                headless=False,
                 args=[
                     "--no-sandbox",
                     "--disable-dev-shm-usage", 
@@ -95,10 +101,29 @@ def crawl_redbubble(keyword, pages, category):
                     continue
             
             # 关闭浏览器
-            browser.close()
+            try:
+                browser.close()
+            except Exception as close_error:
+                logger.warning(f"浏览器关闭时出现错误（忽略）: {close_error}")
             
     except Exception as e:
+        import traceback
+        logger.error(f"详细错误信息: {traceback.format_exc()}")
         logger.error(f"爬虫执行失败: {e}")
+        
+        # 检查是否是浏览器安装问题
+        error_str = str(e)
+        if "executable doesn't exist" in error_str or "browser not found" in error_str or "not found" in error_str:
+            logger.error("❌ Playwright浏览器未安装！")
+            logger.error("解决方案：运行 'python -m playwright install chromium'")
+            raise Exception("Playwright浏览器未安装，请运行: python -m playwright install chromium")
+        
+        # 检查是否是事件循环问题
+        if "NotImplementedError" in error_str or "ProactorEventLoop" in error_str:
+            logger.error("❌ Windows事件循环问题！")
+            logger.error("解决方案：重启服务器应该能修复此问题")
+            raise Exception("Windows事件循环问题，请重启FastAPI服务")
+        
         raise e
     
     logger.info(f"爬取完成，共获取{len(results)}个商品")
@@ -106,5 +131,5 @@ def crawl_redbubble(keyword, pages, category):
 
 
 if __name__ == "__main__":
-    results = crawl_redbubble("cat", 1, "u-clothing")
+    results = crawl_redbubble("animal", 1, "u-socks")
     print(results)

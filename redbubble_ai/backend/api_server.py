@@ -150,7 +150,7 @@ def get_task_status(task_id: str) -> Optional[dict]:
     return task
 
 def update_task_status(task_id: str, status: str, current: int = 0, total: int = 0, 
-                      step: str = "", title: str = "", error_message: str = ""):
+                      step: str = "", title: str = "", error_message: str = "", current_score: float = None):
     """更新任务状态"""
     conn = get_db_conn()
     cursor = conn.cursor()
@@ -159,16 +159,16 @@ def update_task_status(task_id: str, status: str, current: int = 0, total: int =
         cursor.execute("""
             UPDATE crawl_tasks 
             SET status = %s, progress_current = %s, progress_total = %s, 
-                current_step = %s, current_title = %s, completed_at = NOW()
+                current_step = %s, current_title = %s, current_score = %s, completed_at = NOW()
             WHERE id = %s
-        """, (status, current, total, step, title, task_id))
+        """, (status, current, total, step, title, current_score, task_id))
     else:
         cursor.execute("""
             UPDATE crawl_tasks 
             SET status = %s, progress_current = %s, progress_total = %s, 
-                current_step = %s, current_title = %s, error_message = %s
+                current_step = %s, current_title = %s, error_message = %s, current_score = %s
             WHERE id = %s
-        """, (status, current, total, step, title, error_message, task_id))
+        """, (status, current, total, step, title, error_message, current_score, task_id))
     
     conn.commit()
     cursor.close()
@@ -234,7 +234,7 @@ def run_crawler(task_id: str, keyword: str, pages: int, category: str):
                     score = 0.0
                 
                 # 更新任务状态，包含当前评分
-                update_task_status(task_id, "running", current_progress, total_items, "处理中", title, "", score)
+                update_task_status(task_id, "running", current_progress, total_items, "处理中", title, "", current_score=score)
                 
                 # 组装商品数据
                 product = {
@@ -494,4 +494,4 @@ def get_crawler_progress():
 
 
 if __name__ == "__main__":
-    run_crawler("123", "cat", 1, "u-clothing")
+    run_crawler("123", "animal", 1, "u-socks")
