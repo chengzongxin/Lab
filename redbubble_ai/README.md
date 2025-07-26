@@ -297,3 +297,17 @@ GET /api/products
 ---
 
 **享受发现美好设计的乐趣！** 🎨✨ 
+
+
+
+# Windows
+set HTTP_PROXY=http://127.0.0.1:7897
+set HTTPS_PROXY=http://127.0.0.1:7897
+
+# macOS/Linux  
+export HTTP_PROXY=http://127.0.0.1:7890
+export HTTPS_PROXY=http://127.0.0.1:7890
+
+# 或者在 .env 文件中配置
+HTTP_PROXY=http://127.0.0.1:7897
+HTTPS_PROXY=http://127.0.0.1:7897

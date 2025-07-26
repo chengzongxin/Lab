@@ -13,6 +13,10 @@ import logging
 # 配置日志
 logger = logging.getLogger(__name__)
 
+# 代理配置缓存
+_proxy_config_cache = None
+_proxy_checked = False
+
 # 用户指定的请求头
 send_headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36",
@@ -21,22 +25,116 @@ send_headers = {
     "Accept-Language": "zh-CN,zh;q=0.8"
 }
 
+def get_proxy_config(force_refresh=False):
+    """
+    智能获取代理配置，支持多种方式：
+    1. 环境变量 HTTP_PROXY 和 HTTPS_PROXY
+    2. 常见代理端口自动检测
+    3. 无代理模式
+    :param force_refresh: 是否强制重新检测（忽略缓存）
+    :return: 代理配置字典或None
+    """
+    global _proxy_config_cache, _proxy_checked
+    
+    # 如果已经检测过且不强制刷新，直接返回缓存结果
+    if _proxy_checked and not force_refresh:
+        return _proxy_config_cache
+    
+    logger.info("开始检测代理配置...")
+    
+    # 方法1：从环境变量读取代理
+    http_proxy = os.environ.get('HTTP_PROXY') or os.environ.get('http_proxy')
+    https_proxy = os.environ.get('HTTPS_PROXY') or os.environ.get('https_proxy')
+    
+    if http_proxy or https_proxy:
+        proxies = {}
+        if http_proxy:
+            proxies['http'] = http_proxy
+        if https_proxy:
+            proxies['https'] = https_proxy
+        logger.info(f"使用环境变量代理: {proxies}")
+        _proxy_config_cache = proxies
+        _proxy_checked = True
+        return proxies
+    
+    # 方法2：检测常见代理端口
+    common_proxy_ports = [7897, 7890, 1087, 1080, 8118, 8080]
+    for port in common_proxy_ports:
+        proxy_url = f"http://127.0.0.1:{port}"
+        if test_proxy_connection(proxy_url):
+            proxies = {
+                "http": proxy_url,
+                "https": proxy_url
+            }
+            logger.info(f"检测到可用代理: {proxy_url}")
+            _proxy_config_cache = proxies
+            _proxy_checked = True
+            return proxies
+    
+    # 方法3：无代理模式
+    logger.info("未检测到可用代理，使用直连模式")
+    _proxy_config_cache = None
+    _proxy_checked = True
+    return None
+
+def reset_proxy_cache():
+    """
+    重置代理配置缓存，下次调用时会重新检测
+    适用于代理环境发生变化的情况
+    """
+    global _proxy_config_cache, _proxy_checked
+    _proxy_config_cache = None
+    _proxy_checked = False
+    logger.info("代理配置缓存已重置")
+
+def test_proxy_connection(proxy_url, timeout=3):
+    """
+    测试代理连接是否可用
+    :param proxy_url: 代理URL
+    :param timeout: 超时时间（秒）
+    :return: 是否可用
+    """
+    try:
+        proxies = {"http": proxy_url, "https": proxy_url}
+        # 使用一个轻量级的测试URL
+        response = requests.get(
+            "http://httpbin.org/ip", 
+            proxies=proxies, 
+            timeout=timeout,
+            headers={"User-Agent": "ProxyTest"}
+        )
+        return response.status_code == 200
+    except:
+        return False
+
 def download_image(url, filename):
     """
-    下载图片到本地，支持代理（从环境变量 HTTP_PROXY 读取），使用用户指定的header
+    下载图片到本地，智能使用代理配置
     :param url: 图片链接
     :param filename: 保存的文件名
     :return: 是否下载成功
     """
     try:
-        # 从环境变量读取代理地址
-        proxies = {
-            "http": "http://127.0.0.1:7897",
-            "https": "http://127.0.0.1:7897"
-        }
+        # 获取代理配置
+        proxies = get_proxy_config()
         
-        # 下载图片
-        response = requests.get(url, headers=send_headers, proxies=proxies, timeout=30)
+        # 下载图片（先尝试使用代理，失败后尝试直连）
+        response = None
+        
+        # 尝试使用代理下载
+        if proxies:
+            try:
+                response = requests.get(url, headers=send_headers, proxies=proxies, timeout=30)
+                if response.status_code != 200:
+                    logger.warning(f"代理下载失败，状态码: {response.status_code}，尝试直连")
+                    response = None
+            except Exception as e:
+                logger.warning(f"代理下载异常: {e}，尝试直连")
+                response = None
+        
+        # 如果代理失败或无代理，尝试直连
+        if response is None:
+            response = requests.get(url, headers=send_headers, timeout=30)
         
         if response.status_code == 200:
             # 确保目录存在

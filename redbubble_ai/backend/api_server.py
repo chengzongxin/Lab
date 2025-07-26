@@ -498,6 +498,18 @@ def clear_products():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"清空数据失败: {str(e)}")
 
+@app.post("/api/proxy/reset")
+def reset_proxy_cache_api():
+    """
+    重置代理配置缓存，下次下载时会重新检测代理
+    """
+    try:
+        from download_utils import reset_proxy_cache
+        reset_proxy_cache()
+        return {"success": True, "message": "代理配置缓存已重置，下次下载时会重新检测"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"重置代理缓存失败: {str(e)}")
+
 @app.get("/api/crawl_status")
 def get_crawler_progress():
     """
