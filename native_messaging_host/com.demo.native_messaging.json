@@ -1,0 +1,9 @@
+{
+    "name": "com.demo.native_messaging",
+    "description": "Python通信Demo",
+    "path": "/Users/chengzongxin/Desktop/Lab/chrome_extension_communication/dist/native_messaging_host/native_messaging_host",
+    "type": "stdio",
+    "allowed_origins": [
+      "chrome-extension://fkkilnakckkpadbjncmohcnlbalofpek/"
+    ]
+  }

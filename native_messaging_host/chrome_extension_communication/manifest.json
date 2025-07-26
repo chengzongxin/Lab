@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Python通信Demo",
+  "version": "1.0",
+  "description": "与本地Python通信的最简单Demo",
+  "permissions": ["nativeMessaging", "scripting"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Python通信Demo"
+  }
+} 
