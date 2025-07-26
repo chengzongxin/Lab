@@ -3,6 +3,7 @@ import { Card, Table, Button, message, Image, Switch, Drawer, Select, InputNumbe
 import { useNavigate } from "react-router-dom";
 import { useProductListContext } from './ProductListContext';
 import ProductDetail from './ProductDetail';
+import { useGlobalNotification } from './GlobalNotification';
 import './ProductList.css';
 
 const ProductList: React.FC = () => {
@@ -18,6 +19,7 @@ const ProductList: React.FC = () => {
   const [customMin, setCustomMin] = useState<number>(80); // 自定义最小值
   const [customMax, setCustomMax] = useState<number>(999); // 自定义最大值
   const [showUSViolation, setShowUSViolation] = useState<boolean>(false); // 美国站违规筛选
+  const notify = useGlobalNotification();
 
   // 获取违规商品列表
   const fetchProducts = async (pageNum = page, size = pageSize) => {
@@ -58,30 +60,100 @@ const ProductList: React.FC = () => {
       return;
     }
     setLoading(true);
-    const res = await fetch("/api/temu/seller/offline", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        productIds: selectedRowKeys.map(String),
-        max_threads: 8  // 批量下架使用更多线程
-      }),
-    });
-    const data = await res.json();
-    if (data.success) {
-      // 处理批量下架结果
-      if (Array.isArray(data.results)) {
-        setTimeout(() => {
-          message.info("下架结果已弹窗显示");
-        }, 0);
-      } else {
-        message.success("下架成功");
+    
+    try {
+      // 第一步：获取选中商品的详情，获取所有对应的skcId
+      message.loading("正在获取商品详情...", 0);
+      const productRes = await fetch("/api/temu/seller/product", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productIds: selectedRowKeys.map(String) }),
+      });
+      const productData = await productRes.json();
+      message.destroy(); // 清除loading消息
+      
+      if (!productData.success) {
+        message.error(productData.msg || "获取商品详情失败");
+        return;
       }
-      fetchProducts(page, pageSize);
-      setSelectedRowKeys([]);
-    } else {
-      message.error(data.msg || "下架失败");
+
+      // 提取所有skcId
+      const allSkcIds: string[] = [];
+      if (Array.isArray(productData.data)) {
+        productData.data.forEach((product: any) => {
+          if (product.productSkcId) {
+            allSkcIds.push(product.productSkcId);
+          }
+        });
+      }
+
+      if (allSkcIds.length === 0) {
+        message.warning("未找到可下架的SKC");
+        return;
+      }
+
+      // 第二步：批量下架这些skcId
+      message.loading(`正在下架 ${allSkcIds.length} 个SKC...`, 0);
+      const res = await fetch("/api/temu/seller/offline", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productIds: allSkcIds,  // 传递skcId列表
+          max_threads: 8  // 批量下架使用更多线程
+        }),
+      });
+      const data = await res.json();
+      message.destroy(); // 清除loading消息
+
+      if (data.success) {
+        // 显示详细的下架结果
+        const successCount = data.summary?.success || 0;
+        const failCount = data.summary?.failed || 0;
+        const totalCount = data.summary?.total || 0;
+        
+        notify({
+          type: 'info',
+          message: "批量下架完成",
+          description: (
+            <div>
+              <div style={{ marginBottom: 12 }}>
+                <span style={{ color: 'green' }}>下架成功：{successCount} 个</span>
+                <span style={{ color: 'red', marginLeft: 16 }}>下架失败：{failCount} 个</span>
+                <span style={{ color: 'blue', marginLeft: 16 }}>总计：{totalCount} 个</span>
+              </div>
+              {data.results && data.results.map((item: any) => (
+                <div key={item.productId} style={{ marginBottom: 8, fontSize: '13px' }}>
+                  SKC ID: {item.productId} - {item.success ? (
+                    <span style={{ color: 'green' }}>{item.message}</span>
+                  ) : (
+                    <span style={{ color: 'red' }}>{item.message}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) as any,
+        });
+        
+        // 刷新列表并清空选择
+        fetchProducts(page, pageSize);
+        setSelectedRowKeys([]);
+              } else {
+          notify({
+            type: 'error',
+            message: "下架失败",
+            description: data.msg || data.message || "下架失败"
+          });
+        }
+      } catch (error) {
+        message.destroy(); // 确保清除所有loading消息
+        notify({
+          type: 'error',
+          message: "下架失败",
+          description: `网络错误: ${error}`
+        });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   // 违规筛选逻辑
@@ -127,7 +199,7 @@ const ProductList: React.FC = () => {
 
   return (
     <Card title="违规商品列表"
-      extra={
+              extra={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
           <div>
             <Button type="primary" onClick={() => {
@@ -135,6 +207,16 @@ const ProductList: React.FC = () => {
               fetchTotal(page, pageSize);
             }} loading={loading}>
               刷新
+            </Button>
+            <Button 
+              type="primary" 
+              danger 
+              onClick={handleOffline}
+              disabled={selectedRowKeys.length === 0}
+              loading={loading}
+              style={{ marginLeft: 8 }}
+            >
+              批量下架 ({selectedRowKeys.length})
             </Button>
           </div>
           <Space>
