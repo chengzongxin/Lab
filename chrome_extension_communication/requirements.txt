@@ -1,0 +1,2 @@
+# WebSocket通信所需的Python依赖包
+websockets>=12.0 

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket通信测试</title>
+    <style>
+        /* 基础样式 */
+        body {
+            width: 350px;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* 状态指示器 */
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-connected {
+            background-color: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+
+        .status-disconnected {
+            background-color: #f44336;
+        }
+
+        .status-connecting {
+            background-color: #ff9800;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.5; }
+        }
+
+        /* 按钮样式 */
+        .btn {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+        }
+
+        .btn-danger {
+            background: rgba(244, 67, 54, 0.3);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+        }
+
+        /* 输入框样式 */
+        .input-group {
+            margin: 15px 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .form-row .form-control {
+            flex: 1;
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        /* 消息区域 */
+        .message-area {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.2);
+            max-height: 150px;
+            overflow-y: auto;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .message {
+            margin-bottom: 8px;
+            padding: 5px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .message-time {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 11px;
+        }
+
+        /* 隐藏类 */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 WebSocket通信测试</h1>
+        
+        <!-- 连接状态 -->
+        <div class="status-indicator">
+            <div class="status-dot status-disconnected" id="statusDot"></div>
+            <span id="statusText">未连接</span>
+        </div>
+
+        <!-- 连接控制 -->
+        <button class="btn btn-primary" id="connectBtn">连接服务器</button>
+        <button class="btn btn-danger hidden" id="disconnectBtn">断开连接</button>
+
+        <!-- 快速测试 -->
+        <div class="input-group">
+            <label>📤 快速测试消息</label>
+            <button class="btn" id="greetingBtn">发送问候消息</button>
+        </div>
+
+        <!-- 计算器测试 -->
+        <div class="input-group">
+            <label>🧮 计算器测试</label>
+            <div class="form-row">
+                <input type="number" class="form-control" id="num1" placeholder="数字1" value="10">
+                <select class="form-control" id="operation">
+                    <option value="+">+</option>
+                    <option value="-">-</option>
+                    <option value="*">×</option>
+                    <option value="/">/</option>
+                </select>
+                <input type="number" class="form-control" id="num2" placeholder="数字2" value="5">
+            </div>
+            <button class="btn" id="calculateBtn">计算</button>
+        </div>
+
+        <!-- 自定义消息 -->
+        <div class="input-group">
+            <label>✏️ 自定义消息</label>
+            <textarea class="form-control" id="customMessage" rows="2" placeholder='{"type": "custom", "content": "你的消息"}'></textarea>
+            <button class="btn" id="sendCustomBtn">发送</button>
+        </div>
+
+        <!-- 消息记录 -->
+        <div class="input-group">
+            <label>📋 消息记录</label>
+            <div class="message-area" id="messageArea">
+                <div class="message">
+                    <div class="message-time">等待连接...</div>
+                </div>
+            </div>
+            <button class="btn" id="clearBtn">清空记录</button>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html> 
