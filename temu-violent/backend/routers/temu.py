@@ -244,7 +244,7 @@ def get_product(
         return {"success": False, "msg": "查询失败"}
     items = result.get("result", {}).get("pageItems", [])
     if not items:
-        return {"success": False, "msg": "未找到商品"}
+        return {"success": True, "data": [], "msg": "未找到商品"}
     # 返回所有商品列表
     return {
         "success": True,
