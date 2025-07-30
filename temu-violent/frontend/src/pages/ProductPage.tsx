@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, Input, Button, Table, message, Space, Image, Tag } from "antd";
+import { Card, Input, Button, Table, Space, Image, Tag } from "antd";
 import { CopyOutlined } from "@ant-design/icons";
 import { useGlobalNotification } from './GlobalNotification';
 import { useUnpublishedRecords } from '../contexts/UnpublishedRecordsContext';
@@ -44,7 +44,11 @@ const ProductPage: React.FC = () => {
     } else if (searchName.trim()) {
       body.productName = searchName.trim();
     } else {
-      message.warning("请输入商品ID或名称");
+      notify({
+        type: 'error',
+        message: "输入提示",
+        description: "请输入商品ID或名称"
+      });
       setLoading(false);
       return;
     }
@@ -56,8 +60,20 @@ const ProductPage: React.FC = () => {
     const data = await res.json();
     if (data.success) {
       setProducts(data.data);
+
+      if (data.data.length === 0) {
+        notify({
+          type: 'info',
+          message: "查询提示",
+          description: "未找到商品"
+        });
+      }
     } else {
-      message.error(data.msg || "查询失败");
+      notify({
+        type: 'error',
+        message: "查询失败",
+        description: data.msg || "查询商品信息失败，请检查输入或稍后重试"
+      });
     }
     setLoading(false);
   };
@@ -66,7 +82,11 @@ const ProductPage: React.FC = () => {
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      message.success(`已复制"${text}"到剪贴板`);
+      notify({
+        type: 'success',
+        message: "复制成功",
+        description: `已复制"${text}"到剪贴板`
+      });
     } catch (err) {
       // 降级方案
       const textArea = document.createElement('textarea');
@@ -75,7 +95,11 @@ const ProductPage: React.FC = () => {
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
-      message.success(`已复制"${text}"到剪贴板`);
+      notify({
+        type: 'success',
+        message: "复制成功",
+        description: `已复制"${text}"到剪贴板`
+      });
     }
   };
 
@@ -96,7 +120,11 @@ const ProductPage: React.FC = () => {
   // 批量下架函数
   const handleBatchOffline = async () => {
     if (selectedRowKeys.length === 0) {
-      message.warning("请先选择要下架的商品");
+      notify({
+        type: 'error',
+        message: "操作提示",
+        description: "请先选择要下架的商品"
+      });
       return;
     }
     setLoading(true);
