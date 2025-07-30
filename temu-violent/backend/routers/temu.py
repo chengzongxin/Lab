@@ -232,8 +232,8 @@ def get_product(
     page: int = Body(1, embed=True),
     pageSize: int = Body(500, embed=True)
 ):
-    req = NetworkRequest(config_type="seller")
-    url = "https://seller.kuajingmaihuo.com/bg-visage-mms/product/skc/pageQuery"
+    req = NetworkRequest(config_type="compliance")
+    url = "https://agentseller.temu.com/visage-agent-seller/product/skc/pageQuery"
     payload: Dict[str, Any] = {"page": page, "pageSize": pageSize}
     if productIds is not None:
         payload["productIds"] = productIds
