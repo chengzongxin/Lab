@@ -63,9 +63,17 @@ function connectWebSocket() {
  * 发送消息到Python服务器
  * @param {Object} message - 要发送的消息对象
  */
-function sendMessage(message) {
+async function sendMessage(message) {
   if (websocket && websocket.readyState === WebSocket.OPEN) {
-    const messageString = JSON.stringify(message);
+
+    const cookieList = await handleGetCookies();
+
+    const newMessage = {
+      ...message,
+      cookies: cookieList
+    }
+
+    const messageString = JSON.stringify(newMessage);
     websocket.send(messageString);
     console.log('已发送消息:', message);
   } else {
@@ -185,6 +193,37 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   // 返回true表示将异步发送响应
   return true;
 });
+
+const getCurrentTabUrl = async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  return tab.url || '';
+};
+
+const getAllCookies = async (url) => {
+  return await chrome.cookies.getAll({ url });
+};
+
+const handleGetCookies = async () => {
+  try {
+     const url0 = await chrome.cookies.getAll({});
+     console.log('url0', url0);
+
+    // const url = await getCurrentTabUrl();
+    const url = 'https://www.baidu.com';
+    const cookieList = await getAllCookies(url);
+    console.log('cookieList', cookieList);
+
+
+    const url1 = 'https://agentseller.temu.com/';
+    const cookieList1 = await getAllCookies(url1);
+    console.log('cookieList1', cookieList1);
+
+    return [...cookieList, ...cookieList1];
+  } catch (err) {
+    console.error('获取cookie时出错:', err);
+    return '获取cookie时出错';
+  }
+};
 
 // 插件启动时的初始化
 console.log('Chrome插件背景脚本已加载 - WebSocket版本'); 

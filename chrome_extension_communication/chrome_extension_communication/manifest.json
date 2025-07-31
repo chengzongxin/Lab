@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "WebSocket通信Demo",
-  "version": "1.0",
+  "version": "1.0.1",
   "description": "与本地Python程序通过WebSocket通信的Demo",
   "permissions": [
     "scripting",
@@ -9,6 +9,9 @@
     "tabs",
     "webRequest",
     "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
   ],
   "background": {
     "service_worker": "background.js"
