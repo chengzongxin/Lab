@@ -3,10 +3,18 @@
  */
 
 import { WebSocketMessage, WebSocketStatus, BackgroundRequest, BackgroundResponse } from '../types/websocket';
+import { CookieUtils } from '../utils/cookieUtils';
+import { RequestInterceptor, InterceptedRequest } from '../utils/headersUtils';
 
 // WebSocket连接对象
 let websocket: WebSocket | null = null;
 const WEBSOCKET_URL = 'ws://localhost:8765';
+
+// 请求拦截状态
+let isIntercepting = false;
+
+// 初始化时打印日志
+console.log('Background script started at:', new Date().toISOString());
 
 /**
  * 建立WebSocket连接
@@ -170,6 +178,73 @@ const handleGetCookies = async (): Promise<chrome.cookies.Cookie[]> => {
   }
 };
 
+/**
+ * 初始化请求拦截功能
+ */
+function initializeRequestInterception(): void {
+  // 监听网络请求
+  chrome.webRequest.onBeforeSendHeaders.addListener(
+    (details) => {
+      if (!isIntercepting) return;
+      
+      console.log('拦截到请求:', details.url);
+      
+      // 检查所有请求
+      const headers = details.requestHeaders || [];
+      const timestamp = new Date().toISOString();
+      const { domain, path } = RequestInterceptor.parseUrl(details.url);
+      
+      // 创建请求记录
+      const interceptedRequest: InterceptedRequest = {
+        id: RequestInterceptor.createRequestId(details.url, timestamp),
+        url: details.url,
+        method: details.method,
+        type: details.type,
+        headers: headers.map(header => ({
+          name: header.name,
+          value: header.value || ''
+        })),
+        timestamp,
+        domain,
+        path
+      };
+      
+      // 异步保存到storage（不阻塞请求）
+      RequestInterceptor.saveInterceptedRequest(interceptedRequest).catch(error => {
+        console.error('保存拦截请求失败:', error);
+      });
+      
+      console.log('捕获到请求:', {
+        url: details.url,
+        method: details.method,
+        type: details.type,
+        headers: interceptedRequest.headers,
+        timestamp: timestamp
+      });
+    },
+    { urls: ["<all_urls>"] },
+    ["requestHeaders", "extraHeaders"]
+  );
+  
+  console.log('请求拦截器已初始化');
+}
+
+/**
+ * 启动请求拦截
+ */
+function startInterception(): void {
+  isIntercepting = true;
+  console.log('开始拦截请求');
+}
+
+/**
+ * 停止请求拦截
+ */
+function stopInterception(): void {
+  isIntercepting = false;
+  console.log('停止拦截请求');
+}
+
 // 监听插件图标点击事件
 chrome.action.onClicked.addListener((tab: chrome.tabs.Tab) => {
   if (!websocket || websocket.readyState !== WebSocket.OPEN) {
@@ -193,51 +268,196 @@ chrome.runtime.onMessage.addListener((
   sender: chrome.runtime.MessageSender, 
   sendResponse: (response: BackgroundResponse) => void
 ): boolean => {
-  switch (request.action) {
-    case 'connect':
-      // 连接WebSocket
-      connectWebSocket();
-      sendResponse({success: true, message: '正在连接WebSocket服务器...'});
-      break;
-      
-    case 'disconnect':
-      // 断开WebSocket连接
-      disconnectWebSocket();
-      sendResponse({success: true, message: 'WebSocket连接已断开'});
-      break;
-      
-    case 'send_message':
-      // 发送自定义消息
-      if (request.message) {
-        sendMessage(request.message);
-        sendResponse({success: true, message: '消息已发送'});
-      } else {
-        sendResponse({success: false, message: '消息内容为空'});
+  // 使用async函数处理异步操作
+  const handleRequest = async () => {
+    try {
+      switch (request.action) {
+        // ========== WebSocket相关操作 ==========
+        case 'connect':
+          connectWebSocket();
+          sendResponse({success: true, message: '正在连接WebSocket服务器...'});
+          break;
+          
+        case 'disconnect':
+          disconnectWebSocket();
+          sendResponse({success: true, message: 'WebSocket连接已断开'});
+          break;
+          
+        case 'send_message':
+          if (request.message) {
+            sendMessage(request.message);
+            sendResponse({success: true, message: '消息已发送'});
+          } else {
+            sendResponse({success: false, message: '消息内容为空'});
+          }
+          break;
+          
+        case 'get_status':
+          const status: WebSocketStatus = websocket ? 
+            (['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED'] as const)[websocket.readyState] : 
+            'CLOSED';
+          
+          sendResponse({
+            success: true, 
+            status: status,
+            connected: !!websocket && websocket.readyState === WebSocket.OPEN
+          });
+          break;
+
+        // ========== Cookie相关操作 ==========
+        case 'get_all_cookies':
+          const allCookies = await CookieUtils.getAllCookies();
+          sendResponse({success: true, cookies: allCookies});
+          break;
+
+        case 'get_cookies_by_domain':
+          if (request.domain) {
+            const domainCookies = await CookieUtils.getCookiesByDomain(request.domain);
+            sendResponse({success: true, cookies: domainCookies});
+          } else {
+            sendResponse({success: false, message: '域名参数缺失'});
+          }
+          break;
+
+        case 'get_current_tab_cookies':
+          const currentTabCookies = await CookieUtils.getCurrentTabCookies();
+          sendResponse({success: true, cookies: currentTabCookies});
+          break;
+
+        case 'get_cookies_by_domains':
+          if (request.domains && Array.isArray(request.domains)) {
+            const cookieMap = await CookieUtils.getCookiesByDomains(request.domains);
+            const cookieMapObject: Record<string, any[]> = {};
+            cookieMap.forEach((cookies, domain) => {
+              cookieMapObject[domain] = cookies;
+            });
+            sendResponse({success: true, cookieMap: cookieMapObject});
+          } else {
+            sendResponse({success: false, message: '域名列表参数缺失'});
+          }
+          break;
+
+        case 'clear_domain_cookies':
+          if (request.domain) {
+            const clearedCount = await CookieUtils.clearDomainCookies(request.domain);
+            sendResponse({success: true, clearedCount, message: `已清除 ${clearedCount} 个Cookie`});
+          } else {
+            sendResponse({success: false, message: '域名参数缺失'});
+          }
+          break;
+
+        // ========== 请求拦截相关操作 ==========
+        case 'start_interception':
+          startInterception();
+          sendResponse({success: true, message: '开始拦截请求'});
+          break;
+
+        case 'stop_interception':
+          stopInterception();
+          sendResponse({success: true, message: '停止拦截请求'});
+          break;
+
+        case 'get_interception_status':
+          sendResponse({success: true, isIntercepting});
+          break;
+
+        case 'get_intercepted_requests':
+          const allRequests = await RequestInterceptor.getInterceptedRequests();
+          sendResponse({success: true, requests: allRequests});
+          break;
+
+        case 'get_recent_requests':
+          const limit = request.limit || 50;
+          const recentRequests = await RequestInterceptor.getRecentRequests(limit);
+          sendResponse({success: true, requests: recentRequests});
+          break;
+
+        case 'search_requests':
+          if (request.filter) {
+            const searchResults = await RequestInterceptor.searchRequests(request.filter);
+            sendResponse({success: true, requests: searchResults});
+          } else {
+            sendResponse({success: false, message: '搜索条件缺失'});
+          }
+          break;
+
+        case 'find_requests_by_header':
+          if (request.headerName) {
+            const headerRequests = await RequestInterceptor.findRequestsByHeader(
+              request.headerName, 
+              request.headerValue
+            );
+            sendResponse({success: true, requests: headerRequests});
+          } else {
+            sendResponse({success: false, message: '请求头名称缺失'});
+          }
+          break;
+
+        case 'get_request_by_id':
+          if (request.requestId) {
+            const requestData = await RequestInterceptor.getRequestById(request.requestId);
+            sendResponse({success: !!requestData, request: requestData || undefined});
+          } else {
+            sendResponse({success: false, message: '请求ID缺失'});
+          }
+          break;
+
+        case 'get_requests_by_domain':
+          if (request.domain) {
+            const domainRequests = await RequestInterceptor.getRequestsByDomain(request.domain);
+            sendResponse({success: true, requests: domainRequests});
+          } else {
+            sendResponse({success: false, message: '域名参数缺失'});
+          }
+          break;
+
+        case 'get_request_statistics':
+          const stats = await RequestInterceptor.getRequestStatistics();
+          sendResponse({success: true, statistics: stats});
+          break;
+
+        case 'export_requests':
+          const exportData = await RequestInterceptor.exportRequests();
+          sendResponse({success: !!exportData, exportData, message: exportData ? '导出成功' : '导出失败'});
+          break;
+
+        case 'clear_all_requests':
+          const clearSuccess = await RequestInterceptor.clearAllRequests();
+          sendResponse({success: clearSuccess, message: clearSuccess ? '数据已清除' : '清除失败'});
+          break;
+          
+        default:
+          sendResponse({success: false, message: '未知操作'});
       }
-      break;
-      
-    case 'get_status':
-      // 获取连接状态
-      const status: WebSocketStatus = websocket ? 
-        (['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED'] as const)[websocket.readyState] : 
-        'CLOSED';
-      
-      sendResponse({
-        success: true, 
-        status: status,
-        // 这里我们要确保connected字段的类型是boolean，而不是boolean | null
-        // 使用!!将websocket转换为布尔值，然后判断readyState是否为OPEN
-        connected: !!websocket && websocket.readyState === WebSocket.OPEN
-      });
-      break;
-      
-    default:
-      sendResponse({success: false, message: '未知操作'});
-  }
+    } catch (error) {
+      console.error('处理请求时发生错误:', error);
+      sendResponse({success: false, message: '操作失败: ' + (error as Error).message});
+    }
+  };
+
+  // 执行异步处理
+  handleRequest();
   
   // 返回true表示将异步发送响应
   return true;
 });
 
+// 监听扩展安装或更新
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'install') {
+    console.log('插件已安装');
+    // 初始化存储
+    chrome.storage.local.set({ intercepted_requests: {} });
+  } else if (details.reason === 'update') {
+    console.log('插件已更新');
+  }
+  
+  // 初始化请求拦截功能
+  initializeRequestInterception();
+});
+
 // 插件启动时的初始化
 console.log('Chrome插件背景脚本已加载 - WebSocket版本 (TypeScript)');
+
+// 立即初始化请求拦截功能（用于开发调试）
+initializeRequestInterception();

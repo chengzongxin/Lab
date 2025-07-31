@@ -1,6 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './styles.css';
-import { WebSocketStatus, WebSocketMessage, BackgroundRequest, BackgroundResponse, MessageLog, MessageLogType } from '../types/websocket';
+import { 
+  WebSocketStatus, 
+  WebSocketMessage, 
+  BackgroundRequest, 
+  BackgroundResponse, 
+  MessageLog, 
+  MessageLogType,
+  CookieInfo,
+  InterceptedRequest,
+  RequestFilter,
+  RequestStatistics
+} from '../types/websocket';
 
 const App: React.FC = () => {
   // 状态管理
@@ -11,6 +22,20 @@ const App: React.FC = () => {
   const [num2, setNum2] = useState<number>(5);
   const [operation, setOperation] = useState<'+' | '-' | '*' | '/'>('+');
   const [customMessage, setCustomMessage] = useState<string>('');
+
+  // Cookie管理状态
+  const [cookies, setCookies] = useState<CookieInfo[]>([]);
+  const [cookieDomain, setCookieDomain] = useState<string>('');
+  const [showCookies, setShowCookies] = useState<boolean>(false);
+
+  // 请求拦截管理状态
+  const [isIntercepting, setIsIntercepting] = useState<boolean>(false);
+  const [interceptedRequests, setInterceptedRequests] = useState<InterceptedRequest[]>([]);
+  const [showRequests, setShowRequests] = useState<boolean>(false);
+  const [searchHeaderName, setSearchHeaderName] = useState<string>('');
+  const [searchHeaderValue, setSearchHeaderValue] = useState<string>('');
+  const [searchDomain, setSearchDomain] = useState<string>('');
+  const [requestStats, setRequestStats] = useState<RequestStatistics | null>(null);
 
   // Refs
   const messageAreaRef = useRef<HTMLDivElement>(null);
@@ -253,9 +278,272 @@ const App: React.FC = () => {
   useEffect(() => {
     console.log('React Popup组件已加载');
     updateStatus();
+    loadInterceptionStatus();
     addMessage('WebSocket通信测试界面已加载', 'system');
     addMessage('请先点击"连接服务器"按钮建立连接', 'system');
   }, []);
+
+  /**
+   * 加载拦截状态
+   */
+  const loadInterceptionStatus = async () => {
+    try {
+      const response = await sendToBackground({ action: 'get_interception_status' });
+      if (response.success) {
+        setIsIntercepting(response.isIntercepting || false);
+      }
+    } catch (error) {
+      console.error('加载拦截状态失败:', error);
+    }
+  };
+
+  // ========== Cookie管理功能 ==========
+
+  /**
+   * 获取所有Cookie
+   */
+  const getAllCookies = async () => {
+    try {
+      addMessage('正在获取所有Cookie...', 'system');
+      const response = await sendToBackground({ action: 'get_all_cookies' });
+      if (response.success && response.cookies) {
+        setCookies(response.cookies);
+        setShowCookies(true);
+        addMessage(`获取到 ${response.cookies.length} 个Cookie`, 'system');
+      } else {
+        addMessage('获取Cookie失败', 'error');
+      }
+    } catch (error) {
+      addMessage('获取Cookie失败: ' + (error as Error).message, 'error');
+    }
+  };
+
+  /**
+   * 根据域名获取Cookie
+   */
+  const getCookiesByDomain = async () => {
+    if (!cookieDomain.trim()) {
+      addMessage('请输入域名', 'error');
+      return;
+    }
+
+    try {
+      addMessage(`正在获取域名 ${cookieDomain} 的Cookie...`, 'system');
+      const response = await sendToBackground({ 
+        action: 'get_cookies_by_domain',
+        domain: cookieDomain 
+      });
+      if (response.success && response.cookies) {
+        setCookies(response.cookies);
+        setShowCookies(true);
+        addMessage(`获取到 ${response.cookies.length} 个Cookie`, 'system');
+      } else {
+        addMessage('获取Cookie失败', 'error');
+      }
+    } catch (error) {
+      addMessage('获取Cookie失败: ' + (error as Error).message, 'error');
+    }
+  };
+
+  /**
+   * 获取当前标签页Cookie
+   */
+  const getCurrentTabCookies = async () => {
+    try {
+      addMessage('正在获取当前标签页Cookie...', 'system');
+      const response = await sendToBackground({ action: 'get_current_tab_cookies' });
+      if (response.success && response.cookies) {
+        setCookies(response.cookies);
+        setShowCookies(true);
+        addMessage(`获取到 ${response.cookies.length} 个Cookie`, 'system');
+      } else {
+        addMessage('获取Cookie失败', 'error');
+      }
+    } catch (error) {
+      addMessage('获取Cookie失败: ' + (error as Error).message, 'error');
+    }
+  };
+
+  // ========== 请求拦截管理功能 ==========
+
+  /**
+   * 启动请求拦截
+   */
+  const startInterception = async () => {
+    try {
+      const response = await sendToBackground({ action: 'start_interception' });
+      if (response.success) {
+        setIsIntercepting(true);
+        addMessage('开始拦截网络请求', 'system');
+      } else {
+        addMessage(response.message || '启动拦截失败', 'error');
+      }
+    } catch (error) {
+      addMessage('启动拦截失败: ' + (error as Error).message, 'error');
+    }
+  };
+
+  /**
+   * 停止请求拦截
+   */
+  const stopInterception = async () => {
+    try {
+      const response = await sendToBackground({ action: 'stop_interception' });
+      if (response.success) {
+        setIsIntercepting(false);
+        addMessage('停止拦截网络请求', 'system');
+      } else {
+        addMessage(response.message || '停止拦截失败', 'error');
+      }
+    } catch (error) {
+      addMessage('停止拦截失败: ' + (error as Error).message, 'error');
+    }
+  };
+
+  /**
+   * 获取拦截的请求列表
+   */
+  const loadInterceptedRequests = async () => {
+    try {
+      addMessage('正在加载拦截的请求...', 'system');
+      const response = await sendToBackground({ 
+        action: 'get_recent_requests',
+        limit: 50 
+      });
+      if (response.success && response.requests) {
+        setInterceptedRequests(response.requests);
+        setShowRequests(true);
+        addMessage(`加载了 ${response.requests.length} 个拦截的请求`, 'system');
+      } else {
+        addMessage('加载请求失败', 'error');
+      }
+    } catch (error) {
+      addMessage('加载请求失败: ' + (error as Error).message, 'error');
+    }
+  };
+
+  /**
+   * 根据请求头名称和值搜索
+   */
+  const searchByHeader = async () => {
+    if (!searchHeaderName.trim()) {
+      addMessage('请输入要搜索的请求头名称', 'error');
+      return;
+    }
+
+    try {
+      addMessage(`搜索包含请求头 "${searchHeaderName}" 的请求...`, 'system');
+      const response = await sendToBackground({
+        action: 'find_requests_by_header',
+        headerName: searchHeaderName,
+        headerValue: searchHeaderValue || undefined
+      });
+      
+      if (response.success && response.requests) {
+        setInterceptedRequests(response.requests);
+        setShowRequests(true);
+        addMessage(`找到 ${response.requests.length} 个匹配的请求`, 'system');
+      } else {
+        addMessage('搜索请求失败', 'error');
+      }
+    } catch (error) {
+      addMessage('搜索请求失败: ' + (error as Error).message, 'error');
+    }
+  };
+
+  /**
+   * 根据域名搜索
+   */
+  const searchByDomain = async () => {
+    if (!searchDomain.trim()) {
+      addMessage('请输入要搜索的域名', 'error');
+      return;
+    }
+
+    try {
+      addMessage(`搜索域名 "${searchDomain}" 的请求...`, 'system');
+      const response = await sendToBackground({
+        action: 'get_requests_by_domain',
+        domain: searchDomain
+      });
+      
+      if (response.success && response.requests) {
+        setInterceptedRequests(response.requests);
+        setShowRequests(true);
+        addMessage(`找到 ${response.requests.length} 个匹配的请求`, 'system');
+      } else {
+        addMessage('搜索请求失败', 'error');
+      }
+    } catch (error) {
+      addMessage('搜索请求失败: ' + (error as Error).message, 'error');
+    }
+  };
+
+  /**
+   * 获取请求统计信息
+   */
+  const loadRequestStatistics = async () => {
+    try {
+      const response = await sendToBackground({ action: 'get_request_statistics' });
+      if (response.success && response.statistics) {
+        setRequestStats(response.statistics);
+        addMessage('统计信息已加载', 'system');
+      } else {
+        addMessage('加载统计信息失败', 'error');
+      }
+    } catch (error) {
+      addMessage('加载统计信息失败: ' + (error as Error).message, 'error');
+    }
+  };
+
+  /**
+   * 导出拦截的请求数据
+   */
+  const exportRequests = async () => {
+    try {
+      const response = await sendToBackground({ action: 'export_requests' });
+      if (response.success && response.exportData) {
+        // 创建下载链接
+        const blob = new Blob([response.exportData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `intercepted-requests-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        addMessage('拦截数据已导出', 'system');
+      } else {
+        addMessage('导出失败', 'error');
+      }
+    } catch (error) {
+      addMessage('导出失败: ' + (error as Error).message, 'error');
+    }
+  };
+
+  /**
+   * 清除所有拦截的请求数据
+   */
+  const clearAllRequests = async () => {
+    if (!confirm('确定要清除所有拦截的请求数据吗？')) {
+      return;
+    }
+
+    try {
+      const response = await sendToBackground({ action: 'clear_all_requests' });
+      if (response.success) {
+        addMessage('所有拦截数据已清除', 'system');
+        setInterceptedRequests([]);
+        setRequestStats(null);
+      } else {
+        addMessage(response.message || '清除失败', 'error');
+      }
+    } catch (error) {
+      addMessage('清除数据失败: ' + (error as Error).message, 'error');
+    }
+  };
 
   // 当消息更新时自动滚动到底部
   useEffect(() => {
@@ -382,6 +670,181 @@ const App: React.FC = () => {
         <button className="btn" onClick={clearMessages}>
           清空记录
         </button>
+      </div>
+
+      {/* Cookie管理 */}
+      <div className="input-group">
+        <label>🍪 Cookie管理</label>
+        <div className="form-row">
+          <button className="btn" onClick={getAllCookies}>
+            获取所有Cookie
+          </button>
+          <button className="btn" onClick={getCurrentTabCookies}>
+            当前页面Cookie
+          </button>
+        </div>
+        <div className="form-row">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="输入域名 (如: baidu.com)"
+            value={cookieDomain}
+            onChange={(e) => setCookieDomain(e.target.value)}
+            onKeyPress={(e) => handleKeyPress(e, getCookiesByDomain)}
+          />
+          <button className="btn" onClick={getCookiesByDomain}>
+            获取域名Cookie
+          </button>
+        </div>
+        
+        {showCookies && cookies.length > 0 && (
+          <div className="cookie-list">
+            <h4>Cookie列表 ({cookies.length}个)</h4>
+            <div className="message-area" style={{maxHeight: '120px'}}>
+              {cookies.slice(0, 10).map((cookie, index) => (
+                <div key={index} className="message">
+                  <div><strong>{cookie.name}</strong>: {cookie.value.substring(0, 50)}{cookie.value.length > 50 ? '...' : ''}</div>
+                  <div className="message-time">
+                    域名: {cookie.domain} | 路径: {cookie.path} | {cookie.secure ? '安全' : '普通'} | {cookie.httpOnly ? 'HttpOnly' : '可JS访问'}
+                  </div>
+                </div>
+              ))}
+              {cookies.length > 10 && (
+                <div className="message">
+                  <div>还有 {cookies.length - 10} 个Cookie...</div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 请求拦截管理 */}
+      <div className="input-group">
+        <label>🕵️ 请求拦截器</label>
+        <div className="form-row">
+          <button 
+            className={`btn ${isIntercepting ? 'btn-danger' : 'btn-success'}`}
+            onClick={isIntercepting ? stopInterception : startInterception}
+          >
+            {isIntercepting ? '停止拦截' : '开始拦截'}
+          </button>
+          <span className="status-text">
+            状态: {isIntercepting ? '🔴 拦截中' : '⚪ 未拦截'}
+          </span>
+        </div>
+
+        {/* 拦截控制 */}
+        <div className="form-row">
+          <button className="btn" onClick={loadInterceptedRequests}>
+            查看拦截请求
+          </button>
+          <button className="btn" onClick={loadRequestStatistics}>
+            统计信息
+          </button>
+        </div>
+
+        {/* 搜索功能 */}
+        <div className="search-section">
+          <label>🔍 搜索拦截的请求:</label>
+          
+          {/* 按请求头搜索 */}
+          <div className="form-row">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="请求头名称 (如: Authorization)"
+              value={searchHeaderName}
+              onChange={(e) => setSearchHeaderName(e.target.value)}
+            />
+            <input
+              type="text"
+              className="form-control"
+              placeholder="请求头值 (可选)"
+              value={searchHeaderValue}
+              onChange={(e) => setSearchHeaderValue(e.target.value)}
+            />
+            <button className="btn" onClick={searchByHeader}>
+              搜索
+            </button>
+          </div>
+
+          {/* 按域名搜索 */}
+          <div className="form-row">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="域名 (如: api.example.com)"
+              value={searchDomain}
+              onChange={(e) => setSearchDomain(e.target.value)}
+              onKeyPress={(e) => handleKeyPress(e, searchByDomain)}
+            />
+            <button className="btn" onClick={searchByDomain}>
+              按域名搜索
+            </button>
+          </div>
+        </div>
+
+        {/* 统计信息显示 */}
+        {requestStats && (
+          <div className="stats-section">
+            <h4>📊 拦截统计</h4>
+            <div className="stats-grid">
+              <div>总请求数: {requestStats.total}</div>
+              <div>涉及域名: {requestStats.domains.length}</div>
+              <div>请求头类型: {requestStats.headerNames.length}</div>
+            </div>
+            <div className="stats-details">
+              <strong>请求方法:</strong> {Object.entries(requestStats.methods).map(([method, count]) => `${method}(${count})`).join(', ')}
+            </div>
+          </div>
+        )}
+
+        {/* 拦截请求列表 */}
+        {showRequests && interceptedRequests.length > 0 && (
+          <div className="requests-list">
+            <h4>📋 拦截的请求 ({interceptedRequests.length})</h4>
+            <div className="message-area" style={{maxHeight: '200px'}}>
+              {interceptedRequests.slice(0, 20).map((request, index) => (
+                <div key={index} className="message request-item">
+                  <div>
+                    <strong>{request.method}</strong> {request.domain}{request.path}
+                  </div>
+                  <div className="message-time">
+                    {new Date(request.timestamp).toLocaleString('zh-CN')} | 
+                    请求头: {request.headers.length}个 | 
+                    类型: {request.type}
+                  </div>
+                  <div className="headers-preview">
+                    {request.headers.slice(0, 3).map((header, idx) => (
+                      <span key={idx} className="header-tag">
+                        {header.name}: {header.value.substring(0, 20)}{header.value.length > 20 ? '...' : ''}
+                      </span>
+                    ))}
+                    {request.headers.length > 3 && (
+                      <span className="header-tag">+{request.headers.length - 3}更多</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {interceptedRequests.length > 20 && (
+                <div className="message">
+                  <div>还有 {interceptedRequests.length - 20} 个请求...</div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 管理操作 */}
+        <div className="form-row">
+          <button className="btn" onClick={exportRequests}>
+            导出数据
+          </button>
+          <button className="btn btn-danger" onClick={clearAllRequests}>
+            清空数据
+          </button>
+        </div>
       </div>
     </div>
   );

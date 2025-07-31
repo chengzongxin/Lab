@@ -181,3 +181,191 @@ select.form-control {
 .hidden {
     display: none;
 }
+
+/* Cookie管理样式 */
+.cookie-list h4 {
+    margin: 10px 0 5px 0;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* 请求头管理样式 */
+.headers-management {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.template-buttons {
+    margin: 15px 0;
+}
+
+.template-buttons label {
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.headers-list h4 {
+    margin: 15px 0 8px 0;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.header-item {
+    padding: 8px !important;
+    margin-bottom: 5px !important;
+}
+
+.header-item .form-row {
+    gap: 8px;
+}
+
+.header-item input[type="checkbox"] {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+    accent-color: #4CAF50;
+}
+
+.header-item button {
+    background: rgba(244, 67, 54, 0.3) !important;
+    border: 1px solid rgba(244, 67, 54, 0.5) !important;
+    color: white !important;
+    white-space: nowrap;
+}
+
+.header-item button:hover {
+    background: rgba(244, 67, 54, 0.5) !important;
+}
+
+/* 请求拦截器样式 */
+.status-text {
+    margin-left: 10px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+}
+
+.btn-success {
+    background: rgba(76, 175, 80, 0.3) !important;
+    border: 1px solid rgba(76, 175, 80, 0.5) !important;
+}
+
+.btn-success:hover {
+    background: rgba(76, 175, 80, 0.5) !important;
+}
+
+.btn-danger {
+    background: rgba(244, 67, 54, 0.3) !important;
+    border: 1px solid rgba(244, 67, 54, 0.5) !important;
+}
+
+.btn-danger:hover {
+    background: rgba(244, 67, 54, 0.5) !important;
+}
+
+.search-section {
+    margin: 15px 0;
+    padding: 10px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.search-section label {
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.stats-section {
+    margin: 15px 0;
+    padding: 10px;
+    border-radius: 6px;
+    background: rgba(0, 150, 255, 0.1);
+    border: 1px solid rgba(0, 150, 255, 0.3);
+}
+
+.stats-section h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 12px;
+}
+
+.stats-details {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+    word-break: break-all;
+}
+
+.requests-list h4 {
+    margin: 15px 0 8px 0;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.request-item {
+    padding: 10px !important;
+    margin-bottom: 8px !important;
+    border-left: 3px solid rgba(0, 150, 255, 0.5);
+}
+
+.headers-preview {
+    margin-top: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.header-tag {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.8);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+/* 响应式优化 */
+@media (max-width: 400px) {
+    body {
+        width: 320px;
+        padding: 15px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .form-row .form-control {
+        margin-bottom: 5px;
+    }
+    
+    .template-buttons .form-row {
+        flex-direction: row;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
+    
+    .status-text {
+        margin-left: 5px;
+        font-size: 12px;
+    }
+}

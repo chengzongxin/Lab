@@ -62,6 +62,52 @@ async def handle_client(websocket, path):
                             'type': 'error',
                             'message': f"计算错误: {str(e)}"
                         }
+                elif data.get('type') == 'query_headers':
+                    # 处理请求头查询
+                    query_type = data.get('query_type', 'all')
+                    
+                    if query_type == 'by_name':
+                        header_name = data.get('header_name', '')
+                        header_value = data.get('header_value', '')
+                        response = {
+                            'type': 'header_query_result',
+                            'query_type': 'by_name',
+                            'header_name': header_name,
+                            'header_value': header_value,
+                            'message': f"查询包含请求头 '{header_name}' 的请求",
+                            'instructions': "请在Chrome插件中使用'搜索'功能查看结果"
+                        }
+                    elif query_type == 'by_domain':
+                        domain = data.get('domain', '')
+                        response = {
+                            'type': 'header_query_result',
+                            'query_type': 'by_domain',
+                            'domain': domain,
+                            'message': f"查询域名 '{domain}' 的所有请求",
+                            'instructions': "请在Chrome插件中使用'按域名搜索'功能查看结果"
+                        }
+                    elif query_type == 'statistics':
+                        response = {
+                            'type': 'header_query_result',
+                            'query_type': 'statistics',
+                            'message': "请求拦截统计信息查询",
+                            'instructions': "请在Chrome插件中点击'统计信息'按钮查看详细数据"
+                        }
+                    else:
+                        response = {
+                            'type': 'header_query_result',
+                            'query_type': 'all',
+                            'message': "获取所有拦截的请求",
+                            'instructions': "请在Chrome插件中点击'查看拦截请求'按钮查看数据"
+                        }
+                elif data.get('type') == 'text':
+                    # 处理自定义文本消息
+                    text_content = data.get('content', '')
+                    response = {
+                        'type': 'response',
+                        'message': f"收到文本消息: {text_content}",
+                        'echo': text_content
+                    }
                 else:
                     # 默认回应
                     response = {
