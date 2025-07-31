@@ -369,3 +369,178 @@ select.form-control {
         font-size: 12px;
     }
 }
+
+/* 业务Cookie相关样式 */
+.copy-status {
+    background: #4CAF50;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    text-align: center;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.cookie-section {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.cookie-header {
+    background: #f8f9fa;
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.cookie-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+}
+
+.btn-small {
+    padding: 4px 8px;
+    font-size: 11px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-small:hover {
+    background: #0056b3;
+}
+
+.cookie-content {
+    padding: 12px;
+}
+
+.cookie-count {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.cookie-preview {
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.cookie-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 11px;
+}
+
+.cookie-item:last-child {
+    border-bottom: none;
+}
+
+.cookie-name {
+    font-weight: 500;
+    color: #333;
+    min-width: 80px;
+}
+
+.cookie-value {
+    color: #666;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cookie-more {
+    font-size: 11px;
+    color: #999;
+    text-align: center;
+    padding: 8px 0;
+    font-style: italic;
+}
+
+.mailid-section {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.mailid-header {
+    background: #e3f2fd;
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.mailid-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1976d2;
+}
+
+.mailid-content {
+    padding: 12px;
+}
+
+.mailid-value {
+    font-size: 12px;
+    color: #333;
+    word-break: break-all;
+    line-height: 1.4;
+}
+
+.mailid-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.mailid-buttons .btn-small {
+    font-size: 10px;
+    padding: 3px 6px;
+}
+
+.mailid-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.mailid-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.mailid-item:last-child {
+    border-bottom: none;
+}
+
+.mailid-info {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.mailid-meta {
+    font-size: 10px;
+    color: #666;
+    margin-top: 2px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

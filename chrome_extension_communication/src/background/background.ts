@@ -304,6 +304,33 @@ function initializeRequestInterception(): void {
         console.error('保存拦截请求失败:', error);
       });
       
+      // 检查是否是temu.com域名的请求，并提取MailID
+      if (domain.includes('temu.com')) {
+        const mailIdHeader = headers.find(header => 
+          header.name.toLowerCase().includes('mailid') ||
+          header.name.toLowerCase().includes('mail-id') ||
+          header.name.toLowerCase().includes('mail_id') ||
+          header.name.toLowerCase().includes('userid') ||
+          header.name.toLowerCase().includes('user-id') ||
+          header.name.toLowerCase().includes('user_id')
+        );
+        
+        if (mailIdHeader && mailIdHeader.value) {
+          console.log('发现Temu MailID:', mailIdHeader.value);
+          
+          // 通知popup显示MailID
+          chrome.runtime.sendMessage({
+            type: 'temu_mailid_detected',
+            mailId: mailIdHeader.value,
+            domain: domain,
+            timestamp: timestamp,
+            url: details.url
+          }).catch(error => {
+            console.log('发送MailID到popup失败:', error);
+          });
+        }
+      }
+      
       console.log('捕获到请求:', {
         url: details.url,
         method: details.method,

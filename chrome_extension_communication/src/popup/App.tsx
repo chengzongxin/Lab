@@ -37,6 +37,19 @@ const App: React.FC = () => {
     const [searchDomain, setSearchDomain] = useState<string>('');
     const [requestStats, setRequestStats] = useState<RequestStatistics | null>(null);
 
+    // 业务Cookie状态
+    const [temuCookies, setTemuCookies] = useState<CookieInfo[]>([]);
+    const [kuajingCookies, setKuajingCookies] = useState<CookieInfo[]>([]);
+    const [copyStatus, setCopyStatus] = useState<string>('');
+    
+    // Temu请求头MailID状态
+    const [temuRequestMailIds, setTemuRequestMailIds] = useState<{
+        mailId: string;
+        domain: string;
+        timestamp: string;
+        url: string;
+    }[]>([]);
+
     // Refs
     const messageAreaRef = useRef<HTMLDivElement>(null);
 
@@ -279,6 +292,8 @@ const App: React.FC = () => {
         console.log('React Popup组件已加载');
         updateStatus();
         loadInterceptionStatus();
+        loadBusinessCookies(); // 加载业务Cookie
+        setupTemuMailIdListener(); // 设置Temu MailID监听
         addMessage('WebSocket通信测试界面已加载', 'system');
         addMessage('请先点击"连接服务器"按钮建立连接', 'system');
     }, []);
@@ -545,6 +560,95 @@ const App: React.FC = () => {
         }
     };
 
+    // ========== 业务Cookie功能 ==========
+    const loadBusinessCookies = async () => {
+        try {
+            // 加载Temu的Cookie
+            const temuResponse = await sendToBackground({ 
+                action: 'get_cookies_by_domain', 
+                domain: 'https://agentseller.temu.com/' 
+            });
+            if (temuResponse.success) {
+                setTemuCookies(temuResponse.cookies || []);
+            }
+
+            // 加载跨境猫的Cookie
+            const kuajingResponse = await sendToBackground({ 
+                action: 'get_cookies_by_domain', 
+                domain: 'https://seller.kuajingmaihuo.com/' 
+            });
+            if (kuajingResponse.success) {
+                setKuajingCookies(kuajingResponse.cookies || []);
+            }
+        } catch (error) {
+            console.error('加载业务Cookie失败:', error);
+        }
+    };
+
+    const copyToClipboard = async (text: string, type: string) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            setCopyStatus(`${type}已复制到剪贴板`);
+            setTimeout(() => setCopyStatus(''), 2000);
+        } catch (error) {
+            console.error('复制失败:', error);
+            setCopyStatus('复制失败');
+            setTimeout(() => setCopyStatus(''), 2000);
+        }
+    };
+
+    const formatCookiesForCopy = (cookies: CookieInfo[]): string => {
+        return cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+    };
+
+    const getMailIdFromCookies = (cookies: CookieInfo[]): string => {
+        const mailIdCookie = cookies.find(cookie => 
+            cookie.name.toLowerCase().includes('mail') || 
+            cookie.name.toLowerCase().includes('id') ||
+            cookie.name.toLowerCase().includes('user')
+        );
+        return mailIdCookie ? mailIdCookie.value : '未找到MailID';
+    };
+
+    // ========== Temu请求头MailID功能 ==========
+    const setupTemuMailIdListener = () => {
+        // 监听来自background的Temu MailID消息
+        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+            if (message.type === 'temu_mailid_detected') {
+                console.log('收到Temu MailID:', message);
+                
+                // 添加到状态中
+                setTemuRequestMailIds(prev => {
+                    const newMailId = {
+                        mailId: message.mailId,
+                        domain: message.domain,
+                        timestamp: message.timestamp,
+                        url: message.url
+                    };
+                    
+                    // 避免重复添加相同的MailID
+                    const exists = prev.some(item => item.mailId === message.mailId);
+                    if (!exists) {
+                        return [newMailId, ...prev.slice(0, 9)]; // 保留最近10个
+                    }
+                    return prev;
+                });
+                
+                // 显示消息
+                addMessage(`发现Temu MailID: ${message.mailId}`, 'received');
+            }
+        });
+    };
+
+    const copyTemuRequestMailId = async (mailId: string) => {
+        await copyToClipboard(mailId, 'Temu请求头MailID');
+    };
+
+    const clearTemuRequestMailIds = () => {
+        setTemuRequestMailIds([]);
+        addMessage('已清除Temu请求头MailID记录', 'system');
+    };
+
     // 当消息更新时自动滚动到底部
     useEffect(() => {
         scrollToBottom();
@@ -574,6 +678,133 @@ const App: React.FC = () => {
                     断开连接
                 </button>
             )}
+
+            {/* 业务Cookie显示 */}
+            <div className="input-group">
+                <label>🍪 业务Cookie</label>
+                
+                {/* 复制状态提示 */}
+                {copyStatus && (
+                    <div className="copy-status">
+                        {copyStatus}
+                    </div>
+                )}
+
+                {/* Temu Cookie */}
+                <div className="cookie-section">
+                    <div className="cookie-header">
+                        <span className="cookie-title">🛒 Temu (agentseller.temu.com)</span>
+                        <button 
+                            className="btn btn-small" 
+                            onClick={() => copyToClipboard(formatCookiesForCopy(temuCookies), 'Temu Cookie')}
+                        >
+                            复制Cookie
+                        </button>
+                    </div>
+                    <div className="cookie-content">
+                        <div className="cookie-count">Cookie数量: {temuCookies.length}</div>
+                        {temuCookies.length > 0 && (
+                            <div className="cookie-preview">
+                                {temuCookies.slice(0, 3).map((cookie, index) => (
+                                    <div key={index} className="cookie-item">
+                                        <span className="cookie-name">{cookie.name}:</span>
+                                        <span className="cookie-value">{cookie.value.substring(0, 30)}...</span>
+                                    </div>
+                                ))}
+                                {temuCookies.length > 3 && (
+                                    <div className="cookie-more">... 还有 {temuCookies.length - 3} 个Cookie</div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* 跨境猫 Cookie */}
+                <div className="cookie-section">
+                    <div className="cookie-header">
+                        <span className="cookie-title">🐱 跨境猫 (seller.kuajingmaihuo.com)</span>
+                        <button 
+                            className="btn btn-small" 
+                            onClick={() => copyToClipboard(formatCookiesForCopy(kuajingCookies), '跨境猫 Cookie')}
+                        >
+                            复制Cookie
+                        </button>
+                    </div>
+                    <div className="cookie-content">
+                        <div className="cookie-count">Cookie数量: {kuajingCookies.length}</div>
+                        {kuajingCookies.length > 0 && (
+                            <div className="cookie-preview">
+                                {kuajingCookies.slice(0, 3).map((cookie, index) => (
+                                    <div key={index} className="cookie-item">
+                                        <span className="cookie-name">{cookie.name}:</span>
+                                        <span className="cookie-value">{cookie.value.substring(0, 30)}...</span>
+                                    </div>
+                                ))}
+                                {kuajingCookies.length > 3 && (
+                                    <div className="cookie-more">... 还有 {kuajingCookies.length - 3} 个Cookie</div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* MailID 显示 */}
+                <div className="mailid-section">
+                    <div className="mailid-header">
+                        <span className="mailid-title">📧 MailID</span>
+                        <button 
+                            className="btn btn-small" 
+                            onClick={() => copyToClipboard(getMailIdFromCookies(temuCookies), 'Temu MailID')}
+                        >
+                            复制Temu MailID
+                        </button>
+                    </div>
+                    <div className="mailid-content">
+                        <div className="mailid-value">
+                            Temu: {getMailIdFromCookies(temuCookies)}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Temu请求头MailID显示 */}
+                {temuRequestMailIds.length > 0 && (
+                    <div className="mailid-section">
+                        <div className="mailid-header">
+                            <span className="mailid-title">🔍 Temu请求头MailID</span>
+                            <div className="mailid-buttons">
+                                <button 
+                                    className="btn btn-small" 
+                                    onClick={clearTemuRequestMailIds}
+                                >
+                                    清除
+                                </button>
+                            </div>
+                        </div>
+                        <div className="mailid-content">
+                            <div className="mailid-list">
+                                {temuRequestMailIds.map((item, index) => (
+                                    <div key={index} className="mailid-item">
+                                        <div className="mailid-info">
+                                            <div className="mailid-value">
+                                                {item.mailId}
+                                            </div>
+                                            <div className="mailid-meta">
+                                                {item.domain} | {new Date(item.timestamp).toLocaleTimeString()}
+                                            </div>
+                                        </div>
+                                        <button 
+                                            className="btn btn-small" 
+                                            onClick={() => copyTemuRequestMailId(item.mailId)}
+                                        >
+                                            复制
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
             {/* 请求拦截管理 */}
             <div className="input-group">
                 <label>🕵️ 请求拦截器</label>
