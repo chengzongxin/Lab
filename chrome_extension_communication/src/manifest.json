@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "WebSocket插件",
+  "version": "2.0.0",
+  "description": "与本地Python程序通过WebSocket通信的Demo - React+TypeScript版本",
+  "permissions": [
+    "scripting",
+    "cookies",
+    "tabs",
+    "webRequest",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "WebSocket插件",
+    "default_popup": "popup.html"
+  }
+}
