@@ -2,7 +2,7 @@ import os
 import numpy as np
 import json
 from tqdm import tqdm
-from extract import extract_feature
+from extractv1 import extract_feature
 
 image_dir = "/Users/chengzongxin/Desktop/Lab/remove_water_mark_plus/dataset/images"  # TODO: 修改为你的图片路径
 features = []

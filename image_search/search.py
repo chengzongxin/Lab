@@ -1,6 +1,6 @@
 import numpy as np
 import json
-from extract import extract_feature
+from extractv1 import extract_feature
 from sklearn.neighbors import NearestNeighbors
 
 def search_similar(query_image_path, topk=5):
