@@ -270,6 +270,10 @@ def get_domain_cookies(domain):
         print(f"📊 找到 {len(cookies)} 个Cookie:")
         for cookie in cookies:
             print(f"  - {cookie.get('name', 'Unknown')}: {cookie.get('value', '')[:50]}...")
+        
+        # 打印cookie，以;拼接
+        formatted_cookies = "; ".join([f"{cookie.get('name', '')}={cookie.get('value', '')}" for cookie in cookies])
+        print(f"🍪 格式化后的Cookie: {formatted_cookies}")
     else:
         print("❌ 获取Cookie失败")
 
