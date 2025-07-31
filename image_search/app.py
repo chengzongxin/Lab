@@ -15,22 +15,34 @@ with open("path_cache.json", "r", encoding="utf-8") as f:
 model = NearestNeighbors(n_neighbors=5, algorithm="auto", metric="euclidean")
 model.fit(features)
 
+import os
+
 def search_similar_gradio(query_img, topk=5):
-    # 保存上传图片为临时文件
-    temp_path = "temp_query.jpg"
-    query_img.save(temp_path)
+    try:
+        # 保存上传图片为临时文件
+        temp_path = "temp_query.jpg"
+        query_img.save(temp_path)
 
-    # 提取特征
-    query_feat = extract_feature(temp_path).astype('float32').reshape(1, -1)
-    distances, indices = model.kneighbors(query_feat)
+        # 提取特征
+        query_feat = extract_feature(temp_path).astype('float32').reshape(1, -1)
+        distances, indices = model.kneighbors(query_feat)
 
-    results = []
-    for i, idx in enumerate(indices[0]):
-        result_path = image_paths[idx]
-        filename = result_path.split("/")[-1]  # 或用 os.path.basename(result_path)
-        caption = f"{filename}  距离: {distances[0][i]:.2f}"
-        results.append((result_path, caption))
-    return results
+        results = []
+        for i, idx in enumerate(indices[0]):
+            result_path = image_paths[idx]
+            # 使用os.path.basename更安全地获取文件名
+            filename = os.path.basename(result_path)
+            caption = f"{filename}  距离: {distances[0][i]:.2f}"
+            results.append((result_path, caption))
+        
+        # 清理临时文件
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+            
+        return results
+    except Exception as e:
+        print(f"搜索过程中出现错误: {str(e)}")
+        return []
 
 
 # Gradio UI
@@ -46,4 +58,8 @@ demo = gr.Interface(
 )
 
 if __name__ == "__main__":
-    demo.launch()
+    # 添加允许的路径，解决Gradio路径权限问题
+    demo.launch(
+        allowed_paths=["E:/shop/images", "E:/shop/images/0707-x2"],
+        share=False
+    )
