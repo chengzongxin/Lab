@@ -75,14 +75,14 @@ function connectWebSocket(): void {
 async function sendMessage(message: WebSocketMessage): Promise<void> {
   if (websocket && websocket.readyState === WebSocket.OPEN) {
     try {
-      const cookieList = await handleGetCookies();
+      // const cookieList = await handleGetCookies();
       
-      const newMessage = {
-        ...message,
-        cookies: cookieList
-      };
+      // const newMessage = {
+      //   ...message,
+      //   cookies: cookieList
+      // };
 
-      const messageString = JSON.stringify(newMessage);
+      const messageString = JSON.stringify(message);
       websocket.send(messageString);
       console.log('已发送消息:', message);
     } catch (error) {
