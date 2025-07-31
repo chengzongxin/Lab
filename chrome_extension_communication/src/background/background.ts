@@ -122,8 +122,98 @@ function handleServerMessage(data: WebSocketMessage): void {
       console.log('回显消息:', data);
       break;
       
+    case 'backend_command':
+      // 处理来自后端的命令
+      handleBackendCommand(data);
+      break;
+      
     default:
       console.log('未知消息类型:', data);
+  }
+}
+
+/**
+ * 处理来自后端的命令
+ */
+async function handleBackendCommand(command: any): Promise<void> {
+  console.log('收到后端命令:', command);
+  
+  const { command: action, params, command_id } = command;
+  
+  try {
+    let response: BackgroundResponse;
+    
+    // 根据命令类型执行相应操作
+    switch (action) {
+      case 'get_cookies_by_domain':
+        if (params.domain) {
+          const cookies = await CookieUtils.getCookiesByDomain(params.domain);
+          response = { success: true, cookies };
+        } else {
+          response = { success: false, message: '域名参数缺失' };
+        }
+        break;
+        
+      case 'get_requests_by_domain':
+        if (params.domain) {
+          const requests = await RequestInterceptor.getRequestsByDomain(params.domain);
+          response = { success: true, requests };
+        } else {
+          response = { success: false, message: '域名参数缺失' };
+        }
+        break;
+        
+      case 'find_requests_by_header':
+        if (params.headerName) {
+          const requests = await RequestInterceptor.findRequestsByHeader(
+            params.headerName, 
+            params.headerValue
+          );
+          response = { success: true, requests };
+        } else {
+          response = { success: false, message: '请求头名称缺失' };
+        }
+        break;
+        
+      case 'get_request_statistics':
+        const stats = await RequestInterceptor.getRequestStatistics();
+        response = { success: true, statistics: stats };
+        break;
+        
+      case 'get_all_cookies':
+        const allCookies = await CookieUtils.getAllCookies();
+        response = { success: true, cookies: allCookies };
+        break;
+        
+      default:
+        response = { success: false, message: `未知命令: ${action}` };
+    }
+    
+    // 发送响应回后端
+    const responseMessage = {
+      type: 'command_response' as const,
+      command_id,
+      data: response
+    };
+    
+    if (websocket && websocket.readyState === WebSocket.OPEN) {
+      websocket.send(JSON.stringify(responseMessage));
+      console.log('已发送命令响应:', responseMessage);
+    }
+    
+  } catch (error) {
+    // 发送错误响应
+    const errorResponse = {
+      type: 'command_response' as const,
+      command_id,
+      data: { success: false, message: `执行命令失败: ${(error as Error).message}` }
+    };
+    
+    if (websocket && websocket.readyState === WebSocket.OPEN) {
+      websocket.send(JSON.stringify(errorResponse));
+    }
+    
+    console.error('处理后端命令失败:', error);
   }
 }
 

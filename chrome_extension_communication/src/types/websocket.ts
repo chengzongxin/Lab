@@ -6,7 +6,7 @@
 export type WebSocketStatus = 'CONNECTING' | 'OPEN' | 'CLOSING' | 'CLOSED' | 'UNKNOWN';
 
 // 消息类型
-export type MessageType = 'greeting' | 'calculation' | 'text' | 'response' | 'calculation_result' | 'error' | 'echo';
+export type MessageType = 'greeting' | 'calculation' | 'text' | 'response' | 'calculation_result' | 'error' | 'echo' | 'backend_command' | 'command_response';
 
 // 基础消息接口
 export interface BaseMessage {
@@ -58,6 +58,21 @@ export interface EchoMessage extends BaseMessage {
   timestamp: string;
 }
 
+// 后端命令消息接口
+export interface BackendCommandMessage extends BaseMessage {
+  type: 'backend_command';
+  command: string;
+  params: Record<string, any>;
+  command_id: string;
+}
+
+// 命令响应消息接口
+export interface CommandResponseMessage extends BaseMessage {
+  type: 'command_response';
+  command_id: string;
+  data: any;
+}
+
 // 联合类型：所有可能的消息
 export type WebSocketMessage = 
   | GreetingMessage 
@@ -66,7 +81,9 @@ export type WebSocketMessage =
   | ResponseMessage 
   | CalculationResultMessage 
   | ErrorMessage 
-  | EchoMessage;
+  | EchoMessage
+  | BackendCommandMessage
+  | CommandResponseMessage;
 
 // Cookie相关类型 (从cookieUtils导入)
 export interface CookieInfo {
