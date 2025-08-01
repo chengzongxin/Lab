@@ -4,7 +4,7 @@ import json
 from tqdm import tqdm
 from extractv1 import extract_feature
 
-image_dir = "E:/shop/images"  # TODO: 修改为你的图片路径
+image_dir = "F:/images"  # TODO: 修改为你的图片路径
 
 
 def get_all_image_files(root_dir):
