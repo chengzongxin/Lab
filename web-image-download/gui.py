@@ -27,7 +27,7 @@ class ImageDownloaderGUI:
         """
         self.root = root
         self.root.title("网页图片下载工具")
-        self.root.geometry("800x600")
+        self.root.geometry("1000x800")
         self.root.resizable(True, True)
         
         # 设置窗口图标（如果有的话）
@@ -69,7 +69,7 @@ class ImageDownloaderGUI:
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
         main_frame.columnconfigure(1, weight=1)
-        main_frame.rowconfigure(4, weight=1)
+        main_frame.rowconfigure(5, weight=1)
         
         # 标题
         title_label = ttk.Label(main_frame, text="网页图片下载工具", 

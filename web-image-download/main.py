@@ -68,19 +68,32 @@ def check_playwright_browsers():
     try:
         import subprocess
         import sys
+        import os
         
-        # 检查playwright是否已安装
-        result = subprocess.run([sys.executable, '-m', 'playwright', '--version'], 
-                              capture_output=True, text=True)
+        # 检查是否为exe环境
+        if getattr(sys, 'frozen', False):
+            # exe环境，使用相对路径
+            playwright_path = os.path.join(os.path.dirname(sys.executable), 'playwright')
+        else:
+            # 开发环境，使用Python模块
+            playwright_path = sys.executable
         
-        if result.returncode != 0:
+        # 检查playwright是否可用
+        try:
+            result = subprocess.run([playwright_path, '-m', 'playwright', '--version'], 
+                                  capture_output=True, text=True, timeout=10)
+            if result.returncode != 0:
+                return False
+        except:
             return False
         
         # 检查浏览器是否已安装
-        result = subprocess.run([sys.executable, '-m', 'playwright', 'install', '--dry-run'], 
-                              capture_output=True, text=True)
-        
-        return result.returncode == 0
+        try:
+            result = subprocess.run([playwright_path, '-m', 'playwright', 'install', '--dry-run'], 
+                                  capture_output=True, text=True, timeout=10)
+            return result.returncode == 0
+        except:
+            return False
         
     except Exception:
         return False
@@ -96,20 +109,34 @@ def install_playwright_browsers():
     try:
         import subprocess
         import sys
+        import os
+        
+        # 检查是否为exe环境
+        if getattr(sys, 'frozen', False):
+            # exe环境，使用相对路径
+            playwright_path = os.path.join(os.path.dirname(sys.executable), 'playwright')
+        else:
+            # 开发环境，使用Python模块
+            playwright_path = sys.executable
         
         # 显示安装进度
         print("正在安装Playwright浏览器...")
         print("这可能需要几分钟时间，请耐心等待...")
         
         # 安装浏览器
-        result = subprocess.run([sys.executable, '-m', 'playwright', 'install', 'chromium'], 
-                              capture_output=True, text=True)
-        
-        if result.returncode == 0:
-            print("Playwright浏览器安装成功!")
-            return True
-        else:
-            print(f"安装失败: {result.stderr}")
+        try:
+            result = subprocess.run([playwright_path, '-m', 'playwright', 'install', 'chromium'], 
+                                  capture_output=True, text=True, timeout=300)  # 5分钟超时
+            
+            if result.returncode == 0:
+                print("Playwright浏览器安装成功!")
+                return True
+            else:
+                print(f"安装失败: {result.stderr}")
+                return False
+                
+        except subprocess.TimeoutExpired:
+            print("安装超时，请检查网络连接")
             return False
             
     except Exception as e:
