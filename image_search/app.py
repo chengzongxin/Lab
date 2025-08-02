@@ -88,6 +88,8 @@ if __name__ == "__main__":
     
     # 启动Gradio应用
     demo.launch(
+        server_name="0.0.0.0",  # 绑定到所有网络接口，允许内网访问
+        server_port=7860,       # 指定端口
         allowed_paths=allowed_paths,
         share=True
     )
