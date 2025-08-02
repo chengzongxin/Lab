@@ -13,7 +13,7 @@ with open("path_cache.json", "r", encoding="utf-8") as f:
     image_paths = json.load(f)
 
 # 构建最近邻模型
-model = NearestNeighbors(n_neighbors=20, algorithm="auto", metric="euclidean")
+model = NearestNeighbors(n_neighbors=50, algorithm="auto", metric="euclidean")  # 增加默认邻居数
 model.fit(features)
 
 import os
@@ -50,14 +50,14 @@ def search_similar_gradio(query_img, topk=5):
 
         # 提取特征
         query_feat = extract_feature(temp_path).astype('float32').reshape(1, -1)
-        distances, indices = model.kneighbors(query_feat)
+        distances, indices = model.kneighbors(query_feat, n_neighbors=topk)  # 明确指定返回数量
 
         results = []
-        for i, idx in enumerate(indices[0][:topk]):  # 只取前topk个
+        for i, idx in enumerate(indices[0]):
             result_path = image_paths[idx]
-            # 使用os.path.basename更安全地获取文件名
+            # 显示完整路径和文件名
             filename = os.path.basename(result_path)
-            caption = f"{filename}  距离: {distances[0][i]:.2f}"
+            caption = f"{filename}\n路径: {result_path}\n距离: {distances[0][i]:.2f}"
             results.append((result_path, caption))
         
         # 清理临时文件
@@ -89,17 +89,17 @@ def batch_search_gradio(query_images, topk=5):
 
             # 提取特征
             query_feat = extract_feature(temp_path).astype('float32').reshape(1, -1)
-            distances, indices = model.kneighbors(query_feat)
+            distances, indices = model.kneighbors(query_feat, n_neighbors=topk)  # 明确指定返回数量
 
             # 为每张查询图片添加标题
             query_title = f"查询图片 {i+1}"
             all_results.append((temp_path, query_title))
             
             # 添加相似图片结果
-            for j, idx in enumerate(indices[0][:topk]):
+            for j, idx in enumerate(indices[0]):
                 result_path = image_paths[idx]
                 filename = os.path.basename(result_path)
-                caption = f"查询{i+1} - {filename}  距离: {distances[0][j]:.2f}"
+                caption = f"查询{i+1} - {filename}\n路径: {result_path}\n距离: {distances[0][j]:.2f}"
                 all_results.append((result_path, caption))
             
             # 只清理我们自己创建的临时文件
