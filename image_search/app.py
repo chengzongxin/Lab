@@ -17,6 +17,29 @@ model.fit(features)
 
 import os
 
+def get_allowed_paths():
+    """
+    自动获取所有图片所在的目录路径
+    """
+    allowed_paths = set()
+    
+    # 添加当前工作目录
+    allowed_paths.add(os.getcwd())
+    
+    # 从图片路径中提取所有唯一的目录
+    for path in image_paths:
+        if os.path.exists(path):
+            # 获取图片所在的目录
+            dir_path = os.path.dirname(path)
+            allowed_paths.add(dir_path)
+            
+            # 也添加父目录（以防万一）
+            parent_dir = os.path.dirname(dir_path)
+            if parent_dir != dir_path:  # 避免重复
+                allowed_paths.add(parent_dir)
+    
+    return list(allowed_paths)
+
 def search_similar_gradio(query_img, topk=5):
     try:
         # 保存上传图片为临时文件
@@ -58,8 +81,13 @@ demo = gr.Interface(
 )
 
 if __name__ == "__main__":
-    # 添加允许的路径，解决Gradio路径权限问题
+    # 自动获取所有允许的路径
+    allowed_paths = get_allowed_paths()
+    print(f"🔍 检测到的图片目录: {len(allowed_paths)} 个")
+    print(f"📁 允许的路径: {allowed_paths[:5]}...")  # 只显示前5个
+    
+    # 启动Gradio应用
     demo.launch(
-        allowed_paths=["E:/shop/images", "E:/shop/images/0707-x2"],
-        share=False
+        allowed_paths=allowed_paths,
+        share=True
     )
