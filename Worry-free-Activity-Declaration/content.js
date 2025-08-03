@@ -105,7 +105,7 @@ if (typeof window.autoCheckManager === 'undefined') {
         this.startObserving();
         
         // 初始化批量权益功能（仅限时秒杀页面）
-        this.initBatchRightsFeature();
+        // this.initBatchRightsFeature();
         
         this.showNotification(`自动勾选已开始 (${pageType})`, 'success');
     }
@@ -553,47 +553,49 @@ if (typeof window.autoCheckManager === 'undefined') {
             // 获取申报价格 - 根据页面类型选择不同的列
             let priceElement = null;
             
-            if (this.pageType === '限时秒杀') {
-                // 限时秒杀页面：检查是否已经选择基础权益
-                const basicRightsLabel = row.querySelector('label[data-testid="beast-core-radio"] .RD_textWrapper_5-118-0 span');
-                let needToSelectBasicRights = true;
+            // if (this.pageType === '限时秒杀') {
+            //     // 限时秒杀页面：检查是否已经选择基础权益
+            //     const basicRightsLabel = row.querySelector('label[data-testid="beast-core-radio"] .RD_textWrapper_5-118-0 span');
+            //     let needToSelectBasicRights = true;
                 
-                if (basicRightsLabel) {
-                    const allRadioLabels = row.querySelectorAll('label[data-testid="beast-core-radio"]');
-                    for (const label of allRadioLabels) {
-                        const textElement = label.querySelector('.RD_textWrapper_5-118-0 span');
-                        if (textElement && textElement.textContent.includes('基础权益')) {
-                            if (label.getAttribute('data-checked') === 'true') {
-                                needToSelectBasicRights = false;
-                                break;
-                            }
-                        }
-                    }
-                }
+            //     if (basicRightsLabel) {
+            //         const allRadioLabels = row.querySelectorAll('label[data-testid="beast-core-radio"]');
+            //         for (const label of allRadioLabels) {
+            //             const textElement = label.querySelector('.RD_textWrapper_5-118-0 span');
+            //             if (textElement && textElement.textContent.includes('基础权益')) {
+            //                 if (label.getAttribute('data-checked') === 'true') {
+            //                     needToSelectBasicRights = false;
+            //                     break;
+            //                 }
+            //             }
+            //         }
+            //     }
                 
-                if (needToSelectBasicRights) {
-                    console.log('🔧 需要选择基础权益');
-                    const shouldSelectBasicRights = await this.selectBasicRightsIfNeeded(row);
-                    if (!shouldSelectBasicRights) {
-                        console.log('❌ 无法选择基础权益，跳过该商品');
-                        return false;
-                    }
+            //     if (needToSelectBasicRights) {
+            //         console.log('🔧 需要选择基础权益');
+            //         const shouldSelectBasicRights = await this.selectBasicRightsIfNeeded(row);
+            //         if (!shouldSelectBasicRights) {
+            //             console.log('❌ 无法选择基础权益，跳过该商品');
+            //             return false;
+            //         }
                     
-                    // 等待价格刷新
-                    await this.waitForPriceRefresh(row);
-                } else {
-                    console.log('✅ 基础权益已选择，直接获取价格');
-                }
+            //         // 等待价格刷新
+            //         await this.waitForPriceRefresh(row);
+            //     } else {
+            //         console.log('✅ 基础权益已选择，直接获取价格');
+            //     }
                 
-                // 获取基础权益的价格（第7个td）
-                priceElement = row.querySelector('td:nth-child(7) span span:last-child');
-                if (!priceElement) {
-                    priceElement = row.querySelector('td:nth-child(7) span:last-child');
-                }
-                if (!priceElement) {
-                    priceElement = row.querySelector('td:nth-child(7)');
-                }
-            } else if (this.pageType === '官方大促') {
+            //     // 获取基础权益的价格（第7个td）
+            //     priceElement = row.querySelector('td:nth-child(7) span span:last-child');
+            //     if (!priceElement) {
+            //         priceElement = row.querySelector('td:nth-child(7) span:last-child');
+            //     }
+            //     if (!priceElement) {
+            //         priceElement = row.querySelector('td:nth-child(7)');
+            //     }
+            // } else 
+            
+            if (this.pageType === '官方大促') {
                 // 官方大促页面：价格在第7个td
                 priceElement = row.querySelector('td:nth-child(7) span span:last-child');
                 if (!priceElement) {
@@ -606,7 +608,8 @@ if (typeof window.autoCheckManager === 'undefined') {
                 this.pageType === '新品专区' ||
                 this.pageType === '大流量扶持' ||
                 this.pageType === '爆款冲刺' ||
-                this.pageType === '营销热点'
+                this.pageType === '营销热点' ||
+                this.pageType === '限时秒杀'
             ) {
                 // 新活动页面：价格在第6个td
                 priceElement = row.querySelector('td:nth-child(6) span span:last-child');
