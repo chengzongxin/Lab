@@ -20,3 +20,7 @@ app.include_router(config.router, prefix="/api")
 @app.get("/")
 def read_root():
     return {"message": "Temu Toolkit backend is running"}
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}

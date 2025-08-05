@@ -1,0 +1,67 @@
+services:
+  # 后端服务
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: temu-backend
+    restart: unless-stopped
+    # 不暴露外部端口，只通过 nginx-proxy 访问
+    # 不暴露外部端口，只通过 nginx-proxy 访问
+    # 不暴露外部端口，只通过 nginx-proxy 访问
+    # ports:
+    #   - "${BACKEND_PORT:-9000}:8000"
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      # 如果需要持久化数据，可以挂载日志目录
+      - ./logs:/app/logs
+    networks:
+      - temu-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 前端服务
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: temu-frontend
+    restart: unless-stopped
+    # 不暴露外部端口，只通过 nginx-proxy 访问
+    # ports:
+    #   - "${FRONTEND_PORT:-9000}:80"
+    depends_on:
+      - backend
+    networks:
+      - temu-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx 反向代理（可选，用于统一入口）
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: temu-nginx-proxy
+    restart: unless-stopped
+    ports:
+      - "${NGINX_PORT:-8082}:80"  # 使用环境变量，默认 8082
+    volumes:
+      - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - temu-network
+
+networks:
+  temu-network:
+    driver: bridge
+
+volumes:
+  logs: 
