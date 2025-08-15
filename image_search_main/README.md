@@ -70,7 +70,6 @@ python index.py --image_dir dataset/images
 ### 3️⃣ 启动 Web UI（推荐）
 
 ```bash
-.\venv\Scripts\activate
 python app.py
 ```
 
