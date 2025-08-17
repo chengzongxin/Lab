@@ -1,0 +1,10 @@
+scraper.log
+*.xlsx
+*.csv
+*.json
+*.log
+*.css
+*.js
+*.pyc
+*.pyo
+*.pyd
