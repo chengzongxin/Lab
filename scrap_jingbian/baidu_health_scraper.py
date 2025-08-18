@@ -40,13 +40,16 @@ logging.getLogger('webdriver_manager').setLevel(logging.WARNING)
 class BaiduHealthScraper:
     """百度健康爬虫类"""
     
-    def __init__(self, use_proxy=False, proxy_list=None):
+    def __init__(self, use_proxy=False, proxy_list=None, use_existing_browser=False, debugger_address=None):
         """初始化爬虫"""
         self.driver = None
         self.results = []
         self.current_search_title = ""
         self.use_proxy = use_proxy
         self.proxy_list = proxy_list or []
+        self.excel_file = None  # 保存Excel文件路径
+        self.use_existing_browser = use_existing_browser
+        self.debugger_address = debugger_address or "localhost:9222"
         self.setup_driver()
         
     def setup_driver(self, max_retries=3):
@@ -277,6 +280,10 @@ class BaiduHealthScraper:
                                     # 添加到结果列表
                                     self.results.append(info)
                                     logging.info(f"成功提取信息: {info}")
+                                    
+                                    # 实时保存到Excel文件
+                                    self.append_to_excel(info)
+                                    logging.info(f"数据已实时保存到Excel文件")
                                     
                                     # 关闭当前标签页，回到搜索页
                                     self.driver.close()
@@ -736,7 +743,97 @@ class BaiduHealthScraper:
             logging.error(f"保存Excel文件失败: {e}")
             return None
     
-    def run(self, excel_file, max_titles=20):
+    def append_to_excel(self, new_data):
+        """实时追加数据到Excel文件"""
+        try:
+            if not self.excel_file:
+                # 第一次写入，创建新文件
+                today = datetime.now().strftime("%Y%m%d")
+                self.excel_file = f"百度健康爬取结果_{today}.xlsx"
+                
+                # 如果当天文件已存在，读取后追加；否则创建新文件
+                columns_order = ['search_title', 'title', 'doctor', 'position', 'department', 'content']
+                if os.path.exists(self.excel_file):
+                    logging.info(f"当天结果文件已存在，读取并追加: {self.excel_file}")
+                    existing_df = pd.read_excel(self.excel_file)
+                    new_df = pd.DataFrame([new_data])
+                    updated_df = pd.concat([existing_df, new_df], ignore_index=True)
+                    updated_df = updated_df.reindex(columns=columns_order)
+                    updated_df.to_excel(self.excel_file, index=False, engine='openpyxl')
+                    logging.info(f"已在现有文件中追加第一条数据")
+                else:
+                    # 创建包含新数据的DataFrame并保存
+                    df = pd.DataFrame([new_data])
+                    df = df.reindex(columns=columns_order)
+                    df.to_excel(self.excel_file, index=False, engine='openpyxl')
+                    logging.info(f"创建新Excel文件并保存第一条数据: {self.excel_file}")
+                
+            else:
+                # 追加到现有文件
+                try:
+                    # 读取现有数据
+                    existing_df = pd.read_excel(self.excel_file)
+                    
+                    # 添加新数据
+                    new_df = pd.DataFrame([new_data])
+                    updated_df = pd.concat([existing_df, new_df], ignore_index=True)
+                    
+                    # 重新排列列顺序
+                    columns_order = ['search_title', 'title', 'doctor', 'position', 'department', 'content']
+                    updated_df = updated_df.reindex(columns=columns_order)
+                    
+                    # 保存更新后的数据
+                    updated_df.to_excel(self.excel_file, index=False, engine='openpyxl')
+                    logging.info(f"成功追加数据到Excel文件: {self.excel_file}")
+                    
+                except FileNotFoundError:
+                    # 如果文件不存在，重新创建
+                    logging.warning("Excel文件不存在，重新创建...")
+                    self.excel_file = None
+                    self.append_to_excel(new_data)
+                    return
+                    
+        except Exception as e:
+            logging.error(f"追加数据到Excel失败: {e}")
+            # 如果追加失败，尝试保存到备用文件
+            try:
+                backup_file = f"备用文件_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+                df = pd.DataFrame([new_data])
+                columns_order = ['search_title', 'title', 'doctor', 'position', 'department', 'content']
+                df = df.reindex(columns=columns_order)
+                df.to_excel(backup_file, index=False, engine='openpyxl')
+                logging.info(f"数据已保存到备用文件: {backup_file}")
+            except Exception as backup_error:
+                logging.error(f"保存到备用文件也失败: {backup_error}")
+    
+    def save_final_excel(self):
+        """保存最终的Excel文件（包含所有数据）"""
+        try:
+            if self.results and self.excel_file:
+                # 读取现有文件
+                existing_df = pd.read_excel(self.excel_file)
+                
+                # 确保所有数据都在文件中
+                if len(existing_df) != len(self.results):
+                    logging.warning(f"Excel文件中的数据数量({len(existing_df)})与内存中的数据数量({len(self.results)})不匹配")
+                    
+                    # 重新保存所有数据
+                    df = pd.DataFrame(self.results)
+                    columns_order = ['search_title', 'title', 'doctor', 'position', 'department', 'content']
+                    df = df.reindex(columns=columns_order)
+                    df.to_excel(self.excel_file, index=False, engine='openpyxl')
+                    logging.info(f"重新保存所有数据到Excel文件: {self.excel_file}")
+                
+                return self.excel_file
+            else:
+                logging.warning("没有数据需要保存")
+                return None
+                
+        except Exception as e:
+            logging.error(f"保存最终Excel文件失败: {e}")
+            return None
+    
+    def run(self, excel_file, max_titles=1000):
         """运行爬虫主程序"""
         try:
             logging.info("开始运行百度健康爬虫程序")
@@ -772,9 +869,9 @@ class BaiduHealthScraper:
                     time.sleep(extra_delay)
                     logging.info(f"额外延迟 {extra_delay:.2f} 秒完成")
             
-            # 保存结果
+            # 保存最终结果（确保数据完整性）
             if self.results:
-                filename = self.save_to_excel(self.results)
+                filename = self.save_final_excel()
                 logging.info(f"爬虫程序完成，共爬取{len(self.results)}条数据")
                 return filename
             else:
@@ -794,8 +891,14 @@ class BaiduHealthScraper:
 def main():
     """主函数"""
     try:
-        # 查找Excel文件
-        excel_files = [f for f in os.listdir('.') if f.endswith('.xlsx')]
+        # 查找Excel文件（排除结果类Excel，避免把当天结果文件当作输入）
+        excel_files = [
+            f for f in os.listdir('.')
+            if f.endswith('.xlsx')
+            and not f.startswith('百度健康爬取结果_')
+            and not f.startswith('测试实时保存_')
+            and not f.startswith('备用文件_')
+        ]
         
         if not excel_files:
             print("当前目录下没有找到Excel文件")
