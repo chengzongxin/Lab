@@ -140,22 +140,105 @@ class BaiduHealthScraper:
             logging.error(f"读取Excel文件失败: {e}")
             return []
     
+    def check_driver_health(self):
+        """检查浏览器驱动是否健康"""
+        try:
+            if not self.driver:
+                return False
+            
+            # 尝试执行一个简单的JavaScript命令来测试连接
+            self.driver.execute_script("return navigator.userAgent;")
+            return True
+            
+        except Exception as e:
+            logging.warning(f"浏览器驱动健康检查失败: {e}")
+            return False
+    
+    def reconnect_driver(self):
+        """重新连接浏览器驱动"""
+        try:
+            logging.info("尝试重新连接浏览器驱动...")
+            
+            # 关闭旧的驱动
+            if self.driver:
+                try:
+                    self.driver.quit()
+                except:
+                    pass
+                self.driver = None
+            
+            # 重新设置驱动
+            self.setup_driver()
+            
+            if self.driver:
+                logging.info("浏览器驱动重新连接成功")
+                return True
+            else:
+                logging.error("浏览器驱动重新连接失败")
+                return False
+                
+        except Exception as e:
+            logging.error(f"重新连接浏览器驱动时出错: {e}")
+            return False
+    
+    def safe_driver_operation(self, operation, *args, **kwargs):
+        """安全的浏览器操作，包含自动重连机制"""
+        max_retries = 3
+        
+        for attempt in range(max_retries):
+            try:
+                # 检查驱动健康状态
+                if not self.check_driver_health():
+                    logging.warning(f"浏览器驱动不健康，尝试重连 (第{attempt + 1}次)")
+                    if not self.reconnect_driver():
+                        if attempt == max_retries - 1:
+                            raise Exception("无法重新连接浏览器驱动")
+                        continue
+                
+                # 执行操作
+                return operation(*args, **kwargs)
+                
+            except Exception as e:
+                error_msg = str(e).lower()
+                
+                # 检查是否是连接相关错误
+                if any(keyword in error_msg for keyword in [
+                    'invalid session id', 'session id', 'connection reset', 
+                    'remote host', 'chrome not reachable', 'chrome failed'
+                ]):
+                    logging.warning(f"检测到连接错误，尝试重连 (第{attempt + 1}次): {e}")
+                    
+                    if attempt < max_retries - 1:
+                        if not self.reconnect_driver():
+                            time.sleep(2)  # 等待一下再重试
+                            continue
+                    else:
+                        raise Exception(f"重连失败，已重试{max_retries}次: {e}")
+                else:
+                    # 非连接错误，直接抛出
+                    raise e
+        
+        raise Exception(f"操作失败，已重试{max_retries}次")
+    
     def search_baidu(self, title):
         """在百度搜索文章标题"""
         try:
             # 构建搜索URL
             search_url = f"https://www.baidu.com/s?wd={title}"
-            self.driver.get(search_url)
             
-            logging.info(f"正在搜索: {title}")
+            # 使用安全操作包装器
+            def _search():
+                self.driver.get(search_url)
+                logging.info(f"正在搜索: {title}")
+                
+                # 智能等待页面加载
+                self.smart_wait(1, 2)
+                
+                # 模拟真实用户行为
+                self.simulate_human_behavior()
+                return True
             
-            # 智能等待页面加载
-            self.smart_wait(1, 2)
-            
-            # 模拟真实用户行为
-            self.simulate_human_behavior()
-            
-            return True
+            return self.safe_driver_operation(_search)
             
         except Exception as e:
             logging.error(f"百度搜索失败: {e}")
@@ -230,104 +313,115 @@ class BaiduHealthScraper:
             for page in range(1, max_pages + 1):
                 logging.info(f"正在搜索第{page}页")
                 
-                # 等待页面加载
-                self.smart_wait(1, 2)
-                
-                # 检查是否需要验证
-                if self.check_verification_required():
-                    if not self.handle_verification():
-                        logging.error("验证处理失败，跳过当前页面")
-                        continue
-                
-                # 查找搜索结果 - 使用新的选择器
-                results = self.driver.find_elements(By.CSS_SELECTOR, "div.result, div[class*='result']")
-                
-                logging.info(f"找到{len(results)}个搜索结果")
-                
-                for result in results:
-                    try:
-                        # 查找百度健康标识
-                        health_indicators = result.find_elements(By.CSS_SELECTOR, "span.cosc-source-text")
-                        
-                        for indicator in health_indicators:
-                            if "百度健康" in indicator.text:
-                                logging.info(f"找到百度健康标识: {indicator.text}")
-                                
-                                # 查找标题链接
-                                title_element = result.find_element(By.CSS_SELECTOR, "h3 a, a[target='_blank']")
-                                title_text = title_element.text
-                                
-                                logging.info(f"找到百度健康结果: {title_text}")
-                                
-                                # 点击进入详情页进行进一步验证
-                                logging.info(f"点击进入详情页: {title_text}")
-                                title_element.click()
-                                
-                                # 等待新页面加载
-                                time.sleep(3)
-                                
-                                # 切换到新窗口
-                                self.driver.switch_to.window(self.driver.window_handles[-1])
-                                
-                                # 验证是否为真正的百度健康页面
-                                if self.verify_baidu_health_page():
-                                    logging.info("确认是百度健康页面，开始提取信息")
-                                    
-                                    # 提取详细信息
-                                    info = self.extract_health_info()
-                                    info['search_title'] = self.current_search_title
-                                    
-                                    # 添加到结果列表
-                                    self.results.append(info)
-                                    logging.info(f"成功提取信息: {info}")
-                                    
-                                    # 实时保存到Excel文件
-                                    self.append_to_excel(info)
-                                    logging.info(f"数据已实时保存到Excel文件")
-                                    
-                                    # 关闭当前标签页，回到搜索页
-                                    self.driver.close()
-                                    self.driver.switch_to.window(self.driver.window_handles[0])
-                                    
-                                    return True
-                                else:
-                                    logging.warning("不是真正的百度健康页面，关闭标签页")
-                                    self.driver.close()
-                                    self.driver.switch_to.window(self.driver.window_handles[0])
-                                    continue
+                # 使用安全操作包装器
+                def _search_page():
+                    # 等待页面加载
+                    self.smart_wait(1, 2)
                     
-                    except Exception as e:
-                        logging.debug(f"处理搜索结果时出错: {e}")
-                        continue
+                    # 检查是否需要验证
+                    if self.check_verification_required():
+                        if not self.handle_verification():
+                            logging.error("验证处理失败，跳过当前页面")
+                            return False
+                    
+                    # 查找搜索结果 - 使用新的选择器
+                    results = self.driver.find_elements(By.CSS_SELECTOR, "div.result, div[class*='result']")
+                    
+                    logging.info(f"找到{len(results)}个搜索结果")
+                    
+                    for result in results:
+                        try:
+                            # 查找百度健康标识
+                            health_indicators = result.find_elements(By.CSS_SELECTOR, "span.cosc-source-text")
+                            
+                            for indicator in health_indicators:
+                                if "百度健康" in indicator.text:
+                                    logging.info(f"找到百度健康标识: {indicator.text}")
+                                    
+                                    # 查找标题链接
+                                    title_element = result.find_element(By.CSS_SELECTOR, "h3 a, a[target='_blank']")
+                                    title_text = title_element.text
+                                    
+                                    logging.info(f"找到百度健康结果: {title_text}")
+                                    
+                                    # 点击进入详情页进行进一步验证
+                                    logging.info(f"点击进入详情页: {title_text}")
+                                    title_element.click()
+                                    
+                                    # 等待新页面加载
+                                    time.sleep(3)
+                                    
+                                    # 切换到新窗口
+                                    self.driver.switch_to.window(self.driver.window_handles[-1])
+                                    
+                                    # 验证是否为真正的百度健康页面
+                                    if self.verify_baidu_health_page():
+                                        logging.info("确认是百度健康页面，开始提取信息")
+                                        
+                                        # 提取详细信息
+                                        info = self.extract_health_info()
+                                        info['search_title'] = self.current_search_title
+                                        
+                                        # 添加到结果列表
+                                        self.results.append(info)
+                                        logging.info(f"成功提取信息: {info}")
+                                        
+                                        # 实时保存到Excel文件
+                                        self.append_to_excel(info)
+                                        logging.info(f"数据已实时保存到Excel文件")
+                                        
+                                        # 关闭当前标签页，回到搜索页
+                                        self.driver.close()
+                                        self.driver.switch_to.window(self.driver.window_handles[0])
+                                        
+                                        return True
+                                    else:
+                                        logging.warning("不是真正的百度健康页面，关闭标签页")
+                                        self.driver.close()
+                                        self.driver.switch_to.window(self.driver.window_handles[0])
+                                        continue
+                        
+                        except Exception as e:
+                            logging.debug(f"处理搜索结果时出错: {e}")
+                            continue
+                    
+                    # 如果当前页没找到，尝试翻到下一页
+                    if page < max_pages:
+                        try:
+                            # 尝试多种翻页按钮选择器
+                            next_selectors = [
+                                "a.n", 
+                                "a[class*='next']", 
+                                "a[aria-label*='下一页']"
+                            ]
+                            
+                            next_found = False
+                            for selector in next_selectors:
+                                try:
+                                    next_button = self.driver.find_element(By.CSS_SELECTOR, selector)
+                                    if "下一页" in next_button.text or "next" in next_button.text.lower():
+                                        next_button.click()
+                                        time.sleep(2)
+                                        next_found = True
+                                        break
+                                except:
+                                    continue
+                            
+                            if not next_found:
+                                logging.info("未找到下一页按钮，停止翻页")
+                        except Exception as e:
+                            logging.warning(f"翻页失败: {e}")
+                    
+                    return False  # 当前页没找到结果
                 
-                # 如果当前页没找到，尝试翻到下一页
+                # 执行安全搜索
+                result = self.safe_driver_operation(_search_page)
+                if result:  # 找到了结果
+                    return True
+                
+                # 如果当前页没找到，继续下一页
                 if page < max_pages:
-                    try:
-                        # 尝试多种翻页按钮选择器
-                        next_selectors = [
-                            "a.n", 
-                            "a[class*='next']", 
-                            "a[aria-label*='下一页']"
-                        ]
-                        
-                        next_found = False
-                        for selector in next_selectors:
-                            try:
-                                next_button = self.driver.find_element(By.CSS_SELECTOR, selector)
-                                if "下一页" in next_button.text or "next" in next_button.text.lower():
-                                    next_button.click()
-                                    time.sleep(2)
-                                    next_found = True
-                                    break
-                            except:
-                                continue
-                        
-                        if not next_found:
-                            logging.info("未找到下一页按钮，停止翻页")
-                            break
-                    except Exception as e:
-                        logging.warning(f"翻页失败: {e}")
-                        break
+                    logging.info(f"第{page}页未找到结果，继续下一页")
             
             logging.warning("在指定页数内未找到百度健康结果")
             return False
@@ -401,151 +495,156 @@ class BaiduHealthScraper:
                 'content': ''
             }
             
-            # 等待页面加载
-            WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.TAG_NAME, "body"))
-            )
-            
-            # 提取标题
-            try:
-                title_selectors = [
-                    "h1", ".title", ".article-title", ".page-title",
-                    "[class*='title']", "h2", "h3"
-                ]
-                for selector in title_selectors:
-                    try:
-                        title_element = self.driver.find_element(By.CSS_SELECTOR, selector)
-                        if title_element.text.strip():
-                            info['title'] = title_element.text.strip()
-                            break
-                    except:
-                        continue
-            except:
-                info['title'] = "未找到标题"
-            
-            # 从详情页提取医生信息
-            try:
-                # 根据百度健康页面的标准HTML结构提取医生信息
-                # 医生姓名
-                try:
-                    doctor_name_element = self.driver.find_element(By.CSS_SELECTOR, "span.index_name__0Yl8k")
-                    info['doctor'] = doctor_name_element.text.strip()
-                    logging.info(f"找到医生姓名: {info['doctor']}")
-                except:
-                    logging.debug("未找到医生姓名元素")
+            # 使用安全操作包装器
+            def _extract():
+                # 等待页面加载
+                WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located((By.TAG_NAME, "body"))
+                )
                 
-                # 医生职位
+                # 提取标题
                 try:
-                    position_element = self.driver.find_element(By.CSS_SELECTOR, "span.index_title__wNRZD")
-                    info['position'] = position_element.text.strip()
-                    logging.info(f"找到医生职位: {info['position']}")
-                except:
-                    logging.debug("未找到医生职位元素")
-                
-                # 科室信息
-                try:
-                    dept_element = self.driver.find_element(By.CSS_SELECTOR, "span.index_department__y9DFE")
-                    info['department'] = dept_element.text.strip()
-                    logging.info(f"找到科室信息: {info['department']}")
-                except:
-                    logging.debug("未找到科室信息元素")
-                
-                # 如果没有找到标准结构，尝试备用选择器
-                if not info['doctor'] or not info['position'] or not info['department']:
-                    logging.info("使用备用选择器提取医生信息")
-                    
-                    # 备用医生信息选择器
-                    backup_selectors = [
-                        ".doctor-name", ".doctor-info .name", ".expert-name",
-                        ".author", ".doctor", ".expert", "[class*='doctor']",
-                        "[class*='author']", "[class*='expert']"
+                    title_selectors = [
+                        "h1", ".title", ".article-title", ".page-title",
+                        "[class*='title']", "h2", "h3"
                     ]
-                    
-                    for selector in backup_selectors:
+                    for selector in title_selectors:
                         try:
-                            doctor_element = self.driver.find_element(By.CSS_SELECTOR, selector)
-                            if doctor_element.text.strip():
-                                doctor_text = doctor_element.text.strip()
-                                logging.info(f"备用选择器找到医生信息: {doctor_text}")
-                                
-                                # 解析医生信息（格式：王俊生 主任医师 泌尿外科）
-                                import re
-                                # 匹配医生姓名和职位
-                                doctor_match = re.search(r'([^\s]+)\s+([^\s]+医师)', doctor_text)
-                                if doctor_match and not info['doctor']:
-                                    info['doctor'] = doctor_match.group(1)
-                                if doctor_match and not info['position']:
-                                    info['position'] = doctor_match.group(2)
-                                
-                                # 匹配科室信息
-                                dept_match = re.search(r'([^\s]+科)', doctor_text)
-                                if dept_match and not info['department']:
-                                    info['department'] = dept_match.group(1)
-                                
+                            title_element = self.driver.find_element(By.CSS_SELECTOR, selector)
+                            if title_element.text.strip():
+                                info['title'] = title_element.text.strip()
                                 break
                         except:
                             continue
-                
-                # 如果还是没有找到，尝试从页面源码中搜索
-                if not info['doctor'] or not info['position'] or not info['department']:
-                    logging.info("从页面源码中搜索医生信息")
-                    page_text = self.driver.page_source
+                except:
+                    info['title'] = "未找到标题"
+            
+                # 从详情页提取医生信息
+                try:
+                    # 根据百度健康页面的标准HTML结构提取医生信息
+                    # 医生姓名
+                    try:
+                        doctor_name_element = self.driver.find_element(By.CSS_SELECTOR, "span.index_name__0Yl8k")
+                        info['doctor'] = doctor_name_element.text.strip()
+                        logging.info(f"找到医生姓名: {info['doctor']}")
+                    except:
+                        logging.debug("未找到医生姓名元素")
                     
-                    # 搜索医生姓名和职位
-                    if not info['doctor'] or not info['position']:
-                        doctor_patterns = [
-                            r'([^\s]+)\s+主任医师',
-                            r'([^\s]+)\s+副主任医师',
-                            r'([^\s]+)\s+主治医师'
+                    # 医生职位
+                    try:
+                        position_element = self.driver.find_element(By.CSS_SELECTOR, "span.index_title__wNRZD")
+                        info['position'] = position_element.text.strip()
+                        logging.info(f"找到医生职位: {info['position']}")
+                    except:
+                        logging.debug("未找到医生职位元素")
+                    
+                    # 科室信息
+                    try:
+                        dept_element = self.driver.find_element(By.CSS_SELECTOR, "span.index_department__y9DFE")
+                        info['department'] = dept_element.text.strip()
+                        logging.info(f"找到科室信息: {info['department']}")
+                    except:
+                        logging.debug("未找到科室信息元素")
+                    
+                    # 如果没有找到标准结构，尝试备用选择器
+                    if not info['doctor'] or not info['position'] or not info['department']:
+                        logging.info("使用备用选择器提取医生信息")
+                        
+                        # 备用医生信息选择器
+                        backup_selectors = [
+                            ".doctor-name", ".doctor-info .name", ".expert-name",
+                            ".author", ".doctor", ".expert", "[class*='doctor']",
+                            "[class*='author']", "[class*='expert']"
                         ]
                         
-                        for pattern in doctor_patterns:
-                            match = re.search(pattern, page_text)
-                            if match:
-                                if not info['doctor']:
-                                    info['doctor'] = match.group(1)
-                                if not info['position']:
-                                    info['position'] = match.group(1) + "医师"
-                                break
-                    
-                    # 搜索科室信息
-                    if not info['department']:
-                        dept_patterns = [
-                            r'([^\s]+科)',
-                            r'([^\s]+外科)',
-                            r'([^\s]+内科)'
-                        ]
+                        for selector in backup_selectors:
+                            try:
+                                doctor_element = self.driver.find_element(By.CSS_SELECTOR, selector)
+                                if doctor_element.text.strip():
+                                    doctor_text = doctor_element.text.strip()
+                                    logging.info(f"备用选择器找到医生信息: {doctor_text}")
+                                    
+                                    # 解析医生信息（格式：王俊生 主任医师 泌尿外科）
+                                    import re
+                                    # 匹配医生姓名和职位
+                                    doctor_match = re.search(r'([^\s]+)\s+([^\s]+医师)', doctor_text)
+                                    if doctor_match and not info['doctor']:
+                                        info['doctor'] = doctor_match.group(1)
+                                    if doctor_match and not info['position']:
+                                        info['position'] = doctor_match.group(2)
+                                    
+                                    # 匹配科室信息
+                                    dept_match = re.search(r'([^\s]+科)', doctor_text)
+                                    if dept_match and not info['department']:
+                                        info['department'] = dept_match.group(1)
+                                    
+                                    break
+                            except:
+                                continue
                         
-                        for pattern in dept_patterns:
-                            match = re.search(pattern, page_text)
-                            if match:
-                                info['department'] = match.group(1)
-                                break
+                        # 如果还是没有找到，尝试从页面源码中搜索
+                        if not info['doctor'] or not info['position'] or not info['department']:
+                            logging.info("从页面源码中搜索医生信息")
+                            page_text = self.driver.page_source
+                            
+                            # 搜索医生姓名和职位
+                            if not info['doctor'] or not info['position']:
+                                doctor_patterns = [
+                                    r'([^\s]+)\s+主任医师',
+                                    r'([^\s]+)\s+副主任医师',
+                                    r'([^\s]+)\s+主治医师'
+                                ]
+                                
+                                for pattern in doctor_patterns:
+                                    match = re.search(pattern, page_text)
+                                    if match:
+                                        if not info['doctor']:
+                                            info['doctor'] = match.group(1)
+                                        if not info['position']:
+                                            info['position'] = match.group(1) + "医师"
+                                        break
+                            
+                            # 搜索科室信息
+                            if not info['department']:
+                                dept_patterns = [
+                                    r'([^\s]+科)',
+                                    r'([^\s]+外科)',
+                                    r'([^\s]+内科)'
+                                ]
+                                
+                                for pattern in dept_patterns:
+                                    match = re.search(pattern, page_text)
+                                    if match:
+                                        info['department'] = match.group(1)
+                                        break
+                    
+                except Exception as e:
+                    logging.debug(f"提取医生信息时出错: {e}")
                 
-            except Exception as e:
-                logging.debug(f"提取医生信息时出错: {e}")
+                # 设置默认值
+                if not info['doctor']:
+                    info['doctor'] = "未找到医生信息"
+                
+                if not info['position']:
+                    info['position'] = "未找到职位信息"
+                
+                if not info['department']:
+                    info['department'] = "未找到科室信息"
+                
+                # 提取文章内容
+                try:
+                    content = self.extract_article_content()
+                    info['content'] = content
+                    logging.info(f"成功提取文章内容，长度: {len(content)} 字符")
+                except Exception as e:
+                    logging.warning(f"提取文章内容失败: {e}")
+                    info['content'] = "未找到文章内容"
+                
+                logging.info(f"成功提取信息: {info}")
+                return info
             
-            # 设置默认值
-            if not info['doctor']:
-                info['doctor'] = "未找到医生信息"
-            
-            if not info['position']:
-                info['position'] = "未找到职位信息"
-            
-            if not info['department']:
-                info['department'] = "未找到科室信息"
-            
-            # 提取文章内容
-            try:
-                content = self.extract_article_content()
-                info['content'] = content
-                logging.info(f"成功提取文章内容，长度: {len(content)} 字符")
-            except Exception as e:
-                logging.warning(f"提取文章内容失败: {e}")
-                info['content'] = "未找到文章内容"
-            
-            logging.info(f"成功提取信息: {info}")
-            return info
+            # 执行安全提取
+            return self.safe_driver_operation(_extract)
             
         except Exception as e:
             logging.error(f"提取健康信息失败: {e}")
@@ -560,112 +659,117 @@ class BaiduHealthScraper:
     def extract_article_content(self):
         """提取文章内容"""
         try:
-            # 等待页面加载
-            WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.TAG_NAME, "body"))
-            )
-            
-            content_text = ""
-            
-            # 方法1: 直接提取所有p标签内容
-            try:
-                logging.info("尝试提取所有p标签内容...")
-                p_elements = self.driver.find_elements(By.TAG_NAME, "p")
+            # 使用安全操作包装器
+            def _extract_content():
+                # 等待页面加载
+                WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located((By.TAG_NAME, "body"))
+                )
                 
-                if p_elements:
-                    # 收集所有p标签的文本
-                    p_texts = []
-                    for p in p_elements:
-                        text = p.text.strip()
-                        if text and len(text) > 5:  # 过滤掉太短的文本
-                            p_texts.append(text)
-                    
-                    if p_texts:
-                        content_text = '\n\n'.join(p_texts)
-                        logging.info(f"成功提取{len(p_texts)}个段落，总长度: {len(content_text)} 字符")
-                        return self.clean_content(content_text)
-            except Exception as e:
-                logging.debug(f"提取p标签内容失败: {e}")
-            
-            # 方法2: 使用CSS选择器定位内容区域
-            if not content_text:
+                content_text = ""
+                
+                # 方法1: 直接提取所有p标签内容
                 try:
-                    logging.info("尝试使用CSS选择器提取内容...")
-                    content_selectors = [
-                        "div[data-anchor-id='content']",
-                        "div.index_articleWrap__nPJne",
-                        "div.index_textContent__U8ot6",
-                        "div.index_richText__vkNnU",
-                        "div.index_richTextPc__3FDg9"
-                    ]
+                    logging.info("尝试提取所有p标签内容...")
+                    p_elements = self.driver.find_elements(By.TAG_NAME, "p")
                     
-                    for selector in content_selectors:
-                        try:
-                            content_element = self.driver.find_element(By.CSS_SELECTOR, selector)
-                            if content_element:
-                                # 获取所有文本内容
-                                content_text = content_element.text.strip()
-                                if content_text and len(content_text) > 50:  # 确保内容足够长
-                                    logging.info(f"使用选择器 '{selector}' 成功提取内容")
-                                    break
-                        except:
-                            continue
-                except Exception as e:
-                    logging.debug(f"CSS选择器提取失败: {e}")
-            
-            # 方法3: 从页面源码中搜索并提取p标签内容
-            if not content_text:
-                try:
-                    logging.info("从页面源码中搜索p标签内容...")
-                    page_source = self.driver.page_source
-                    
-                    # 使用正则表达式提取所有p标签内容
-                    import re
-                    p_pattern = r'<p[^>]*>(.*?)</p>'
-                    p_matches = re.findall(p_pattern, page_source, re.DOTALL | re.IGNORECASE)
-                    
-                    if p_matches:
-                        # 清理HTML标签，只保留文本
-                        from bs4 import BeautifulSoup
+                    if p_elements:
+                        # 收集所有p标签的文本
                         p_texts = []
-                        for p_html in p_matches:
-                            # 清理HTML标签
-                            soup = BeautifulSoup(p_html, 'html.parser')
-                            text = soup.get_text(strip=True)
+                        for p in p_elements:
+                            text = p.text.strip()
                             if text and len(text) > 5:  # 过滤掉太短的文本
                                 p_texts.append(text)
                         
                         if p_texts:
                             content_text = '\n\n'.join(p_texts)
-                            logging.info(f"从页面源码成功提取{len(p_texts)}个段落")
+                            logging.info(f"成功提取{len(p_texts)}个段落，总长度: {len(content_text)} 字符")
+                            return self.clean_content(content_text)
                 except Exception as e:
-                    logging.debug(f"页面源码提取失败: {e}")
+                    logging.debug(f"提取p标签内容失败: {e}")
+                
+                # 方法2: 使用CSS选择器定位内容区域
+                if not content_text:
+                    try:
+                        logging.info("尝试使用CSS选择器提取内容...")
+                        content_selectors = [
+                            "div[data-anchor-id='content']",
+                            "div.index_articleWrap__nPJne",
+                            "div.index_textContent__U8ot6",
+                            "div.index_richText__vkNnU",
+                            "div.index_richTextPc__3FDg9"
+                        ]
+                        
+                        for selector in content_selectors:
+                            try:
+                                content_element = self.driver.find_element(By.CSS_SELECTOR, selector)
+                                if content_element:
+                                    # 获取所有文本内容
+                                    content_text = content_element.text.strip()
+                                    if content_text and len(content_text) > 50:  # 确保内容足够长
+                                        logging.info(f"使用选择器 '{selector}' 成功提取内容")
+                                        break
+                            except:
+                                continue
+                    except Exception as e:
+                        logging.debug(f"CSS选择器提取失败: {e}")
+                
+                # 方法3: 从页面源码中搜索并提取p标签内容
+                if not content_text:
+                    try:
+                        logging.info("从页面源码中搜索p标签内容...")
+                        page_source = self.driver.page_source
+                        
+                        # 使用正则表达式提取所有p标签内容
+                        import re
+                        p_pattern = r'<p[^>]*>(.*?)</p>'
+                        p_matches = re.findall(p_pattern, page_source, re.DOTALL | re.IGNORECASE)
+                        
+                        if p_matches:
+                            # 清理HTML标签，只保留文本
+                            from bs4 import BeautifulSoup
+                            p_texts = []
+                            for p_html in p_matches:
+                                # 清理HTML标签
+                                soup = BeautifulSoup(p_html, 'html.parser')
+                                text = soup.get_text(strip=True)
+                                if text and len(text) > 5:  # 过滤掉太短的文本
+                                    p_texts.append(text)
+                            
+                            if p_texts:
+                                content_text = '\n\n'.join(p_texts)
+                                logging.info(f"从页面源码成功提取{len(p_texts)}个段落")
+                    except Exception as e:
+                        logging.debug(f"页面源码提取失败: {e}")
+                
+                # 方法4: 尝试提取特定内容区域的所有文本
+                if not content_text:
+                    try:
+                        logging.info("尝试提取特定内容区域...")
+                        # 查找包含"content"的div
+                        content_divs = self.driver.find_elements(By.CSS_SELECTOR, "div[data-anchor-id='content'], div[class*='articleWrap'], div[class*='textContent']")
+                        
+                        for div in content_divs:
+                            try:
+                                text = div.text.strip()
+                                if text and len(text) > 100:  # 确保内容足够长
+                                    content_text = text
+                                    logging.info("成功提取特定内容区域")
+                                    break
+                            except:
+                                continue
+                    except Exception as e:
+                        logging.debug(f"特定内容区域提取失败: {e}")
+                
+                # 清理和格式化内容
+                if content_text:
+                    return self.clean_content(content_text)
+                else:
+                    logging.warning("未找到文章内容")
+                    return "未找到文章内容"
             
-            # 方法4: 尝试提取特定内容区域的所有文本
-            if not content_text:
-                try:
-                    logging.info("尝试提取特定内容区域...")
-                    # 查找包含"content"的div
-                    content_divs = self.driver.find_elements(By.CSS_SELECTOR, "div[data-anchor-id='content'], div[class*='articleWrap'], div[class*='textContent']")
-                    
-                    for div in content_divs:
-                        try:
-                            text = div.text.strip()
-                            if text and len(text) > 100:  # 确保内容足够长
-                                content_text = text
-                                logging.info("成功提取特定内容区域")
-                                break
-                        except:
-                            continue
-                except Exception as e:
-                    logging.debug(f"特定内容区域提取失败: {e}")
-            
-            # 清理和格式化内容
-            if content_text:
-                return self.clean_content(content_text)
-            else:
-                logging.warning("未找到文章内容")
-                return "未找到文章内容"
+            # 执行安全提取
+            return self.safe_driver_operation(_extract_content)
                 
         except Exception as e:
             logging.error(f"提取文章内容失败: {e}")
