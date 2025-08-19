@@ -833,7 +833,7 @@ class BaiduHealthScraper:
             logging.error(f"保存最终Excel文件失败: {e}")
             return None
     
-    def run(self, excel_file, max_titles=1000):
+    def run(self, excel_file, max_titles=10000):
         """运行爬虫主程序"""
         try:
             logging.info("开始运行百度健康爬虫程序")
