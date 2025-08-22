@@ -33,6 +33,24 @@ logging.basicConfig(
 logging.getLogger('urllib3').setLevel(logging.WARNING)
 logging.getLogger('requests').setLevel(logging.WARNING)
 
+headers = {
+    'Host': 'www.baidu.com',
+    'Connection': 'keep-alive',
+    'Cache-Control': 'max-age=0',
+    'sec-ch-ua': '"Not(A:Brand";v="99", "Microsoft Edge";v="133", "Chromium";v="133"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"Windows"',
+    'Upgrade-Insecure-Requests': '1',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    'Sec-Fetch-Site': 'none',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-User': '?1',
+    'Sec-Fetch-Dest': 'document',
+    'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+    'cookie': 'BIDUPSID=0E6BDE17EBE358A7645DD73CA89DCF43; PSTM=1753855425; BD_UPN=12314753; BAIDUID=E361C9456029385555E8B8B196D558A8:FG=1; MAWEBCUID=web_FiZNzazYTReSAhltuUsNWGKPWHeHoMUTNDIITvOofqZqvDeeDn; BDORZ=B490B5EBF6F3CD402E515D22BCDA1598; BDSFRCVID=ft4OJeC62my-LxTsmhvAMe919fCvul3TH6aoWX_ETSPHL4BYxjyIEG0nDU8g0Kub6jIDogKK3gOTH4PF_2uxOjjg8UtVJeC6EG0Ptf8g0x5; H_BDCLCKID_SF=tbC8VC_htCD3HnRv5t8_-4_tbh_X5-RLfKcJ_p7F5l8-hR6wqfvW3btDMhjCW4L8tR5h5-QaaIOxOKQphpJiBUL70n37WT3Gy6bBXlTN3KJ_sMK9bT3v5tjBM4rR2-biWb7M2MbdJUJP_IoG2Mn8M4bb3qOpBtQmJeTxoUJ25DnJh-PGe4bK-TryjHKqJf5; H_PS_PSSID=62325_63140_63324_63947_64005_64247_64364_64418_64437_64450_64460_64475_64487_64504_64513_64543_64556_64566_64569_64575_64590_64594_64597_64601_64653_64662_64669_64714_64741_64742_64738_64750; H_WISE_SIDS=62325_63140_63324_63947_64005_64247_64364_64418_64437_64450_64460_64475_64487_64504_64513_64543_64556_64566_64569_64575_64590_64594_64597_64601_64653_64662_64669_64714_64741_64742_64738_64750; H_WISE_SIDS_BFESS=62325_63140_63324_63947_64005_64247_64364_64418_64437_64450_64460_64475_64487_64504_64513_64543_64556_64566_64569_64575_64590_64594_64597_64601_64653_64662_64669_64714_64741_64742_64738_64750; ab_sr=1.0.1_Nzk5NGYwOTQ5OGFlYzZiNjhiY2U3ZGUyY2EwZDI0ZDkyOGY0ZjYyNzUxZWVhYmJhYjFkMWVmYmVmMmIxZDVlZWI4MGQxN2E5ZDgxOTI1NDlmMGUxMjE1NjhhNDFkYWQ5OTEyYjM5OGE4MTkwOGNjNWRjOGNkZjljYjk1ZjQxMWM2NDM2M2UwMjY3MWM3MTQzZDNhN2I0OGQxMjcxYWYyYw==; kleck=93fdf171f7dfb6f60289411961dd4cbcd07343a0454a73bc; sugstore=0; delPer=0; BD_CK_SAM=1; PSINO=6; BAIDUID_BFESS=E361C9456029385555E8B8B196D558A8:FG=1; BDSFRCVID_BFESS=ft4OJeC62my-LxTsmhvAMe919fCvul3TH6aoWX_ETSPHL4BYxjyIEG0nDU8g0Kub6jIDogKK3gOTH4PF_2uxOjjg8UtVJeC6EG0Ptf8g0x5; H_BDCLCKID_SF_BFESS=tbC8VC_htCD3HnRv5t8_-4_tbh_X5-RLfKcJ_p7F5l8-hR6wqfvW3btDMhjCW4L8tR5h5-QaaIOxOKQphpJiBUL70n37WT3Gy6bBXlTN3KJ_sMK9bT3v5tjBM4rR2-biWb7M2MbdJUJP_IoG2Mn8M4bb3qOpBtQmJeTxoUJ25DnJh-PGe4bK-TryjHKqJf5; BA_HECTOR=8k0500a4258h802g2k2g8l218005021kah4mj24; ZFY=cgJzNG1S8WxBf6PXEGcZON2obNViv:B1cnnOlp156snQ:C; PAD_BROWSER=1; BDRCVFR[feWj1Vr5u3D]=I67x6TjHwwYf0; BD_HOME=1; H_PS_645EC=4c46NPsj8ZgyFiXJlbA7kzusnAnV3%2FJS9H3iFhC21K6QOOgk2nAxscBC6yI; BDSVRTM=336; WWW_ST=1755878239919'
+}
+
 class FastBaiduHealthScraper:
     """快速百度健康爬虫类"""
     
@@ -60,23 +78,6 @@ class FastBaiduHealthScraper:
         session.mount("http://", adapter)
         session.mount("https://", adapter)
 
-        headers = {
-            'Host': 'baijiahao.baidu.com',
-            'Connection': 'keep-alive',
-            'Cache-Control': 'max-age=0',
-            'sec-ch-ua': '"Not(A:Brand";v="99", "Microsoft Edge";v="133", "Chromium";v="133"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"Windows"',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-            'Sec-Fetch-Site': 'none',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-User': '?1',
-            'Sec-Fetch-Dest': 'document',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
-            'cookie': 'BIDUPSID=0E6BDE17EBE358A7645DD73CA89DCF43; PSTM=1753855425; BAIDUID=E361C9456029385555E8B8B196D558A8:FG=1; BDUSS_BFESS=9iNW9FMjU1YzYzWHRWUHRRVndkOWE4dEFvM2p5T3RhUTY4VWVjQmg4STF-c3RvSUFBQUFBJCQAAAAAAAAAAAEAAAA45jc3QW5nZWxfwLbPqwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADVxpGg1caRoMm; MAWEBCUID=web_FiZNzazYTReSAhltuUsNWGKPWHeHoMUTNDIITvOofqZqvDeeDn; BAIDUID_BFESS=E361C9456029385555E8B8B196D558A8:FG=1; BDORZ=B490B5EBF6F3CD402E515D22BCDA1598; delPer=0; PSINO=6; BA_HECTOR=0501a02l2h0l2l25810l008l2l048h1kagtb524; ZFY=cgJzNG1S8WxBf6PXEGcZON2obNViv:B1cnnOlp156snQ:C; BDRCVFR[feWj1Vr5u3D]=I67x6TjHwwYf0; BCLID=10823550112486219849; BCLID_BFESS=10823550112486219849; BDSFRCVID=ft4OJeC62my-LxTsmhvAMe919fCvul3TH6aoWX_ETSPHL4BYxjyIEG0nDU8g0Kub6jIDogKK3gOTH4PF_2uxOjjg8UtVJeC6EG0Ptf8g0x5; BDSFRCVID_BFESS=ft4OJeC62my-LxTsmhvAMe919fCvul3TH6aoWX_ETSPHL4BYxjyIEG0nDU8g0Kub6jIDogKK3gOTH4PF_2uxOjjg8UtVJeC6EG0Ptf8g0x5; H_BDCLCKID_SF=tbC8VC_htCD3HnRv5t8_-4_tbh_X5-RLfKcJ_p7F5l8-hR6wqfvW3btDMhjCW4L8tR5h5-QaaIOxOKQphpJiBUL70n37WT3Gy6bBXlTN3KJ_sMK9bT3v5tjBM4rR2-biWb7M2MbdJUJP_IoG2Mn8M4bb3qOpBtQmJeTxoUJ25DnJh-PGe4bK-TryjHKqJf5; H_BDCLCKID_SF_BFESS=tbC8VC_htCD3HnRv5t8_-4_tbh_X5-RLfKcJ_p7F5l8-hR6wqfvW3btDMhjCW4L8tR5h5-QaaIOxOKQphpJiBUL70n37WT3Gy6bBXlTN3KJ_sMK9bT3v5tjBM4rR2-biWb7M2MbdJUJP_IoG2Mn8M4bb3qOpBtQmJeTxoUJ25DnJh-PGe4bK-TryjHKqJf5; H_PS_PSSID=62325_63140_63324_63947_64005_64247_64364_64418_64437_64450_64460_64475_64487_64504_64513_64543_64556_64566_64569_64575_64590_64594_64597_64601_64653_64662_64669_64714_64741_64742_64738_64750; H_WISE_SIDS=62325_63140_63324_63947_64005_64247_64364_64418_64437_64450_64460_64475_64487_64504_64513_64543_64556_64566_64569_64575_64590_64594_64597_64601_64653_64662_64669_64714_64741_64742_64738_64750; H_WISE_SIDS_BFESS=62325_63140_63324_63947_64005_64247_64364_64418_64437_64450_64460_64475_64487_64504_64513_64543_64556_64566_64569_64575_64590_64594_64597_64601_64653_64662_64669_64714_64741_64742_64738_64750; ab_sr=1.0.1_Nzk5NGYwOTQ5OGFlYzZiNjhiY2U3ZGUyY2EwZDI0ZDkyOGY0ZjYyNzUxZWVhYmJhYjFkMWVmYmVmMmIxZDVlZWI4MGQxN2E5ZDgxOTI1NDlmMGUxMjE1NjhhNDFkYWQ5OTEyYjM5OGE4MTkwOGNjNWRjOGNkZjljYjk1ZjQxMWM2NDM2M2UwMjY3MWM3MTQzZDNhN2I0OGQxMjcxYWYyYw=='
-        }
         
         # 设置请求头
         session.headers.update(headers)
@@ -267,7 +268,7 @@ class FastBaiduHealthScraper:
             logging.info(f"最终URL: {final_url}")
             
             # 智能延迟
-            self.smart_delay(0.5, 1.0)
+            self.smart_delay(3, 5)
             
             return response.text
             
@@ -288,18 +289,8 @@ class FastBaiduHealthScraper:
                 url = f"https://www.baidu.com/{href}"
             
             logging.info(f"使用备用方法获取详情页: {url}")
-            
-            # 设置更宽松的请求头
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
-                'Accept-Encoding': 'gzip, deflate',
-                'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1',
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache'
-            }
+
+            self.smart_delay(3, 5)
             
             # 发送请求，禁用重试
             response = requests.get(url, headers=headers, timeout=20, allow_redirects=True)
