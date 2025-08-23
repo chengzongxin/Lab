@@ -124,7 +124,8 @@ class FastBaiduHealthScraper:
             if "安全验证" in response.text or "验证码" in response.text:
                 logging.warning("检测到反爬验证，等待用户处理...")
                 input("请手动完成验证后，按回车键继续...")
-                return self.search_baidu(title)  # 重新搜索
+                # return self.search_baidu(title)  # 重新搜索
+                return None
             
             logging.info("搜索请求成功")
             return response.text
@@ -258,6 +259,9 @@ class FastBaiduHealthScraper:
                 url = f"https://www.baidu.com/{href}"
             
             logging.info(f"获取详情页: {url}")
+
+            # 智能延迟
+            self.smart_delay(2, 4)
             
             # 发送请求，允许重定向
             response = self.session.get(url, timeout=15, allow_redirects=True)
@@ -267,8 +271,6 @@ class FastBaiduHealthScraper:
             final_url = response.url
             logging.info(f"最终URL: {final_url}")
             
-            # 智能延迟
-            self.smart_delay(3, 5)
             
             return response.text
             
@@ -290,7 +292,7 @@ class FastBaiduHealthScraper:
             
             logging.info(f"使用备用方法获取详情页: {url}")
 
-            self.smart_delay(3, 5)
+            self.smart_delay(2, 4)
             
             # 发送请求，禁用重试
             response = requests.get(url, headers=headers, timeout=20, allow_redirects=True)
@@ -651,7 +653,7 @@ class FastBaiduHealthScraper:
             content_text = re.sub(r'广告|推广|点击查看|更多信息', '', content_text)
             
             # 限制内容长度
-            max_length = 10000
+            max_length = 1000
             if len(content_text) > max_length:
                 content_text = content_text[:max_length] + "...(内容已截断)"
                 logging.info(f"文章内容过长，已截断至{max_length}字符")
@@ -744,13 +746,15 @@ class FastBaiduHealthScraper:
                 logging.error("没有找到可用的标题")
                 return
             
-            if len(titles) > max_titles:
-                titles = titles[:max_titles]
-                logging.info(f"限制处理前{max_titles}个标题")
+            # if len(titles) > max_titles:
+            #     titles = titles[:max_titles]
+            #     logging.info(f"限制处理前{max_titles}个标题")
             
             # 逐个爬取标题
             for i, title in enumerate(titles, 1):
                 logging.info(f"正在处理第{i}/{len(titles)}个标题: {title}")
+
+                self.smart_delay(2, 4)
                 
                 success = self.scrape_single_title(title)
                 if success:
@@ -759,7 +763,7 @@ class FastBaiduHealthScraper:
                     logging.warning(f"处理失败: {title}")
                 
                 # 智能延迟
-                self.smart_delay(0.5, 1.0)
+                self.smart_delay(2, 4)
                 
                 # 每处理几个标题后增加额外延迟
                 if i % 10 == 0:
