@@ -123,7 +123,26 @@ class FastBaiduHealthScraper:
             # 检查是否被反爬
             if "安全验证" in response.text or "验证码" in response.text:
                 logging.warning("检测到反爬验证，等待用户处理...")
-                input("请手动完成验证后，按回车键继续...")
+                import threading
+
+                def wait_for_input(event):
+                    input("请手动完成验证后，按回车键继续...")
+                    event.set()
+
+                # 创建一个事件对象用于线程间通信
+                input_event = threading.Event()
+                # 启动等待用户输入的线程
+                input_thread = threading.Thread(target=wait_for_input, args=(input_event,))
+                input_thread.start()
+
+                # 主线程等待10分钟（600秒），或者直到用户输入
+                input_event.wait(timeout=600)
+
+                if input_event.is_set():
+                    logging.info("用户已手动完成验证，继续执行。")
+                else:
+                    print("等待10分钟后仍未完成验证，程序将自动跳过该条。")
+                    logging.warning("等待10分钟后未检测到用户输入，自动跳过。")
                 # return self.search_baidu(title)  # 重新搜索
                 return None
             
