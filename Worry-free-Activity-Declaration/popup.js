@@ -351,7 +351,7 @@ class PopupManager {
                 func: () => {
                     // 检测页面类型
                     const hasWorryFree = document.querySelector('.worry-free-detail_table__unQvk');
-                    const titleElement = document.querySelector('.block-title-module__title___3MkQp');
+                    const titleElement = document.querySelector('.block-title-module__title___1xNSA');
 
                     const hasOfficialPromotion = titleElement && titleElement.textContent.includes('官方大促');
                     const hasFlashSale = titleElement && titleElement.textContent.includes('限时秒杀');
