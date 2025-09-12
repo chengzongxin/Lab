@@ -1,0 +1,13 @@
+*.xlsx
+*.csv
+*.json
+*.xml
+*.html
+*.css
+*.js
+*.php
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
