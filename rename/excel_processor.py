@@ -11,6 +11,22 @@ import os
 from datetime import datetime
 import sys
 
+# ==================== 配置区域 ====================
+# 在这里修改配置，无需修改代码逻辑
+
+# Sock Drawstring Tote Sports Scarf Apron a Unisex Cooling
+
+# 要匹配的品类关键词（不区分大小写）
+CATEGORY_KEYWORD = "Sports"  # 可以改为 "Backpack", "Tote", "Pouch", "Bag" 等
+
+# 新的品类名称（替换后的名称）
+NEW_CATEGORY = "Lite Trend Sports"  # 可以改为其他品类名称
+
+# 输出文件前缀（会自动包含品类关键词）
+OUTPUT_PREFIX = "processed"
+
+# ================================================
+
 def process_excel_file(input_file):
     """
     处理Excel文件的主要函数
@@ -43,9 +59,12 @@ def process_excel_file(input_file):
         first_column = df.columns[0]
         print(f"📝 商品名称列：{first_column}")
         
-        # 定义正则表达式模式：匹配数字+Drawstring
+        # 使用配置区域的品类关键词
+        print(f"🔍 匹配品类关键词：{CATEGORY_KEYWORD}")
+        
+        # 定义正则表达式模式：匹配数字+品类关键词
         # 例如：Fishes 3 Drawstring Bags -> 匹配 "3 Drawstring"
-        pattern = r'(\d+)\s+Drawstring'
+        pattern = rf'(\d+)\s+{re.escape(CATEGORY_KEYWORD)}'
         
         # 创建匹配结果列
         df['匹配结果'] = df[first_column].str.contains(pattern, case=False, na=False)
@@ -62,11 +81,16 @@ def process_excel_file(input_file):
         # 修改商品标题：在数字后添加"th"
         def modify_product_name(name):
             """
-            修改商品名称，在数字后添加"th"
-            例如：Fishes 3 Drawstring Bags -> Fishes 3th Drawstring Bags
+            修改商品名称，在数字后添加"th"和新的品类名称
+            例如：Fishes 3 Drawstring Bags -> Fishes 3th Lite Trend Drawstring Bags
             """
+            # 使用配置区域的新品类名称
+            print(f"🔄 替换为：{NEW_CATEGORY}")
+            
             # 使用正则表达式替换（忽略大小写）
-            modified_name = re.sub(r'(\d+)\s+Drawstring', r'\1th Drawstring', name, flags=re.IGNORECASE)
+            pattern = rf'(\d+)\s+{re.escape(CATEGORY_KEYWORD)}'
+            replacement = rf'\1th {NEW_CATEGORY}'
+            modified_name = re.sub(pattern, replacement, name, flags=re.IGNORECASE)
             return modified_name
         
         # 应用修改函数
@@ -75,9 +99,11 @@ def process_excel_file(input_file):
         # 删除临时的匹配结果列
         matched_df = matched_df.drop('匹配结果', axis=1)
         
-        # 生成输出文件名（使用当前时间）
+        # 生成输出文件名（包含品类关键词和时间）
         current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_file = f"processed_products_{current_time}.xlsx"
+        # 将品类关键词转换为小写，用于文件名
+        category_lower = CATEGORY_KEYWORD.lower()
+        output_file = f"{OUTPUT_PREFIX}_{category_lower}_{current_time}.xlsx"
         
         # 保存到新文件
         matched_df.to_excel(output_file, index=False)
