@@ -42,6 +42,6 @@ def generate_weekly_report(author: str, days: int = 7):
 
 if __name__ == "__main__":
     # 修改为你的 git 用户名/邮箱（和提交时保持一致）
-    author = "你的名字"
+    author = "chengzongxin"
     report = generate_weekly_report(author)
     print(report)
