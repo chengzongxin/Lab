@@ -1,0 +1,1149 @@
+{
+    "status": 0,
+    "msg": "",
+    "toast": "",
+    "applid": "2395666671",
+    "lid": "",
+    "data": {
+        "sidOffOutpatient": 1,
+        "pageTab": [
+            {
+                "nameID": "basic",
+                "name": "相关服务",
+                "isSelected": true,
+                "image": "",
+                "version": 1,
+                "componentList": [
+                    {
+                        "key": "doctor_on_guidance_base",
+                        "dataType": "doctor_on_guidance",
+                        "dataApiType": 0,
+                        "name": "在线咨询",
+                        "dataApi": "",
+                        "data": {
+                            "list": [
+                                {
+                                    "serviceType": "yizhen",
+                                    "icon": "https://material-from-upload.cdn.bcebos.com/images/yd/2024-01/105ff0ae6cdc540d81135562890ca6a8.png?x-bce-process=image/resize,w_1242,h_2688/quality,q_86",
+                                    "title": "专家义诊",
+                                    "describedInfo": "¥25",
+                                    "btnText": "去咨询",
+                                    "btnUrl": "https://jiankang.baidu.com/wenzhen/pages/triage/index?appKey=\u0026doc_id=pgbr3gb3qog4t33f10bg\u0026isDirected=1\u0026sf_ref=",
+                                    "weappUrl": "/pages/triage/index?appKey=\u0026doc_id=pgbr3gb3qog4t33f10bg\u0026isDirected=1\u0026sf_ref=",
+                                    "texts": [
+                                        "24小时内可向医生提问3次"
+                                    ],
+                                    "tags": [],
+                                    "status": "1",
+                                    "jumpType": 0,
+                                    "extraInfo": {},
+                                    "traceData": "doc_yizhen"
+                                },
+                                {
+                                    "serviceType": "graphicConsult",
+                                    "icon": "https://material-from-upload.cdn.bcebos.com/images/yd/2024-01/7091be8a7c21224862f292e53890a02c.png?x-bce-process=image/resize,w_1242,h_2688/quality,q_86",
+                                    "title": "图文咨询",
+                                    "describedInfo": "¥79",
+                                    "btnText": "去咨询",
+                                    "btnUrl": "https://jiankang.baidu.com/wenzhen/pages/triage/index?applid=17561072348323010\u0026askType=0\u0026atn=triage\u0026clientName=h5\u0026defer=true\u0026doc_id=pgbr3gb3qog4t33f10bg\u0026expert_id=1458741\u0026from=chat\u0026from_sf=1\u0026isDirected=1\u0026isNew=1\u0026lat=\u0026lid=2141180798\u0026lng=\u0026openapi=1\u0026page_tab=all\u0026pd=med\u0026pn=med\u0026realCode=undefined\u0026referlid=3840647691\u0026reqId=FPIDBKLJPH\u0026resource_id=5216\u0026sf_ref=\u0026title=%E5%AD%99%E4%BA%91%E7%87%95\u0026vn=med\u0026word=%E9%97%AE%E5%8C%BB%E7%94%9F",
+                                    "weappUrl": "/pages/triage/index?applid=17561072348323010\u0026askType=0\u0026atn=triage\u0026clientName=h5\u0026defer=true\u0026doc_id=pgbr3gb3qog4t33f10bg\u0026expert_id=1458741\u0026from=chat\u0026from_sf=1\u0026isDirected=1\u0026isNew=1\u0026lat=\u0026lid=2141180798\u0026lng=\u0026openapi=1\u0026page_tab=all\u0026pd=med\u0026pn=med\u0026realCode=undefined\u0026referlid=3840647691\u0026reqId=FPIDBKLJPH\u0026resource_id=5216\u0026sf_ref=\u0026title=%E5%AD%99%E4%BA%91%E7%87%95\u0026vn=med\u0026word=%E9%97%AE%E5%8C%BB%E7%94%9F",
+                                    "texts": [
+                                        "24小时内图文不限次沟通"
+                                    ],
+                                    "tags": [],
+                                    "status": "1",
+                                    "jumpType": 0,
+                                    "extraInfo": {},
+                                    "traceData": "doc_tuwen"
+                                },
+                                {
+                                    "serviceType": "telConsult",
+                                    "icon": "https://material-from-upload.cdn.bcebos.com/images/yd/2024-01/c83993f2618c0162928224ae905fccac.png?x-bce-process=image/resize,w_1242,h_2688/quality,q_86",
+                                    "title": "电话咨询",
+                                    "describedInfo": "¥100",
+                                    "btnText": "去咨询",
+                                    "btnUrl": "https://jiankang.baidu.com/wenzhen/pages/triage/index?applid=17561072348323010\u0026askType=1\u0026atn=service-info\u0026clientName=h5\u0026defer=true\u0026doc_id=pgbr3gb3qog4t33f10bg\u0026expert_id=1458741\u0026from=chat\u0026from_sf=1\u0026isDirected=1\u0026isNew=1\u0026lat=\u0026lid=2141180798\u0026lng=\u0026openapi=1\u0026page_tab=all\u0026pd=med\u0026realCode=undefined\u0026referlid=3840647691\u0026reqId=FPIDBKLJPH\u0026resource_id=5216\u0026service_type=dirphone\u0026sf_ref=\u0026title=%E5%AD%99%E4%BA%91%E7%87%95\u0026vn=med\u0026word=%25E9%2597%25AE%25E5%258C%25BB%25E7%2594%259F",
+                                    "weappUrl": "/pages/triage/index?applid=17561072348323010\u0026askType=1\u0026atn=service-info\u0026clientName=h5\u0026defer=true\u0026doc_id=pgbr3gb3qog4t33f10bg\u0026expert_id=1458741\u0026from=chat\u0026from_sf=1\u0026isDirected=1\u0026isNew=1\u0026lat=\u0026lid=2141180798\u0026lng=\u0026openapi=1\u0026page_tab=all\u0026pd=med\u0026realCode=undefined\u0026referlid=3840647691\u0026reqId=FPIDBKLJPH\u0026resource_id=5216\u0026service_type=dirphone\u0026sf_ref=\u0026title=%E5%AD%99%E4%BA%91%E7%87%95\u0026vn=med\u0026word=%25E9%2597%25AE%25E5%258C%25BB%25E7%2594%259F",
+                                    "texts": [
+                                        "可传图可回听",
+                                        "接诊送图文沟通"
+                                    ],
+                                    "tags": [
+                                        "高效"
+                                    ],
+                                    "status": "1",
+                                    "jumpType": 0,
+                                    "extraInfo": {},
+                                    "traceData": "doc_dianhua"
+                                },
+                                {
+                                    "serviceType": "yueka",
+                                    "icon": "https://material-from-upload.cdn.bcebos.com/images/yd/2024-01/c2279da710e5d598edb890996a394d4b.png?x-bce-process=image/resize,w_1242,h_2688/quality,q_86",
+                                    "title": "专家月卡",
+                                    "describedInfo": "¥299",
+                                    "btnText": "去咨询",
+                                    "btnUrl": "https://jiankang.baidu.com/wenzhen/pages/triage/index?appKey=\u0026doc_id=pgbr3gb3qog4t33f10bg\u0026isDirected=1\u0026sf_ref=",
+                                    "weappUrl": "/pages/triage/index?appKey=\u0026doc_id=pgbr3gb3qog4t33f10bg\u0026isDirected=1\u0026sf_ref=",
+                                    "texts": [
+                                        "30天内图文不限次沟通"
+                                    ],
+                                    "tags": [],
+                                    "status": "1",
+                                    "jumpType": 0,
+                                    "extraInfo": {},
+                                    "traceData": "doc_yueka"
+                                }
+                            ],
+                            "tips": {
+                                "text": ""
+                            },
+                            "conversionInfo": null,
+                            "qualityInfo": {
+                                "cnt": 8597,
+                                "msg": "30分钟内",
+                                "score": "5.0"
+                            }
+                        }
+                    },
+                    {
+                        "key": "doctor_off_outpatient_base",
+                        "dataType": "doctor_off_outpatient",
+                        "dataApiType": 0,
+                        "name": "预约挂号",
+                        "dataApi": "",
+                        "data": {
+                            "hasAppoint": 1,
+                            "recDepartment": "妇产科",
+                            "city": "上海",
+                            "hospital": [
+                                {
+                                    "hospitalTags": [
+                                        "公立",
+                                        "三甲",
+                                        "医保"
+                                    ],
+                                    "ghHospitalTags": [],
+                                    "distance": "",
+                                    "hospitalId": "FQeZpQrZGVkWPugX9mBrNQ==",
+                                    "hospitalName": "上海交通大学医学院附属新华医院杨浦院区",
+                                    "hospitalType": 1,
+                                    "appointsStatus": {
+                                        "status": 1,
+                                        "serviceStatus": 1,
+                                        "url": "",
+                                        "weappUrl": ""
+                                    },
+                                    "appointsList": [
+                                        {
+                                            "datetime": "1756252800",
+                                            "dateTxt": "08月27日",
+                                            "weekTxt": "周三",
+                                            "timeTxt": "上午",
+                                            "timeFrame": 0,
+                                            "durTxt": "",
+                                            "typeTxt": "特需门诊",
+                                            "departmentName": "妇产科",
+                                            "price": 25600,
+                                            "originalPrice": 25600,
+                                            "payMode": 2,
+                                            "jhMode": 0,
+                                            "typeUrl": 1,
+                                            "jumpUrl": "/guahao/pages/guahao/patientInfoEdit/index",
+                                            "weappUrl": "/pages/guahao/patientInfoEdit/index",
+                                            "jumpScheme": "",
+                                            "rulePageUrl": "/guahao/pages/guahao/addsource/index",
+                                            "status": 1,
+                                            "serviceType": 3,
+                                            "serviceId": "1753715197972007668",
+                                            "hospitalCity": "",
+                                            "subscription": {
+                                                "status": 0,
+                                                "type": 1
+                                            },
+                                            "jumpWeappSchema": ""
+                                        },
+                                        {
+                                            "datetime": "1756857600",
+                                            "dateTxt": "09月03日",
+                                            "weekTxt": "周三",
+                                            "timeTxt": "上午",
+                                            "timeFrame": 0,
+                                            "durTxt": "",
+                                            "typeTxt": "特需门诊",
+                                            "departmentName": "妇产科",
+                                            "price": 25600,
+                                            "originalPrice": 25600,
+                                            "payMode": 2,
+                                            "jhMode": 0,
+                                            "typeUrl": 1,
+                                            "jumpUrl": "/guahao/pages/guahao/patientInfoEdit/index",
+                                            "weappUrl": "/pages/guahao/patientInfoEdit/index",
+                                            "jumpScheme": "",
+                                            "rulePageUrl": "/guahao/pages/guahao/addsource/index",
+                                            "status": 1,
+                                            "serviceType": 3,
+                                            "serviceId": "1754267501988020305",
+                                            "hospitalCity": "",
+                                            "subscription": {
+                                                "status": 0,
+                                                "type": 1
+                                            },
+                                            "jumpWeappSchema": ""
+                                        },
+                                        {
+                                            "datetime": "1757462400",
+                                            "dateTxt": "09月10日",
+                                            "weekTxt": "周三",
+                                            "timeTxt": "上午",
+                                            "timeFrame": 0,
+                                            "durTxt": "",
+                                            "typeTxt": "特需门诊",
+                                            "departmentName": "妇产科",
+                                            "price": 25600,
+                                            "originalPrice": 25600,
+                                            "payMode": 2,
+                                            "jhMode": 0,
+                                            "typeUrl": 1,
+                                            "jumpUrl": "/guahao/pages/guahao/patientInfoEdit/index",
+                                            "weappUrl": "/pages/guahao/patientInfoEdit/index",
+                                            "jumpScheme": "",
+                                            "rulePageUrl": "/guahao/pages/guahao/addsource/index",
+                                            "status": 1,
+                                            "serviceType": 3,
+                                            "serviceId": "1754870800708018492",
+                                            "hospitalCity": "",
+                                            "subscription": {
+                                                "status": 0,
+                                                "type": 1
+                                            },
+                                            "jumpWeappSchema": ""
+                                        },
+                                        {
+                                            "datetime": "1758067200",
+                                            "dateTxt": "09月17日",
+                                            "weekTxt": "周三",
+                                            "timeTxt": "上午",
+                                            "timeFrame": 0,
+                                            "durTxt": "",
+                                            "typeTxt": "特需门诊",
+                                            "departmentName": "妇产科",
+                                            "price": 25600,
+                                            "originalPrice": 25600,
+                                            "payMode": 2,
+                                            "jhMode": 0,
+                                            "typeUrl": 1,
+                                            "jumpUrl": "/guahao/pages/guahao/patientInfoEdit/index",
+                                            "weappUrl": "/pages/guahao/patientInfoEdit/index",
+                                            "jumpScheme": "",
+                                            "rulePageUrl": "/guahao/pages/guahao/addsource/index",
+                                            "status": 1,
+                                            "serviceType": 3,
+                                            "serviceId": "1755479353898022303",
+                                            "hospitalCity": "",
+                                            "subscription": {
+                                                "status": 0,
+                                                "type": 1
+                                            },
+                                            "jumpWeappSchema": ""
+                                        },
+                                        {
+                                            "datetime": "1756270800",
+                                            "dateTxt": "08月27日",
+                                            "weekTxt": "周三",
+                                            "timeTxt": "下午",
+                                            "timeFrame": 0,
+                                            "durTxt": "",
+                                            "typeTxt": "专家门诊",
+                                            "departmentName": "妇产科",
+                                            "price": 5000,
+                                            "originalPrice": 5000,
+                                            "payMode": 2,
+                                            "jhMode": 0,
+                                            "typeUrl": 1,
+                                            "jumpUrl": "/guahao/pages/guahao/hospitalGuide/index?hospital_id=FQeZpQrZGVkWPugX9mBrNQ%3D%3D",
+                                            "weappUrl": "/pages/guahao/hospitalGuide/index?hospital_id=FQeZpQrZGVkWPugX9mBrNQ%3D%3D",
+                                            "jumpScheme": "",
+                                            "rulePageUrl": "/guahao/pages/guahao/addsource/index",
+                                            "status": 6,
+                                            "serviceType": 3,
+                                            "serviceId": "1753715198019007669",
+                                            "hospitalCity": "上海",
+                                            "subscription": {
+                                                "status": 0,
+                                                "type": 1
+                                            },
+                                            "jumpWeappSchema": ""
+                                        },
+                                        {
+                                            "datetime": "1756425600",
+                                            "dateTxt": "08月29日",
+                                            "weekTxt": "周五",
+                                            "timeTxt": "上午",
+                                            "timeFrame": 0,
+                                            "durTxt": "",
+                                            "typeTxt": "专家门诊",
+                                            "departmentName": "妇产科",
+                                            "price": 5000,
+                                            "originalPrice": 5000,
+                                            "payMode": 2,
+                                            "jhMode": 0,
+                                            "typeUrl": 1,
+                                            "jumpUrl": "/guahao/pages/guahao/hospitalGuide/index?hospital_id=FQeZpQrZGVkWPugX9mBrNQ%3D%3D",
+                                            "weappUrl": "/pages/guahao/hospitalGuide/index?hospital_id=FQeZpQrZGVkWPugX9mBrNQ%3D%3D",
+                                            "jumpScheme": "",
+                                            "rulePageUrl": "/guahao/pages/guahao/addsource/index",
+                                            "status": 6,
+                                            "serviceType": 3,
+                                            "serviceId": "1753835037645017032",
+                                            "hospitalCity": "上海",
+                                            "subscription": {
+                                                "status": 0,
+                                                "type": 1
+                                            },
+                                            "jumpWeappSchema": ""
+                                        },
+                                        {
+                                            "datetime": "1756875600",
+                                            "dateTxt": "09月03日",
+                                            "weekTxt": "周三",
+                                            "timeTxt": "下午",
+                                            "timeFrame": 0,
+                                            "durTxt": "",
+                                            "typeTxt": "专家门诊",
+                                            "departmentName": "妇产科",
+                                            "price": 5000,
+                                            "originalPrice": 5000,
+                                            "payMode": 2,
+                                            "jhMode": 0,
+                                            "typeUrl": 1,
+                                            "jumpUrl": "/guahao/pages/guahao/hospitalGuide/index?hospital_id=FQeZpQrZGVkWPugX9mBrNQ%3D%3D",
+                                            "weappUrl": "/pages/guahao/hospitalGuide/index?hospital_id=FQeZpQrZGVkWPugX9mBrNQ%3D%3D",
+                                            "jumpScheme": "",
+                                            "rulePageUrl": "/guahao/pages/guahao/addsource/index",
+                                            "status": 6,
+                                            "serviceType": 3,
+                                            "serviceId": "1754267502042020306",
+                                            "hospitalCity": "上海",
+                                            "subscription": {
+                                                "status": 0,
+                                                "type": 1
+                                            },
+                                            "jumpWeappSchema": ""
+                                        },
+                                        {
+                                            "datetime": "1757030400",
+                                            "dateTxt": "09月05日",
+                                            "weekTxt": "周五",
+                                            "timeTxt": "上午",
+                                            "timeFrame": 0,
+                                            "durTxt": "",
+                                            "typeTxt": "专家门诊",
+                                            "departmentName": "妇产科",
+                                            "price": 5000,
+                                            "originalPrice": 5000,
+                                            "payMode": 2,
+                                            "jhMode": 0,
+                                            "typeUrl": 1,
+                                            "jumpUrl": "/guahao/pages/guahao/hospitalGuide/index?hospital_id=FQeZpQrZGVkWPugX9mBrNQ%3D%3D",
+                                            "weappUrl": "/pages/guahao/hospitalGuide/index?hospital_id=FQeZpQrZGVkWPugX9mBrNQ%3D%3D",
+                                            "jumpScheme": "",
+                                            "rulePageUrl": "/guahao/pages/guahao/addsource/index",
+                                            "status": 6,
+                                            "serviceType": 3,
+                                            "serviceId": "1754439880732016539",
+                                            "hospitalCity": "上海",
+                                            "subscription": {
+                                                "status": 0,
+                                                "type": 1
+                                            },
+                                            "jumpWeappSchema": ""
+                                        },
+                                        {
+                                            "datetime": "1757480400",
+                                            "dateTxt": "09月10日",
+                                            "weekTxt": "周三",
+                                            "timeTxt": "下午",
+                                            "timeFrame": 0,
+                                            "durTxt": "",
+                                            "typeTxt": "专家门诊",
+                                            "departmentName": "妇产科",
+                                            "price": 5000,
+                                            "originalPrice": 5000,
+                                            "payMode": 2,
+                                            "jhMode": 0,
+                                            "typeUrl": 1,
+                                            "jumpUrl": "/guahao/pages/guahao/hospitalGuide/index?hospital_id=FQeZpQrZGVkWPugX9mBrNQ%3D%3D",
+                                            "weappUrl": "/pages/guahao/hospitalGuide/index?hospital_id=FQeZpQrZGVkWPugX9mBrNQ%3D%3D",
+                                            "jumpScheme": "",
+                                            "rulePageUrl": "/guahao/pages/guahao/addsource/index",
+                                            "status": 6,
+                                            "serviceType": 3,
+                                            "serviceId": "1754870800742018493",
+                                            "hospitalCity": "上海",
+                                            "subscription": {
+                                                "status": 0,
+                                                "type": 1
+                                            },
+                                            "jumpWeappSchema": ""
+                                        },
+                                        {
+                                            "datetime": "1757635200",
+                                            "dateTxt": "09月12日",
+                                            "weekTxt": "周五",
+                                            "timeTxt": "上午",
+                                            "timeFrame": 0,
+                                            "durTxt": "",
+                                            "typeTxt": "专家门诊",
+                                            "departmentName": "妇产科",
+                                            "price": 5000,
+                                            "originalPrice": 5000,
+                                            "payMode": 2,
+                                            "jhMode": 0,
+                                            "typeUrl": 1,
+                                            "jumpUrl": "/guahao/pages/guahao/hospitalGuide/index?hospital_id=FQeZpQrZGVkWPugX9mBrNQ%3D%3D",
+                                            "weappUrl": "/pages/guahao/hospitalGuide/index?hospital_id=FQeZpQrZGVkWPugX9mBrNQ%3D%3D",
+                                            "jumpScheme": "",
+                                            "rulePageUrl": "/guahao/pages/guahao/addsource/index",
+                                            "status": 6,
+                                            "serviceType": 3,
+                                            "serviceId": "1755043409657016705",
+                                            "hospitalCity": "上海",
+                                            "subscription": {
+                                                "status": 0,
+                                                "type": 1
+                                            },
+                                            "jumpWeappSchema": ""
+                                        },
+                                        {
+                                            "datetime": "1758085200",
+                                            "dateTxt": "09月17日",
+                                            "weekTxt": "周三",
+                                            "timeTxt": "下午",
+                                            "timeFrame": 0,
+                                            "durTxt": "",
+                                            "typeTxt": "专家门诊",
+                                            "departmentName": "妇产科",
+                                            "price": 5000,
+                                            "originalPrice": 5000,
+                                            "payMode": 2,
+                                            "jhMode": 0,
+                                            "typeUrl": 1,
+                                            "jumpUrl": "/guahao/pages/guahao/hospitalGuide/index?hospital_id=FQeZpQrZGVkWPugX9mBrNQ%3D%3D",
+                                            "weappUrl": "/pages/guahao/hospitalGuide/index?hospital_id=FQeZpQrZGVkWPugX9mBrNQ%3D%3D",
+                                            "jumpScheme": "",
+                                            "rulePageUrl": "/guahao/pages/guahao/addsource/index",
+                                            "status": 6,
+                                            "serviceType": 3,
+                                            "serviceId": "1755479353944022304",
+                                            "hospitalCity": "上海",
+                                            "subscription": {
+                                                "status": 0,
+                                                "type": 1
+                                            },
+                                            "jumpWeappSchema": ""
+                                        },
+                                        {
+                                            "datetime": "1758240000",
+                                            "dateTxt": "09月19日",
+                                            "weekTxt": "周五",
+                                            "timeTxt": "上午",
+                                            "timeFrame": 0,
+                                            "durTxt": "",
+                                            "typeTxt": "专家门诊",
+                                            "departmentName": "妇产科",
+                                            "price": 5000,
+                                            "originalPrice": 5000,
+                                            "payMode": 2,
+                                            "jhMode": 0,
+                                            "typeUrl": 1,
+                                            "jumpUrl": "/guahao/pages/guahao/hospitalGuide/index?hospital_id=FQeZpQrZGVkWPugX9mBrNQ%3D%3D",
+                                            "weappUrl": "/pages/guahao/hospitalGuide/index?hospital_id=FQeZpQrZGVkWPugX9mBrNQ%3D%3D",
+                                            "jumpScheme": "",
+                                            "rulePageUrl": "/guahao/pages/guahao/addsource/index",
+                                            "status": 6,
+                                            "serviceType": 3,
+                                            "serviceId": "1755650937200019813",
+                                            "hospitalCity": "上海",
+                                            "subscription": {
+                                                "status": 0,
+                                                "type": 1
+                                            },
+                                            "jumpWeappSchema": ""
+                                        }
+                                    ],
+                                    "jumpAppointUrl": null,
+                                    "subscription": {
+                                        "status": 0,
+                                        "type": 2
+                                    },
+                                    "hospitalOutUrl": "",
+                                    "hospitalUrl": "/decision/pages/hospital/home/index?hospital=%E4%B8%8A%E6%B5%B7%E4%BA%A4%E9%80%9A%E5%A4%A7%E5%AD%A6%E5%8C%BB%E5%AD%A6%E9%99%A2%E9%99%84%E5%B1%9E%E6%96%B0%E5%8D%8E%E5%8C%BB%E9%99%A2%E6%9D%A8%E6%B5%A6%E9%99%A2%E5%8C%BA\u0026hospitalId=1001626",
+                                    "url": "https://jiankang.baidu.com/guahao/pages/guahao/appointslist/index?atn=appointslist\u0026doc_id=pgbr3gb3qog4t33f10bg\u0026from_sf=1\u0026openapi=1\u0026resource_id=5423\u0026sf_ref=\u0026title=%E6%8C%82%E5%8F%B7%E4%BF%A1%E6%81%AF\u0026vn=med",
+                                    "weappUrl": "/pages/guahao/appointslist/index?atn=appointslist\u0026doc_id=pgbr3gb3qog4t33f10bg\u0026from_sf=1\u0026openapi=1\u0026resource_id=5423\u0026sf_ref=\u0026title=%E6%8C%82%E5%8F%B7%E4%BF%A1%E6%81%AF\u0026vn=med"
+                                }
+                            ],
+                            "ghCount": "150",
+                            "totalHospitalNum": 1
+                        }
+                    }
+                ]
+            },
+            {
+                "nameID": "pennant",
+                "name": "患友评价",
+                "isSelected": false,
+                "image": "",
+                "tabImage": {
+                    "default": "https://material-from-upload.cdn.bcebos.com/images/yd/2025-03/fed8e3f76a7118bf14ccf07d341c64a5.png",
+                    "selected": "https://material-from-upload.cdn.bcebos.com/images/yd/2025-03/729a520bcb9063f32026735aa5832957.png"
+                },
+                "version": 1,
+                "componentList": [
+                    {
+                        "key": "doctor_pennant_base",
+                        "dataType": "doctor_pennant",
+                        "dataApiType": 0,
+                        "name": "",
+                        "dataApi": "",
+                        "data": {
+                            "count": 11,
+                            "list": [
+                                {
+                                    "content": "",
+                                    "contentURL": "https://material-from-upload.cdn.bcebos.com/images/yd/2024-03/903fb2d3174fe55b333e7d2511438432.png",
+                                    "userNameText": "百度网友6b0602d"
+                                },
+                                {
+                                    "content": "",
+                                    "contentURL": "https://material-from-upload.cdn.bcebos.com/images/yd/2024-03/b1fce369f196724b205ddbb8c85cf22e.png",
+                                    "userNameText": "涂鹤妮"
+                                },
+                                {
+                                    "content": "医技精湛,医德高尚",
+                                    "contentURL": "https://material-from-upload.cdn.bcebos.com/images/yd/2024-03/b79c4ab594a76c929ae9b8ae7d49b291.png",
+                                    "userNameText": "tonghaibei2012"
+                                },
+                                {
+                                    "content": "",
+                                    "contentURL": "https://material-from-upload.cdn.bcebos.com/images/yd/2024-03/1b06c0db479922beabe261840ec3c73a.png",
+                                    "userNameText": "139*****665"
+                                },
+                                {
+                                    "content": "",
+                                    "contentURL": "https://material-from-upload.cdn.bcebos.com/images/yd/2024-03/b1fce369f196724b205ddbb8c85cf22e.png",
+                                    "userNameText": "yinghanyuan"
+                                },
+                                {
+                                    "content": "",
+                                    "contentURL": "https://material-from-upload.cdn.bcebos.com/images/yd/2024-03/1b06c0db479922beabe261840ec3c73a.png",
+                                    "userNameText": "霞姐姐姐123"
+                                },
+                                {
+                                    "content": "",
+                                    "contentURL": "https://material-from-upload.cdn.bcebos.com/images/yd/2024-03/3bbc84b34c6fe4a3e303b42621a81aa6.png",
+                                    "userNameText": "jxrypp"
+                                },
+                                {
+                                    "content": "",
+                                    "contentURL": "https://material-from-upload.cdn.bcebos.com/images/yd/2024-03/1b06c0db479922beabe261840ec3c73a.png",
+                                    "userNameText": "130*****126"
+                                },
+                                {
+                                    "content": "",
+                                    "contentURL": "https://material-from-upload.cdn.bcebos.com/images/yd/2024-03/b1fce369f196724b205ddbb8c85cf22e.png",
+                                    "userNameText": "13701838502ZWQ"
+                                },
+                                {
+                                    "content": "",
+                                    "contentURL": "https://material-from-upload.cdn.bcebos.com/images/yd/2024-03/b1fce369f196724b205ddbb8c85cf22e.png",
+                                    "userNameText": "135******21"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "key": "patient_comment_base",
+                        "dataType": "patient_comment",
+                        "dataApiType": 0,
+                        "name": "",
+                        "dataApi": "",
+                        "data": {
+                            "moreURL": "/decision/pages/evaluation/list/index?doc_id=pgbr3gb3qog4t33f10bg\u0026from=chat\u0026sf_ref=\u0026pageSource=doctor",
+                            "newMoreURL": "/decision/pages/evaluation/list/index?doc_id=pgbr3gb3qog4t33f10bg\u0026from=chat\u0026sf_ref=\u0026pageSource=doctor",
+                            "writeCommentURL": "/decision/pages/evaluation/edit/index?commentType=1\u0026doc_id=pgbr3gb3qog4t33f10bg\u0026sf_ref=",
+                            "patientLable": [
+                                {
+                                    "title": "患友评价",
+                                    "text": "43"
+                                },
+                                {
+                                    "title": "好评率",
+                                    "text": "100%"
+                                },
+                                {
+                                    "title": "锦旗数",
+                                    "text": "11"
+                                },
+                                {
+                                    "title": "患友推荐度",
+                                    "text": "5.0"
+                                }
+                            ],
+                            "offlineComment": {
+                                "title": "门诊就诊评价",
+                                "dataType": "comment_offline",
+                                "list": [
+                                    {
+                                        "author": {
+                                            "displayName": "匿名患友",
+                                            "avatar": "https://himg.bdimg.com/sys/portrait/item/public.1.93a739cc.oQBRhzSQRAUpKEz9f--TJA"
+                                        },
+                                        "content": {
+                                            "commentId": 89859,
+                                            "enCid": "LGRKJTFYORHEEAM2BTOX2TG4OA",
+                                            "ssDoctorInfo": "",
+                                            "docId": "pgbr3gb3qog4t33f10bg",
+                                            "pennantId": 127247,
+                                            "hasPennant": 1,
+                                            "diseaseId": "11231",
+                                            "ssDiseaseName": "宫颈上皮内瘤变",
+                                            "commentContent": {
+                                                "content": "感谢孙医生耐心的跟我讲解了病因，并对我细心治疗，祝孙医生身体健康，万事如意，全家幸福！\n\n\n \n\n\n\n\n患者：jx***pp\n2023-04-19\n\n填写样例\n【病情】\n通过百度健康平台找到了医生，并确诊为冠心病，每天睡不着觉，并且胸痛、胸闷很难受。\n【疗效】\n医生给我开了一些药，并让我少抽烟多运动，经过近一年的治疗，症状缓解了许多。\n【服务】\n医生耐心的给我讲解了病因，并对我进行了心理疏导。\n【致谢】\n感谢医生一年来的耐心治疗，祝医生身体健康、万事如意、全家幸福！\n换一换\n",
+                                                "urlList": null
+                                            },
+                                            "score": 5,
+                                            "status": 2,
+                                            "auditContent": "",
+                                            "consultDate": "1970-01-01T00:00:00+08:00",
+                                            "ssPatientName": "",
+                                            "ssPatientNameEnc": "",
+                                            "ssPatientInfo": {
+                                                "PatientId": "",
+                                                "name": "",
+                                                "nameEnc": "Oo1Nb8l2Ep1ri3NiqKorrA==",
+                                                "sex": "",
+                                                "birthday": "",
+                                                "age": "",
+                                                "isCertified": 0
+                                            },
+                                            "chooseHospitalId": "1001626",
+                                            "extJson": {
+                                                "isAnonymity": 1,
+                                                "chooseHospitalName": "",
+                                                "isTrans": 1
+                                            },
+                                            "sfRef": "tuiguang_weixin_jqhzbdim",
+                                            "from": "",
+                                            "pennantStyle": "history",
+                                            "pennantCnt": "医术可信,医德可敬",
+                                            "pennantCntStyle": "history_2",
+                                            "createTime": 1681910909,
+                                            "bScore": 50101,
+                                            "docName": "孙云燕",
+                                            "cityName": "",
+                                            "round": 0,
+                                            "auditTime": 1733484502,
+                                            "appointment": 0,
+                                            "environment": 0,
+                                            "docService": 0,
+                                            "treatmentEffect": 0,
+                                            "professionalism": 0,
+                                            "province": "",
+                                            "viewNum": 0,
+                                            "qualityComment": 2,
+                                            "coverImg": "https://spore-mall.cdn.bcebos.com/aigc/render/online/baba4b687aba8d61fb0fb55195284cb1_0.png?x-bce-process=image/resize,m_mfit,w_400,h_600",
+                                            "redstrt": {
+                                                "degrade": 0,
+                                                "like": 2,
+                                                "status": "unset",
+                                                "zan_type": ""
+                                            },
+                                            "praise": {
+                                                "like": 237,
+                                                "degrade": 0
+                                            },
+                                            "commentType": 1,
+                                            "consultDateText": "1970年01月01日",
+                                            "createTimeText": "2023年04月19日",
+                                            "commentProofObj": {
+                                                "certificatePic": [
+                                                    {
+                                                        "vague": "https://macchiato.cdn.bcebos.com/vague/comment/20250401/eb1b02b9a20f5094a1119b25f8390edf?x-bce-process=image%2Fformat%2Cf_webp%2Fblur%2Cr_50%2Cs_50\u0026authorization=bce-auth-v1%2Fc61d3f9c4ca1491b805811bb152d7cc0%2F2025-08-25T07%3A33%3A55Z%2F300%2Fhost%2F2eb4335e28bd627cb0707405632c2f3099b1e42db509c32b83ea463380e47aeb"
+                                                    }
+                                                ]
+                                            },
+                                            "detailURL": "/decision/pages/evaluation/detail/index?commentType=1\u0026doc_id=pgbr3gb3qog4t33f10bg\u0026enCid=LGRKJTFYORHEEAM2BTOX2TG4OA\u0026from=chat\u0026sf_ref=",
+                                            "isJingxuan": 2
+                                        },
+                                        "redstar": {
+                                            "count": 2,
+                                            "isLike": false
+                                        },
+                                        "lookInfo": {
+                                            "like": 237,
+                                            "degrade": 0
+                                        }
+                                    },
+                                    {
+                                        "author": {
+                                            "displayName": "匿名患友",
+                                            "avatar": "https://himg.bdimg.com/sys/portrait/item/public.1.43f80f00.8h5dilZOHq0rxvC4Ms_sQg"
+                                        },
+                                        "content": {
+                                            "commentId": 80175,
+                                            "enCid": "FSDIBBBPWQXCEBP6FT26XFDK5I",
+                                            "ssDoctorInfo": "",
+                                            "docId": "pgbr3gb3qog4t33f10bg",
+                                            "pennantId": 109404,
+                                            "hasPennant": 1,
+                                            "diseaseId": "10199",
+                                            "ssDiseaseName": "子宫内膜异位症",
+                                            "commentContent": {
+                                                "content": "我爱人是18年12月在上海第一人民医院(南院)做的子宫内膜脱落手术当时也是孙医生做的，这次 慕名而来到新华医院找到孙医生，她还是那么认真给我爱人讲解 做了一系列的检查。确实是难得的好医生\n【服务】\n态度很好 和蔼可亲\n【致谢】\n祝孙医生身体健康 \n万事如意阖家幸福",
+                                                "urlList": null
+                                            },
+                                            "score": 5,
+                                            "status": 2,
+                                            "auditContent": "",
+                                            "consultDate": "1970-01-01T00:00:00+08:00",
+                                            "ssPatientName": "",
+                                            "ssPatientNameEnc": "",
+                                            "ssPatientInfo": {
+                                                "PatientId": "",
+                                                "name": "",
+                                                "nameEnc": "Oo1Nb8l2Ep1ri3NiqKorrA==",
+                                                "sex": "",
+                                                "birthday": "",
+                                                "age": "",
+                                                "isCertified": 0
+                                            },
+                                            "chooseHospitalId": "1001626",
+                                            "extJson": {
+                                                "isAnonymity": 1,
+                                                "chooseHospitalName": "",
+                                                "isTrans": 1
+                                            },
+                                            "sfRef": "sms_jqguahao",
+                                            "from": "",
+                                            "pennantStyle": "history",
+                                            "pennantCnt": "仁心仁术,待患如亲",
+                                            "pennantCntStyle": "history_4",
+                                            "createTime": 1673062634,
+                                            "bScore": 50101,
+                                            "docName": "孙云燕",
+                                            "cityName": "",
+                                            "round": 0,
+                                            "auditTime": 1733492151,
+                                            "appointment": 0,
+                                            "environment": 0,
+                                            "docService": 0,
+                                            "treatmentEffect": 0,
+                                            "professionalism": 0,
+                                            "province": "",
+                                            "viewNum": 0,
+                                            "qualityComment": 2,
+                                            "coverImg": "https://spore-mall.cdn.bcebos.com/aigc/render/online/7f71e4650fb68a31d52acde9a15e23dd_0.png?x-bce-process=image/resize,m_mfit,w_400,h_600",
+                                            "redstrt": {
+                                                "degrade": 0,
+                                                "like": 0,
+                                                "status": "unset",
+                                                "zan_type": ""
+                                            },
+                                            "praise": {
+                                                "like": 160,
+                                                "degrade": 0
+                                            },
+                                            "commentType": 1,
+                                            "consultDateText": "1970年01月01日",
+                                            "createTimeText": "2023年01月07日",
+                                            "commentProofObj": {
+                                                "certificatePic": [
+                                                    {
+                                                        "vague": "https://macchiato.cdn.bcebos.com/vague/comment/20250401/6f71f9e51dba3a64b50c26e2d26803dc?authorization=bce-auth-v1%2Fc61d3f9c4ca1491b805811bb152d7cc0%2F2025-08-25T07%3A33%3A55Z%2F300%2Fhost%2Ff33ab67e66d7c822391b2f540cf0048c86e352c084fd0d4420fae743692b3a2f\u0026x-bce-process=image%2Fformat%2Cf_webp%2Fblur%2Cr_50%2Cs_50"
+                                                    }
+                                                ]
+                                            },
+                                            "detailURL": "/decision/pages/evaluation/detail/index?commentType=1\u0026doc_id=pgbr3gb3qog4t33f10bg\u0026enCid=FSDIBBBPWQXCEBP6FT26XFDK5I\u0026from=chat\u0026sf_ref=",
+                                            "isJingxuan": 2
+                                        },
+                                        "redstar": {
+                                            "count": 0,
+                                            "isLike": false
+                                        },
+                                        "lookInfo": {
+                                            "like": 160,
+                                            "degrade": 0
+                                        }
+                                    }
+                                ],
+                                "style": 2,
+                                "totalNum": 43,
+                                "aiSummary": "总体就诊评价：满意的患友评价（占比100%），普遍认为医生专业且耐心，医术高超，如“孙主任不愧是行业中的佼佼者，专业素养和人格魅力兼具”；无不满意的患友评价。建议患友尤其是患有子宫肌瘤、卵巢囊肿、宫颈癌等疾病的，可放心选择该医生就诊。",
+                                "commentType": 0,
+                                "isLogin": false,
+                                "count": 0,
+                                "commentActivityInfo": {
+                                    "activityName": "就医评价抽奖活动",
+                                    "activityId": 279361,
+                                    "status": 1,
+                                    "bannerImg": "https://med-fe.cdn.bcebos.com/decision/lottery-banner.png",
+                                    "url": "/decision/pages/evaluation/lottery/index?activityID=279361\u0026docId=pgbr3gb3qog4t33f10bg\u0026hospitalId=1001626",
+                                    "bottomActImg": "https://med-fe.cdn.bcebos.com/decision/lottery-bottom-tips.png",
+                                    "btmSmallTipsImg": "https://med-fe.cdn.bcebos.com/decision/btmSmallTips.png"
+                                }
+                            },
+                            "onlineComment": {
+                                "title": "线上咨询评价",
+                                "dataType": "comment_online",
+                                "totalNum": 1837,
+                                "hasMore": 0,
+                                "nextPn": "",
+                                "commentList": [
+                                    {
+                                        "id": "a77c8213-1721-4374-bfc4-f8eee27149ef_31",
+                                        "patientName": "jyy**y",
+                                        "star": "满意",
+                                        "content": "",
+                                        "createTime": "",
+                                        "serviceType": "在线问诊",
+                                        "tagShowSlice": null,
+                                        "isJingxuan": "0",
+                                        "cityName": "",
+                                        "processURL": ""
+                                    },
+                                    {
+                                        "id": "7c9d49ca-12c2-4c9e-ba5f-b1588b7bf530_78",
+                                        "patientName": "185**3",
+                                        "star": "满意",
+                                        "content": "",
+                                        "createTime": "1天前",
+                                        "serviceType": "在线问诊",
+                                        "tagShowSlice": null,
+                                        "isJingxuan": "0",
+                                        "cityName": "",
+                                        "processURL": ""
+                                    }
+                                ],
+                                "tagSlice": [
+                                    {
+                                        "sa": "全部",
+                                        "sv": 1837
+                                    },
+                                    {
+                                        "sa": "回复很及时",
+                                        "sv": 161
+                                    },
+                                    {
+                                        "sa": "建议有帮助",
+                                        "sv": 139
+                                    },
+                                    {
+                                        "sa": "没解决问题",
+                                        "sv": 4
+                                    }
+                                ],
+                                "topCommentSlice": [
+                                    {
+                                        "id": "5d37c7dc-49b0-4d6a-92ae-be1aac0c0ce3_81",
+                                        "uid": "3517675581",
+                                        "patientName": "198**3",
+                                        "hospitalName": "",
+                                        "serviceType": "在线问诊",
+                                        "createTime": "9天前",
+                                        "docServiceScore": null,
+                                        "hosServiceScore": null,
+                                        "content": "很专业的一位医生，认真负责，有问必答，还教了一些生理知识，非常感谢医生解决了我的焦虑和问题",
+                                        "tag": "",
+                                        "tagv2": "医生很专业,回复很及时,认真负责,热情亲切,建议有帮助,解答充分",
+                                        "commentType": "",
+                                        "star": "满意",
+                                        "hosStar": "",
+                                        "isPrase": 0,
+                                        "praseNum": 0,
+                                        "DocServiceScore": null,
+                                        "HosServiceScore": null,
+                                        "TagSlice": null,
+                                        "tagShowSlice": null,
+                                        "isJingxuan": "1",
+                                        "fromIp": "10.138.46.60",
+                                        "cityName": "",
+                                        "processUrl": ""
+                                    },
+                                    {
+                                        "id": "82c5ddd7-6466-4732-a3a8-62971859199d_41",
+                                        "uid": "2847340941",
+                                        "patientName": "Dud**d",
+                                        "hospitalName": "",
+                                        "serviceType": "在线问诊",
+                                        "createTime": "23天前",
+                                        "docServiceScore": null,
+                                        "hosServiceScore": null,
+                                        "content": "孙医生非常好，我的病已经5年了一直找不到原因也看不好，反反复复导致我抑郁焦虑。这次去上海给孩子看内八字顺便看一下我的病，本来不抱希望的，但是孙医生说话很温柔，开的药用了目前确实效果挺好，希望后面能顺利治好",
+                                        "tag": "",
+                                        "tagv2": "建议有帮助,回复很及时,解答充分,热情亲切",
+                                        "commentType": "",
+                                        "star": "满意",
+                                        "hosStar": "",
+                                        "isPrase": 0,
+                                        "praseNum": 0,
+                                        "DocServiceScore": null,
+                                        "HosServiceScore": null,
+                                        "TagSlice": null,
+                                        "tagShowSlice": null,
+                                        "isJingxuan": "1",
+                                        "fromIp": "10.138.46.60",
+                                        "cityName": "",
+                                        "processUrl": ""
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "nameID": "popSci",
+                "name": "健康科普",
+                "isSelected": false,
+                "image": "",
+                "version": 0,
+                "componentList": [
+                    {
+                        "key": "doctor_content_base",
+                        "dataType": "doctor_content",
+                        "dataApiType": 0,
+                        "name": "",
+                        "dataApi": "",
+                        "data": [
+                            {
+                                "type": "quanwei_vedio",
+                                "text": "视频",
+                                "rn": 10,
+                                "hasMore": "0",
+                                "nextPn": 1,
+                                "nextApi": "/harbor/doctor/expertvideolist/applets?doc_id=pgbr3gb3qog4t33f10bg\u0026isAuthTag=1",
+                                "totalNum": 1,
+                                "moreURL": "",
+                                "items": [
+                                    {
+                                        "ctime": "05-02",
+                                        "cover_images": "https://selfpage-gips.cdn.bcebos.com/b3d25151b1acbef1a5b65f7742c9c351",
+                                        "long": "00:12",
+                                        "video_type": "2",
+                                        "title": "揭秘葡萄胎🔍：越早了解越好的孕期知识！",
+                                        "createTime": "1746186011",
+                                        "url": "https://m.baidu.com/bh/m/detail/sv_5298140450396095813",
+                                        "picture": "https://selfpage-gips.cdn.bcebos.com/b3d25151b1acbef1a5b65f7742c9c351",
+                                        "duration": "12",
+                                        "abstract": "揭秘葡萄胎🔍：越早了解越好的孕期知识！",
+                                        "vedioType": "2",
+                                        "type": "video",
+                                        "expertName": "孙云燕",
+                                        "expertDepartment": "妇产科",
+                                        "expertPortrait": "https://muzhi-public-pic.cdn.bcebos.com/100036182629",
+                                        "width": "3",
+                                        "height": "4"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "dynamic",
+                                "text": "动态",
+                                "rn": 10,
+                                "hasMore": "0",
+                                "nextPn": 17450281126309,
+                                "nextApi": "/harbor/doctor/dynamiclist/applets?baijiahaoId=1698259672647465\u0026baijiahao_uid=1461585094\u0026doc_id=pgbr3gb3qog4t33f10bg",
+                                "totalNum": 0,
+                                "moreURL": "",
+                                "items": [
+                                    {
+                                        "nid": "dt_5445404807219980140",
+                                        "title": "揭秘葡萄胎🔍：越早了解越好的孕期知识！ 🤰🏼准妈妈们，你们听说过“葡萄胎”吗？这可不是什么美好的孕期名词，但了解它却至关重要！今天，我们就来一起揭开葡萄胎的神秘面纱。  🔍葡萄胎是什么？ 葡萄胎，听起来像是个奇怪的名词，其实它是一种妊娠滋养细胞疾病。简单来说，就是怀孕后，胎盘绒毛滋养细胞增生，间质高度疏松水肿，形成了大小不一的水泡，这些水泡连在一起，就像一串串葡萄，所以得名“葡萄胎”。  💡葡萄胎的两种类型 葡萄胎分为完全性葡萄胎和部分性葡萄胎。完全性葡萄胎就是整个胎盘都变成了“葡萄”，而部分性葡萄胎则是部分胎盘组织正常，部分变成了“葡萄”。无论是哪种类型，都需要及时诊断和治疗。  😟葡萄胎对健康的影响 葡萄胎虽然听起来吓人，但其实它并不是癌症，也不会直接威胁生命。不过，它可能会引发一些健康问题，比如阴道出血、腹痛等。更重要的是，葡萄胎可能会影响到后续的怀孕和生育，所以一旦发现，就要及时处理。  🚫误区澄清：葡萄胎与吃葡萄无关！ 很多人可能会误以为葡萄胎是因为吃了葡萄导致的，其实这是个大大的误区！葡萄胎的发生与吃葡萄完全无关，它主要是由于受精卵发育异常导致的。所以，准妈妈们可以放心吃葡萄，不用担心会因此患上葡萄胎。  💡实用建议：如何预防和应对葡萄胎？ 1️⃣ 定期产检：这是发现葡萄胎的最有效途径。通过B超检查，可以及时发现胎盘的异常变化。 2️⃣ 注意身体变化：如果孕期出现阴道出血、腹痛等异常症状，要及时就医检查。 3️⃣ 保持良好心态：虽然葡萄胎可能会让人感到焦虑和恐惧，但保持良好的心态对治疗和恢复都非常重要。  💪总结：葡萄胎虽然是个让人闻之色变的名词，但只要我们了解它、预防它、及时应对它，就能降低它对我们健康的影响。准妈妈们，让我们一起加油，迎接健康的宝宝吧！",
+                                        "ctime": "05-02 19:39",
+                                        "url": "https://mbd.baidu.com/newspage/data/dtlandingwise?nid=dt_5445404807219980140",
+                                        "items": []
+                                    },
+                                    {
+                                        "nid": "dt_3937032869787011420",
+                                        "title": "做好宫颈癌三级预防，呵护女性生殖健康\n\n宫颈癌虽是一种严重的疾病，但通过采取一系列预防措施，我们可以有效地降低其发病风险。下面，我将以通俗易懂的语言，为您介绍宫颈癌的三级预防策略。\n一级预防：防患于未然\n一级预防的核心在于阻止宫颈癌的发生。具体做法包括：\n接种HPV疫苗：HPV病毒是宫颈癌的主要诱因。目前已有疫苗可有效预防该病毒感染，建议适龄女性尽早接种。\n培养健康生活方式：戒烟限酒、均衡饮食、适量运动，这些良好的生活习惯有助于我们远离宫颈癌的威胁。此外，避免过早性生活、减少性伴侣数量以及使用安全套，也能有效降低HPV感染的风险。\n二级预防：早发现早治疗\n二级预防的关键在于在宫颈癌尚未发展为严重问题前及时发现并处理。主要手段有：\n定期筛查：定期进行宫颈癌筛查，如巴氏涂片检查，是发现早期宫颈癌的有效途径。请遵循医生的建议，按时进行筛查。\n进一步诊断：若筛查结果异常，医生可能会建议进行更深入的检查，如阴道镜检查和宫颈活检，以明确是否存在宫颈癌。\n三级预防：改善生活质量，延长生存期\n三级预防旨在提高宫颈癌患者的生活质量，并延长其生存期。主要措施包括：\n及时治疗：一旦确诊宫颈癌，应遵从医嘱，及时接受手术、放疗、化疗等治疗方法。\n康复支持：治疗后，患者需获得心理支持、营养指导和康复训练等全方位的支持，以促进身体恢复，提高生活质量。\n定期复查：即使治疗成功，也应定期进行复查，以监测病情变化，确保及时处理任何问题。\n结语\n预防宫颈癌需要我们每个人的共同努力。通过增强健康意识，了解相关知识，我们可以有效降低宫颈癌的发病率，保护自己和家人的健康。让我们携手共进，让宫颈癌远离我们的生活。（图片来源于网络）",
+                                        "ctime": "04-19 10:01",
+                                        "url": "https://mbd.baidu.com/newspage/data/dtlandingwise?nid=dt_3937032869787011420",
+                                        "items": [
+                                            {
+                                                "img_big": "http://pics2.baidu.com/feed/11385343fbf2b211535256decd5ad2370dd78e08.jpeg?token=2115803188f63ee093f62f2dfb5dad75",
+                                                "img_origin": "http://bj.bcebos.com/health-community/baijiahao/doctor/20250419/2tnKR2i3TR7zKeeeB/03accc9c-811d-48e6-80d3-3fbb39d2eab9/23bb445f-1c18-4afb-8524-f171db8c01bf.jpg?x-bce-process=image/auto-orient,o_1/watermark,image_NDU0ZjAyZDU5YjQ1LnBuZw==,bucket_searchbox,w_32,text_QHN1bm555Yy755Sf,type_RlpMYW5UaW5nSGVp,size_32,x_22,y_22,interval_4,color_FFFFFF,effect_softoutline,shc_000000,blr_2,align_1",
+                                                "img_size": "200_200",
+                                                "origin_height": "",
+                                                "origin_size": "",
+                                                "origin_width": "",
+                                                "style": "static",
+                                                "img_200_200": "https://bj.bcebos.com/health-community/baijiahao/doctor/20250419/2tnKR2i3TR7zKeeeB/03accc9c-811d-48e6-80d3-3fbb39d2eab9/23bb445f-1c18-4afb-8524-f171db8c01bf.jpg@s_2,w_366,h_366",
+                                                "img_300_200": "",
+                                                "img_300_400": "",
+                                                "img_400_300": ""
+                                            },
+                                            {
+                                                "img_big": "http://pics1.baidu.com/feed/023b5bb5c9ea15ce68bee978b1da8dfc3b87b25c.jpeg?token=9cc9852e954b5c8213091487886caa45",
+                                                "img_origin": "http://bj.bcebos.com/health-community/baijiahao/doctor/20250419/2tnKR2i3TR7zKeeeB/03accc9c-811d-48e6-80d3-3fbb39d2eab9/0016fa32-4600-46b2-b75c-77c193c0a95a.jpg?x-bce-process=image/auto-orient,o_1/watermark,image_NDU0ZjAyZDU5YjQ1LnBuZw==,bucket_searchbox,w_32,text_QHN1bm555Yy755Sf,type_RlpMYW5UaW5nSGVp,size_32,x_22,y_22,interval_4,color_FFFFFF,effect_softoutline,shc_000000,blr_2,align_1",
+                                                "img_size": "200_200",
+                                                "origin_height": "",
+                                                "origin_size": "",
+                                                "origin_width": "",
+                                                "style": "static",
+                                                "img_200_200": "https://bj.bcebos.com/health-community/baijiahao/doctor/20250419/2tnKR2i3TR7zKeeeB/03accc9c-811d-48e6-80d3-3fbb39d2eab9/0016fa32-4600-46b2-b75c-77c193c0a95a.jpg@s_2,w_366,h_366",
+                                                "img_300_200": "",
+                                                "img_300_400": "",
+                                                "img_400_300": ""
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "article",
+                                "text": "文章",
+                                "rn": 10,
+                                "hasMore": "1",
+                                "nextPn": 1,
+                                "nextApi": "/harbor/doctor/articlelist/applets?doc_id=pgbr3gb3qog4t33f10bg",
+                                "totalNum": 529,
+                                "moreURL": "",
+                                "items": [
+                                    {
+                                        "ctime": "05-02",
+                                        "imgUrl": "",
+                                        "title": "揭秘葡萄胎🔍：越早了解越好的孕期知识！",
+                                        "abstract": "揭秘葡萄胎🔍：越早了解越好的孕期知识！🤰🏼准妈妈们，你们听说过“葡萄胎”吗？这可不是什么美好的孕期名词，但了解它却至关重要！今天，我们就来一起揭开葡萄胎的神秘面纱。🔍葡萄胎是什么？葡萄胎，听起来像是个奇怪的名词，其实它是一种妊娠滋养细胞疾病。简单来说，就是怀孕后，胎盘绒毛滋养细胞增生，",
+                                        "url": "https://m.baidu.com/bh/m/detail/ar_6264750762050408728",
+                                        "createTime": "1746185997",
+                                        "picture": "",
+                                        "expertName": "孙云燕",
+                                        "expertDepartment": "妇产科",
+                                        "expertPortrait": "https://muzhi-public-pic.cdn.bcebos.com/100036182629"
+                                    },
+                                    {
+                                        "ctime": "04-19",
+                                        "imgUrl": "https://selfpage-gips.cdn.bcebos.com/bb2350fa0025535b77ef28fc9ef50efb.jpg@!img_w255_h170",
+                                        "title": "做好宫颈癌三级预防，呵护女性生殖健康",
+                                        "abstract": "做好宫颈癌三级预防，呵护女性生殖健康宫颈癌虽是一种严重的疾病，但通过采取一系列预防措施，我们可以有效地降低其发病风险。下面，我将以通俗易懂的语言，为您介绍宫颈癌的三级预防策略。一级预防：防患于未然一级预防的核心在于阻止宫颈癌的发生。具体做法包括：接种HPV疫苗：HPV病毒是宫颈癌的主要诱因。",
+                                        "url": "https://m.baidu.com/bh/m/detail/ar_2812521199191530669",
+                                        "createTime": "1745028112",
+                                        "picture": "https://selfpage-gips.cdn.bcebos.com/bb2350fa0025535b77ef28fc9ef50efb.jpg@!img_w255_h170",
+                                        "expertName": "孙云燕",
+                                        "expertDepartment": "妇产科",
+                                        "expertPortrait": "https://muzhi-public-pic.cdn.bcebos.com/100036182629"
+                                    },
+                                    {
+                                        "ctime": "2021-11-06",
+                                        "imgUrl": "https://selfpage-gips.cdn.bcebos.com/43ca2a26a25b7677d3bd84e21a47ffc2@!img_w255_h170",
+                                        "title": "子宫肌瘤的变性与恶变",
+                                        "abstract": "子宫肌瘤的变性是指其典型的漩涡状结构消失。主要有以下几种：1.玻璃样变：又叫透明变性，指漩涡状结构被透明物质所替代；2.囊性变：玻璃样变继续发展，瘤内出现大小不等的囊腔；3.红色变性：多发生于妊娠期和",
+                                        "url": "https://m.baidu.com/bh/m/detail/ar_8945960262321930381",
+                                        "createTime": "1636156980",
+                                        "picture": "https://selfpage-gips.cdn.bcebos.com/43ca2a26a25b7677d3bd84e21a47ffc2@!img_w255_h170",
+                                        "expertName": "孙云燕",
+                                        "expertDepartment": "妇产科",
+                                        "expertPortrait": "https://muzhi-public-pic.cdn.bcebos.com/100036182629"
+                                    },
+                                    {
+                                        "ctime": "2021-10-07",
+                                        "imgUrl": "https://selfpage-gips.cdn.bcebos.com/dd938fa791553b19ee18ccf4c35eefdd@!img_w255_h170",
+                                        "title": "什么是宫颈防癌筛查？",
+                                        "abstract": "宫颈癌是妇科恶性肿瘤中唯一一个病因明确的肿瘤，因而可以通过定期筛查达到早期诊断和早期治疗。宫颈防癌筛查目前常用的是TCT（液基薄层细胞学）和HPV（人乳头瘤病毒）联合筛查，一般建议每年一次。对于有性生",
+                                        "url": "https://m.baidu.com/bh/m/detail/ar_9396781908232950605",
+                                        "createTime": "1633599325",
+                                        "picture": "https://selfpage-gips.cdn.bcebos.com/dd938fa791553b19ee18ccf4c35eefdd@!img_w255_h170",
+                                        "expertName": "孙云燕",
+                                        "expertDepartment": "妇产科",
+                                        "expertPortrait": "https://muzhi-public-pic.cdn.bcebos.com/100036182629"
+                                    },
+                                    {
+                                        "ctime": "2021-09-13",
+                                        "imgUrl": "https://selfpage-gips.cdn.bcebos.com/e9cf0e1aef3de6e12854c9b9b1d22644@!img_w255_h170",
+                                        "title": "宫颈HPV感染和癌的距离有多远",
+                                        "abstract": "HPV全称是人乳头瘤病毒，有很多患者认为感染了HPV就是得了宫颈癌，其实这种想法是不对的。HPV病毒分为低危型和高危型。低危型常见的有6、11、81、42、43等；高危型常见的有16、18、33、45",
+                                        "url": "https://m.baidu.com/bh/m/detail/ar_9704800942584949186",
+                                        "createTime": "1631516424",
+                                        "picture": "https://selfpage-gips.cdn.bcebos.com/e9cf0e1aef3de6e12854c9b9b1d22644@!img_w255_h170",
+                                        "expertName": "孙云燕",
+                                        "expertDepartment": "妇产科",
+                                        "expertPortrait": "https://muzhi-public-pic.cdn.bcebos.com/100036182629"
+                                    },
+                                    {
+                                        "ctime": "08-17",
+                                        "imgUrl": "",
+                                        "title": "子宫肌瘤不做手术会有什么后果",
+                                        "abstract": "子宫肌瘤不做手术可能会出现腹痛、尿频、月经量多甚至有恶变的可能性。并不是所有的子宫肌瘤不做手术都会引起不良后果，如果子宫肌瘤比较小，不到手术指征，这种情况可以选择保守治疗，通过口服药物控制病情发展。但是如果子宫肌瘤比较大，或者是浆膜下子宫肌瘤，患者可能会表现为月经量多、腹痛等症状表现，而且如果子宫肌瘤生长速度比较快，可能会压迫膀胱，进而出现尿频的症状。虽然大部分子宫肌瘤是良性的，但是仍然有恶变的可能性，必要时要及时手术治疗。",
+                                        "url": "https://m.baidu.com/bh/m/detail/ar_14677962059283854008",
+                                        "createTime": "1755443070",
+                                        "picture": "",
+                                        "expertName": "孙云燕",
+                                        "expertDepartment": "妇产科",
+                                        "expertPortrait": "https://muzhi-public-pic.cdn.bcebos.com/100036182629"
+                                    },
+                                    {
+                                        "ctime": "08-17",
+                                        "imgUrl": "",
+                                        "title": "宫颈息肉会自己消失吗",
+                                        "abstract": "有的宫颈息肉可能会自己消失，但是大部分的宫颈息肉需要手术切除。宫颈息肉是宫颈组织增生所致的局限性赘生物，考虑和慢性炎症，宫颈感染等因素有关系，有少部分息肉有可能会自己消失，这主要是因为有的息肉可能会发生蒂部扭转，缺血坏死以后可能会排出阴道，所以会自行消失，但是大部分的宫颈息肉都不会自行消失，如果宫颈息肉没有临床症状，一般不需要特殊治疗，只需要定期复查即可，也有一少部分宫颈息肉，可能会出现白带过多、月经期间出血或性交后出血等症状，对于有症状的患者，需要通过手术的方法将息肉切除。宫颈息肉手术以后应该要注意个人卫生，禁止洗盆浴或性生活，防止感染，另外手术以后建议定期复查。",
+                                        "url": "https://m.baidu.com/bh/m/detail/ar_3390440964077023342",
+                                        "createTime": "1755443069",
+                                        "picture": "",
+                                        "expertName": "孙云燕",
+                                        "expertDepartment": "妇产科",
+                                        "expertPortrait": "https://muzhi-public-pic.cdn.bcebos.com/100036182629"
+                                    },
+                                    {
+                                        "ctime": "08-17",
+                                        "imgUrl": "",
+                                        "title": "人流术后小腹振动理疗是什么？",
+                                        "abstract": "人流术后小腹震动理疗一般是指通过电理疗进行子宫复旧治疗。女性行了人工流产手术后，增大的子宫需要进行收缩，恢复至怀孕前的大小，而且适当的子宫收缩才有助于促进宫腔内容物的排出。人工流产术后在腹部贴电极片，通过电理疗刺激子宫收缩，可以帮助促进子宫复旧。特别是对于宫腔内有残留或子宫腔比较大、出血偏多的女性来说，进行子宫复旧是有一定作用的。女性行人工流产手术后，如果随时出现阴道出血超过月经量或腹痛等症状，一定要尽早到医院就诊。",
+                                        "url": "https://m.baidu.com/bh/m/detail/ar_2742762329327759210",
+                                        "createTime": "1755443068",
+                                        "picture": "",
+                                        "expertName": "孙云燕",
+                                        "expertDepartment": "妇产科",
+                                        "expertPortrait": "https://muzhi-public-pic.cdn.bcebos.com/100036182629"
+                                    },
+                                    {
+                                        "ctime": "08-17",
+                                        "imgUrl": "",
+                                        "title": "正常卵巢大小是多少厘米",
+                                        "abstract": "正常卵巢大小一般是4CM*3CM*1CM。女性有两个卵巢，左右卵巢大小不一致，一般左侧卵巢比右侧卵巢可能稍微大一点。卵巢的大小随着年龄和排卵时间的变化而变化。如果卵巢功能早衰，可能会引起卵巢变小，因此如果发生卵巢大小变化，建议及时去医院检查，以明确病因。卵巢是女性的重要生殖器官，也同时具有内分泌功能。卵巢在腺垂体分泌促卵泡激素和促黄体生成素的影响下，可以分泌雌、孕激素，并作用于子宫内膜，使子宫内膜发生周期性脱落，从而形成月经。在月经周期中间，卵巢会出现排卵现象，如果卵子发育正常，女性便可正常受孕。卵巢位于盆腔深处，如果卵巢发生病变，很难及时发现。建议女性定期做妇科B超或者肿瘤标志物检查，及早发现异常情况。",
+                                        "url": "https://m.baidu.com/bh/m/detail/ar_9066398719974212029",
+                                        "createTime": "1755443068",
+                                        "picture": "",
+                                        "expertName": "孙云燕",
+                                        "expertDepartment": "妇产科",
+                                        "expertPortrait": "https://muzhi-public-pic.cdn.bcebos.com/100036182629"
+                                    },
+                                    {
+                                        "ctime": "08-17",
+                                        "imgUrl": "",
+                                        "title": "月经来完之后一直有血怎么回事",
+                                        "abstract": "月经来完之后一直有血，主要原因考虑有以下几种：雌性激素不足、子宫内膜息肉、宫颈炎。1、雌性激素不足：由于体内的雌性激素不足，造成子宫内膜没有完全修复，可能会出现月经来完之后一直有血的情况。建议在医生的指导下使用己烯雌酚注射液、苯甲酸雌二醇注射液、结合雌激素片等药物治疗。2、子宫内膜息肉：子宫内膜息肉是子宫局部内膜过度生长所致，息肉是由子宫内膜的腺体，间质和血管组成，因为内膜息肉中含有血管，所以会导致子宫内膜息肉的出血，出现月经过多、经期延长等症状。可以通过宫腔镜息肉摘除术、子宫内膜切除术等手术治疗。3、宫颈炎：宫颈炎是由于子宫颈感染病原体导致，患者主要表现为阴道异常出血、白带增多、阴道灼热等症状，可能出现月经来完之后一直有血的情况。建议遵医嘱使用罗红霉素胶囊、阿莫西林胶囊、康妇消炎栓等药物治疗。",
+                                        "url": "https://m.baidu.com/bh/m/detail/ar_389504460613571636",
+                                        "createTime": "1755443068",
+                                        "picture": "",
+                                        "expertName": "孙云燕",
+                                        "expertDepartment": "妇产科",
+                                        "expertPortrait": "https://muzhi-public-pic.cdn.bcebos.com/100036182629"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "buttonsService": {
+            "key": "",
+            "dataType": "",
+            "dataApiType": 0,
+            "name": "",
+            "dataApi": ""
+        },
+        "isPrePaymentSid": false,
+        "yanzhenStyle": 1
+    }
+}

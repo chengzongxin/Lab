@@ -1,0 +1,22 @@
+# 医生爬虫脚本依赖包
+# 使用以下命令安装：pip install -r requirements.txt
+
+# HTTP请求库
+requests>=2.25.1
+
+# 数据处理
+# 以下包是可选的，用于增强功能
+# pandas>=1.3.0          # 数据处理和分析
+# beautifulsoup4>=4.9.3   # HTML解析（如果需要）
+# lxml>=4.6.3            # XML/HTML解析器
+# selenium>=4.0.0        # 浏览器自动化（如果需要）
+
+# 日志和配置
+# 以下包是Python标准库的一部分，无需安装
+# logging                 # 日志记录
+# json                    # JSON处理
+# time                    # 时间处理
+# random                  # 随机数生成
+# urllib.parse            # URL处理
+# typing                  # 类型提示
+# uuid                    # UUID生成
