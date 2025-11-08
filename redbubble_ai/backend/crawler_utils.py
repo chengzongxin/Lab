@@ -74,8 +74,8 @@ def crawl_redbubble(keyword, pages, category):
                     # 解析每个商品卡片
                     for card in cards:
                         try:
-                            # 获取商品链接
-                            a_tag = card.query_selector('a[data-testid="related-work-card"]')
+                            # 获取商品链接 - 使用正确的data-testid
+                            a_tag = card.query_selector('a[data-testid="search-results-page-product-card"]')
                             # 获取商品图片
                             img_tag = card.query_selector('img[alt^="Item preview"]')
                             
@@ -88,10 +88,21 @@ def crawl_redbubble(keyword, pages, category):
                                 # 提取图片URL
                                 img_url = img_tag.get_attribute("src")
                                 
-                                # 提取标题，去除前缀
-                                title = img_tag.get_attribute("alt")
-                                if title and title.startswith("Item preview, "):
-                                    title = title.replace("Item preview, ", "", 1)
+                                # 提取标题 - 优先从标题元素提取，如果没有则从图片alt属性提取
+                                title = None
+                                title_element = card.query_selector('span.SearchResultCard_title__XlcOR')
+                                if title_element:
+                                    title = title_element.inner_text().strip()
+                                
+                                # 如果标题元素提取失败，从图片alt属性提取
+                                if not title:
+                                    title = img_tag.get_attribute("alt")
+                                    if title and title.startswith("Item preview, "):
+                                        # 移除 "Item preview, " 前缀，并移除 " designed and sold by ..." 后缀
+                                        title = title.replace("Item preview, ", "", 1)
+                                        # 移除 " designed and sold by ..." 部分
+                                        if " designed and sold by " in title:
+                                            title = title.split(" designed and sold by ")[0]
                                 
                                 # 添加到结果列表
                                 if title and img_url and link:

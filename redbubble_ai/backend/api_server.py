@@ -34,6 +34,8 @@ app.add_middleware(
 
 # 挂载静态文件目录，提供图片访问
 # 指向backend/results目录（迁移后的图片存储位置）
+# 确保 results 目录存在（在挂载之前创建）
+os.makedirs("results", exist_ok=True)
 app.mount("/images", StaticFiles(directory="results"), name="images")
 
 class CrawlRequest(BaseModel):
