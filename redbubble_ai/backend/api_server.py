@@ -43,6 +43,13 @@ class CrawlRequest(BaseModel):
     pages: int = 1
     category: str = "u-clothing"  # 默认衣服
 
+class TemuCrawlRequest(BaseModel):
+    mall_id: str  # TEMU店铺ID（必填）
+    max_pages: int = 10  # 最大爬取页数（默认10页）
+    use_persistent_context: bool = False  # 是否使用持久化上下文（保持登录状态）
+    user_data_dir: Optional[str] = None  # 用户数据目录路径（可选）
+    debug_port: Optional[int] = None  # 调试端口（连接到已打开的浏览器，例如9222）
+
 def get_db_conn():
     return mysql.connector.connect(
         host="localhost",
@@ -114,6 +121,24 @@ def create_task(keyword: str, pages: int, category: str) -> str:
         INSERT INTO crawl_tasks (id, keyword, pages, category, status)
         VALUES (%s, %s, %s, %s, 'pending')
     """, (task_id, keyword, pages, category))
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    return task_id
+
+def create_temu_task(mall_id: str, max_pages: int = 10) -> str:
+    """创建TEMU爬虫任务"""
+    task_id = str(uuid.uuid4())
+    conn = get_db_conn()
+    cursor = conn.cursor()
+    
+    # 使用category字段存储"temu"标识，keyword字段存储mall_id
+    cursor.execute("""
+        INSERT INTO crawl_tasks (id, keyword, pages, category, status)
+        VALUES (%s, %s, %s, %s, 'pending')
+    """, (task_id, mall_id, max_pages, "temu"))
     
     conn.commit()
     cursor.close()
@@ -299,6 +324,145 @@ async def run_crawler_async(task_id: str, keyword: str, pages: int, category: st
             logger.error(f"异步爬虫任务执行失败: {e}")
             update_task_status(task_id, "failed", 0, 0, "异步执行失败", "", str(e))
 
+def run_temu_crawler_sync(task_id: str, mall_id: str, max_pages: int = 10, 
+                          use_persistent_context: bool = False, 
+                          user_data_dir: str = None, 
+                          debug_port: int = None):
+    """同步运行TEMU爬虫任务的内部函数"""
+    task_logger = logging.getLogger(__name__)
+    
+    try:
+        # 导入TEMU爬虫工具模块
+        from crawler_utils import crawl_temu_mall
+        from download_utils import download_image, save_to_mysql, get_image_save_path
+        from scorer_utils import nima_score
+        
+        task_logger.info(f"开始TEMU爬虫任务: {task_id}, 店铺ID: {mall_id}, 最大页数: {max_pages}")
+        if debug_port:
+            task_logger.info(f"使用调试端口: {debug_port}")
+        if use_persistent_context:
+            task_logger.info(f"使用持久化上下文: {user_data_dir or '默认目录'}")
+        
+        # 更新任务状态为运行中
+        update_task_status(task_id, "running", 0, 0, "启动TEMU爬虫")
+        
+        # 第一步：爬取商品信息
+        update_task_status(task_id, "running", 0, 0, "正在爬取TEMU店铺商品", f"店铺ID: {mall_id}")
+        items = crawl_temu_mall(
+            mall_id, 
+            max_pages, 
+            use_persistent_context=use_persistent_context,
+            user_data_dir=user_data_dir,
+            debug_port=debug_port
+        )
+        
+        if not items:
+            task_logger.warning("未找到任何商品")
+            update_task_status(task_id, "failed", 0, 0, "未找到商品", "", "未找到任何商品")
+            return
+        
+        task_logger.info(f"找到 {len(items)} 个商品")
+        
+        # 第二步：下载图片并评分（可选）
+        products = []
+        total_items = len(items)
+        
+        for idx, item in enumerate(items):
+            try:
+                current_progress = idx + 1
+                title = item['title'][:50] + "..." if len(item['title']) > 50 else item['title']
+                
+                task_logger.info(f"正在处理第 {current_progress}/{total_items} 个商品: {title}")
+                update_task_status(task_id, "running", current_progress, total_items, "下载图片", title)
+                
+                # 获取图片保存路径
+                img_path = get_image_save_path(item['title'], idx)
+                
+                # 下载图片（如果有图片URL）
+                success = False
+                if item.get('img'):
+                    success = download_image(item['img'], img_path)
+                    task_logger.info(f"图片下载成功: {success}")
+                else:
+                    task_logger.warning("商品没有图片URL")
+                
+                # AI美学评分（可选，如果图片下载成功）
+                score = 0.0
+                if success and os.path.exists(img_path):
+                    try:
+                        score = nima_score(img_path)
+                        task_logger.info(f"AI评分: {score:.2f}")
+                    except Exception as e:
+                        task_logger.warning(f"评分失败: {e}")
+                        score = 0.0
+                
+                # 更新任务状态，包含当前评分
+                update_task_status(task_id, "running", current_progress, total_items, "处理中", title, "", current_score=score)
+                
+                # 组装商品数据
+                product = {
+                    'title': item['title'],
+                    'img': item.get('img', ''),
+                    'score': score,
+                    'link': item['link'],
+                    'local_img': img_path if success else '',
+                    'category': 'temu'  # 标记为TEMU商品
+                }
+                
+                products.append(product)
+                task_logger.info(f"商品处理完成: {title}, 价格: {item.get('price', 'N/A')}, 评分: {score:.2f}")
+                
+            except Exception as e:
+                task_logger.error(f"处理商品时出错: {e}")
+                continue
+        
+        if not products:
+            task_logger.error("没有成功处理任何商品")
+            update_task_status(task_id, "failed", 0, total_items, "处理失败", "", "没有成功处理任何商品")
+            return
+        
+        # 第三步：保存到数据库
+        task_logger.info(f"成功处理 {len(products)} 个商品，正在保存到数据库...")
+        update_task_status(task_id, "running", total_items, total_items, "保存数据", f"处理了{len(products)}个商品")
+        
+        try:
+            save_to_mysql(products)
+            task_logger.info("数据已保存到数据库")
+            update_task_status(task_id, "completed", total_items, total_items, "爬取完成", f"成功处理{len(products)}个商品")
+            task_logger.info(f"TEMU爬虫任务完成！任务ID: {task_id}, 共处理 {len(products)} 个商品")
+            
+        except Exception as e:
+            task_logger.error(f"保存数据时出错: {e}")
+            update_task_status(task_id, "failed", total_items, total_items, "保存失败", "", str(e))
+            
+    except Exception as e:
+        task_logger.error(f"TEMU爬虫任务执行失败: {e}")
+        update_task_status(task_id, "failed", 0, 0, "执行失败", "", str(e))
+    finally:
+        # 确保清理资源
+        task_logger.info(f"TEMU爬虫任务资源清理完成: {task_id}")
+
+async def run_temu_crawler_async(task_id: str, mall_id: str, max_pages: int = 10,
+                                 use_persistent_context: bool = False,
+                                 user_data_dir: str = None,
+                                 debug_port: int = None):
+    """异步运行TEMU爬虫任务 - 避免阻塞主线程"""
+    import asyncio
+    import concurrent.futures
+    
+    # 使用线程池执行同步的爬虫任务
+    loop = asyncio.get_event_loop()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+        try:
+            await loop.run_in_executor(
+                executor, 
+                run_temu_crawler_sync, 
+                task_id, mall_id, max_pages, use_persistent_context, user_data_dir, debug_port
+            )
+        except Exception as e:
+            logger.error(f"异步TEMU爬虫任务执行失败: {e}")
+            update_task_status(task_id, "failed", 0, 0, "异步执行失败", "", str(e))
+
 # 初始化数据库
 init_database()
 
@@ -369,6 +533,49 @@ async def start_crawl(request: CrawlRequest, background_tasks: BackgroundTasks):
         "success": True,
         "task_id": task_id,
         "message": f"已启动爬虫任务，类目 '{request.category}'，关键词 '{request.keyword}'，页数 {request.pages}"
+    }
+
+@app.post("/api/crawl/temu")
+async def start_temu_crawl(request: TemuCrawlRequest, background_tasks: BackgroundTasks):
+    """
+    启动TEMU店铺爬虫任务（异步后台执行）
+    :param request: 包含mall_id和max_pages的请求体
+    :return: 任务ID和状态信息
+    """
+    if not request.mall_id:
+        raise HTTPException(status_code=400, detail="店铺ID不能为空")
+    if request.max_pages < 1 or request.max_pages > 20:
+        raise HTTPException(status_code=400, detail="最大页数必须在1-20之间")
+    
+    # 检查是否有正在运行的任务
+    running_tasks = get_running_tasks()
+    if running_tasks:
+        raise HTTPException(status_code=400, detail="已有任务正在运行，请等待完成")
+    
+    # 创建新任务
+    task_id = create_temu_task(request.mall_id, request.max_pages)
+    
+    # 启动TEMU爬虫任务（异步）
+    background_tasks.add_task(
+        run_temu_crawler_async, 
+        task_id, 
+        request.mall_id, 
+        request.max_pages,
+        request.use_persistent_context,
+        request.user_data_dir,
+        request.debug_port
+    )
+    
+    message = f"已启动TEMU爬虫任务，店铺ID: {request.mall_id}，最大页数: {request.max_pages}"
+    if request.debug_port:
+        message += f"，调试端口: {request.debug_port}"
+    if request.use_persistent_context:
+        message += f"，使用持久化上下文: {request.user_data_dir or '默认目录'}"
+    
+    return {
+        "success": True,
+        "task_id": task_id,
+        "message": message
     }
 
 @app.get("/api/crawl/status")
