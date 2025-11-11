@@ -248,7 +248,7 @@ def crawl_temu_mall(mall_id, max_pages=10, use_persistent_context=False, user_da
                 logger.info("创建新页面")
             
             # 构建店铺URL（简化版，只保留必要的参数）
-            base_url = f"https://www.temu.com/mall.html?mall_id={mall_id}"
+            base_url = f"https://www.temu.com/mall.html?mall_id={mall_id}&_x_sessn_id=5hsfpy8viw&refer_page_name=bgn_verification&refer_page_id=10017_1762822756830_yjdqxhk1s0&refer_page_sn=10017&filter_items=0%3A1"
             logger.info(f"正在访问TEMU店铺: {base_url}")
             
             # 访问店铺首页
@@ -427,7 +427,7 @@ if __name__ == "__main__":
     # print(results)
     
     # 测试TEMU爬虫
-    results = crawl_temu_mall("23225409861", max_pages=1, use_persistent_context=True, user_data_dir="/tmp/chrome_debug", debug_port=9222)
+    results = crawl_temu_mall("634418223796259", max_pages=1, use_persistent_context=True, user_data_dir="/tmp/chrome_debug", debug_port=9222)
     print(f"爬取到 {len(results)} 个商品")
     for i, item in enumerate(results[:5], 1):  # 只打印前5个
         print(f"{i}. {item['title'][:50]}... - {item['price']}")
