@@ -248,14 +248,28 @@ def crawl_temu_mall(mall_id, max_pages=10, use_persistent_context=False, user_da
                 logger.info("创建新页面")
             
             # 构建店铺URL（简化版，只保留必要的参数）
-            base_url = f"https://www.temu.com/mall.html?mall_id={mall_id}&_x_sessn_id=5hsfpy8viw&refer_page_name=bgn_verification&refer_page_id=10017_1762822756830_yjdqxhk1s0&refer_page_sn=10017&filter_items=0%3A1"
+            base_url = f"https://www.temu.com/mall.html?mall_id={mall_id}"
             logger.info(f"正在访问TEMU店铺: {base_url}")
             
-            # 访问店铺首页
-            page.goto(base_url, wait_until="networkidle")
+            # 访问店铺首页，使用load策略
+            try:
+                page.goto(base_url, wait_until="load", timeout=60000)  # 增加到60秒超时
+            except Exception as e:
+                logger.warning(f"页面加载超时，尝试继续: {e}")
             
-            # 等待商品加载
-            page.wait_for_selector('div.EKDT7a3v', timeout=30000)
+            # 等待商品加载，增加超时时间
+            try:
+                page.wait_for_selector('div.EKDT7a3v', timeout=30000)
+                logger.info("商品元素已加载")
+            except Exception as e:
+                logger.warning(f"等待商品元素超时: {e}")
+                # 尝试等待其他可能的商品容器
+                try:
+                    page.wait_for_selector('div[class*="EKDT"]', timeout=10000)
+                    logger.info("找到商品容器（使用备用选择器）")
+                except:
+                    logger.error("无法找到商品元素，可能页面结构已变化或需要登录")
+                    raise Exception("无法找到商品元素，请检查页面是否需要登录")
             
             # 记录已爬取的商品链接，避免重复
             seen_links = set()
@@ -419,6 +433,707 @@ def crawl_temu_mall(mall_id, max_pages=10, use_persistent_context=False, user_da
     
     logger.info(f"TEMU店铺爬取完成，共获取 {len(results)} 个商品")
     return results
+
+
+def crawl_temu_category(category_url, min_sales=1000, use_persistent_context=False, user_data_dir=None, debug_port=None):
+    """
+    爬取TEMU某个类目下的所有商品，筛选销量大于指定值的爆款商品
+    :param category_url: 类目URL
+    :param min_sales: 最小销量（默认1000）
+    :param use_persistent_context: 是否使用持久化上下文
+    :param user_data_dir: 用户数据目录路径
+    :param debug_port: 调试端口
+    :return: 商品信息列表，每个元素包含goods_id, title, img, link, price, sales_count等
+    """
+    results = []
+    browser = None
+    context = None
+    
+    try:
+        with sync_playwright() as p:
+            # 方式1：连接到已打开的浏览器（调试模式）
+            if debug_port:
+                logger.info(f"连接到调试端口 {debug_port} 的浏览器...")
+                try:
+                    browser = p.chromium.connect_over_cdp(f"http://localhost:{debug_port}")
+                    logger.info("成功连接到已打开的浏览器")
+                    contexts = browser.contexts
+                    if contexts:
+                        context = contexts[0]
+                    else:
+                        context = browser.new_context()
+                except Exception as e:
+                    logger.error(f"连接调试端口失败: {e}")
+                    browser = None
+            
+            # 方式2：使用持久化上下文
+            if not browser and use_persistent_context:
+                if not user_data_dir:
+                    import tempfile
+                    user_data_dir = tempfile.mkdtemp(prefix="temu_browser_")
+                
+                logger.info(f"使用持久化上下文，用户数据目录: {user_data_dir}")
+                context = p.chromium.launch_persistent_context(
+                    user_data_dir=user_data_dir,
+                    headless=False,
+                    channel="chrome",
+                    args=["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu", "--window-size=1920,1080"],
+                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    locale="en-US",
+                    viewport={"width": 1920, "height": 1080}
+                )
+            
+            # 方式3：普通启动浏览器
+            if not browser and not context:
+                logger.info("启动新浏览器（使用Chrome）...")
+                browser = p.chromium.launch(
+                    headless=False,
+                    channel="chrome",
+                    args=["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu", "--disable-web-security", "--window-size=1920,1080"]
+                )
+                context = browser.new_context(
+                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    locale="en-US",
+                    viewport={"width": 1920, "height": 1080}
+                )
+            
+            context.set_default_timeout(30000)
+            
+            if context.pages:
+                page = context.pages[0]
+            else:
+                page = context.new_page()
+            
+            logger.info(f"正在访问TEMU类目: {category_url}")
+            
+            # 访问页面，使用load策略而不是networkidle（因为TEMU可能有持续的网络请求）
+            try:
+                page.goto(category_url, wait_until="load", timeout=60000)  # 增加到60秒超时
+            except Exception as e:
+                logger.warning(f"页面加载超时，尝试继续: {e}")
+                # 即使超时也继续，可能页面已经部分加载
+            
+            # 等待商品加载，增加超时时间
+            try:
+                page.wait_for_selector('div.EKDT7a3v', timeout=30000)
+                logger.info("商品元素已加载")
+            except Exception as e:
+                logger.warning(f"等待商品元素超时: {e}")
+                # 尝试等待其他可能的商品容器
+                try:
+                    page.wait_for_selector('div[class*="EKDT"]', timeout=10000)
+                    logger.info("找到商品容器（使用备用选择器）")
+                except:
+                    logger.error("无法找到商品元素，可能页面结构已变化或需要登录")
+                    raise Exception("无法找到商品元素，请检查页面是否需要登录")
+            
+            seen_goods_ids = set()
+            
+            # 点击"See more"按钮加载更多商品
+            max_click_attempts = 1  # 最多点击20次
+            click_attempts = 0
+            
+            while click_attempts < max_click_attempts:
+                # 查找"See more"按钮
+                see_more_button = None
+                try:
+                    # 尝试多种选择器
+                    see_more_button = page.query_selector('div[aria-label="See more items"]')
+                    if not see_more_button:
+                        see_more_button = page.query_selector('button[aria-label="See more items"]')
+                    if not see_more_button:
+                        # 通过class查找
+                        see_more_button = page.query_selector('div._2ugbvrpI[aria-label*="See more"]')
+                    if not see_more_button:
+                        # 通过文本查找（遍历所有div元素）
+                        all_divs = page.query_selector_all('div')
+                        for div in all_divs:
+                            try:
+                                text = div.inner_text().strip()
+                                aria_label = div.get_attribute("aria-label") or ""
+                                if ("See more" in text or "See more" in aria_label) and div.is_visible():
+                                    see_more_button = div
+                                    break
+                            except:
+                                continue
+                    
+                    if see_more_button:
+                        # 检查按钮是否可见和可点击
+                        is_visible = see_more_button.is_visible()
+                        if is_visible:
+                            logger.info(f"找到See more按钮，点击加载更多商品 (第{click_attempts + 1}次)")
+                            # 滚动到按钮位置，确保按钮在视口中
+                            see_more_button.scroll_into_view_if_needed()
+                            page.wait_for_timeout(500)  # 等待滚动完成
+                            see_more_button.click()
+                            page.wait_for_timeout(3000)  # 等待新商品加载
+                            click_attempts += 1
+                        else:
+                            logger.info("See more按钮不可见，可能已加载完所有商品")
+                            break
+                    else:
+                        logger.info("未找到See more按钮，可能已加载完所有商品")
+                        break
+                except Exception as e:
+                    logger.warning(f"点击See more按钮时出错: {e}")
+                    break
+            
+            # 获取所有商品卡片
+            cards = page.query_selector_all('div.EKDT7a3v')
+            logger.info(f"找到 {len(cards)} 个商品卡片")
+            
+            # 解析每个商品卡片
+            for card in cards:
+                try:
+                    # 获取商品链接
+                    link_element = None
+                    link_element = card.query_selector('a._2Tl9qLr1._1ak1dai3')
+                    if not link_element:
+                        link_element = card.query_selector('a[class*="_2Tl9qLr1"]')
+                    if not link_element:
+                        all_links = card.query_selector_all('a[href]')
+                        for a in all_links:
+                            href = a.get_attribute("href")
+                            if href and ("/g-" in href or ".html" in href):
+                                link_element = a
+                                break
+                    
+                    if not link_element:
+                        continue
+                    
+                    link = link_element.get_attribute("href")
+                    if not link:
+                        continue
+                    
+                    # 构建完整URL
+                    if link.startswith("/"):
+                        link = "https://www.temu.com" + link
+                    elif not link.startswith("http"):
+                        link = "https://www.temu.com/" + link
+                    
+                    # 从链接中提取goods_id
+                    goods_id = None
+                    if "/g-" in link:
+                        parts = link.split("/g-")
+                        if len(parts) > 1:
+                            goods_id = parts[1].split(".")[0].split("?")[0]
+                    
+                    if not goods_id or goods_id in seen_goods_ids:
+                        continue
+                    seen_goods_ids.add(goods_id)
+                    
+                    # 获取商品标题
+                    title = None
+                    title_element = card.query_selector('span._2D9RBAXL')
+                    if title_element:
+                        title = title_element.inner_text().strip()
+                    if not title:
+                        h2_element = card.query_selector('h2._2BvQbnbN')
+                        if h2_element:
+                            title = h2_element.inner_text().strip()
+                    if not title:
+                        title_attr = link_element.get_attribute("aria-label")
+                        if title_attr:
+                            title = title_attr.strip()
+                    
+                    # 获取商品图片
+                    img_url = None
+                    img_element = card.query_selector('img.goods-img-external')
+                    if not img_element:
+                        img_element = card.query_selector('img[class*="goods-img"]')
+                    if not img_element:
+                        all_imgs = card.query_selector_all('img[src]')
+                        for img in all_imgs:
+                            src = img.get_attribute("src")
+                            if src and ("kwcdn.com" in src or "temu.com" in src):
+                                img_element = img
+                                break
+                    
+                    if img_element:
+                        img_url = img_element.get_attribute("src")
+                        if not img_url:
+                            img_url = img_element.get_attribute("data-src")
+                    
+                    # 获取价格
+                    price = None
+                    price_element = card.query_selector('span._2XgTiMJi')
+                    if price_element:
+                        price = price_element.inner_text().strip()
+                    
+                    # 获取原价
+                    original_price = None
+                    original_price_element = card.query_selector('span._3TAPHDOX')
+                    if original_price_element:
+                        original_price_text = original_price_element.inner_text().strip()
+                        if "Original price" in original_price_text:
+                            original_price = original_price_text.replace("Original price", "").strip()
+                    
+                    # 获取销量（关键信息）
+                    sales_count = 0
+                    sales_text = None
+                    # 尝试多种选择器查找销量元素
+                    sales_element = card.query_selector('span._1GKMA1Nk')
+                    if not sales_element:
+                        sales_element = card.query_selector('span[class*="_1GKMA1Nk"]')
+                    if not sales_element:
+                        # 查找包含 "sold" 文本的元素
+                        all_spans = card.query_selector_all('span')
+                        for span in all_spans:
+                            text = span.inner_text().strip().lower()
+                            if 'sold' in text and ('k' in text or 'm' in text):
+                                sales_element = span
+                                break
+                    
+                    if sales_element:
+                        # 获取销量文本，优先从 _2XgTiMJi 类获取（包含完整文本）
+                        sales_text_element = sales_element.query_selector('span._2XgTiMJi')
+                        if sales_text_element:
+                            sales_text = sales_text_element.inner_text().strip()
+                        else:
+                            sales_text = sales_element.inner_text().strip()
+                        
+                        # 解析销量文本，支持格式如 "1.2K+sold" -> 1200, "100K+" -> 100000
+                        if sales_text:
+                            sales_text_lower = sales_text.lower()
+                            try:
+                                # 移除 "sold" 文本
+                                num_text = sales_text_lower.replace("sold", "").strip()
+                                
+                                # 处理 K+ 格式（如 "1.2K+" -> 1200）
+                                if "k+" in num_text or (num_text.endswith("k") and "+" not in num_text):
+                                    # 提取数字部分
+                                    num_str = num_text.replace("k+", "").replace("k", "").replace("+", "").strip()
+                                    if num_str:
+                                        sales_count = int(float(num_str) * 1000)
+                                
+                                # 处理 M+ 格式（如 "1.5M+" -> 1500000）
+                                elif "m+" in num_text or (num_text.endswith("m") and "+" not in num_text):
+                                    num_str = num_text.replace("m+", "").replace("m", "").replace("+", "").strip()
+                                    if num_str:
+                                        sales_count = int(float(num_str) * 1000000)
+                                
+                                # 如果是纯数字，直接转换
+                                elif num_text.replace(".", "").replace("+", "").isdigit():
+                                    sales_count = int(float(num_text.replace("+", "")))
+                                
+                                logger.debug(f"解析销量: '{sales_text}' -> {sales_count}")
+                            except Exception as e:
+                                logger.warning(f"解析销量失败: '{sales_text}', 错误: {e}")
+                                sales_count = 0
+                    
+                    # 获取评分
+                    rating = None
+                    rating_element = card.query_selector('div.oMRVEXZ7')
+                    if rating_element:
+                        # 从style中提取评分百分比，如 width:92.8571% -> 4.64 (92.8571/20)
+                        style = rating_element.get_attribute("style")
+                        if style and "width:" in style:
+                            try:
+                                width_str = style.split("width:")[1].split("%")[0].strip()
+                                width_percent = float(width_str)
+                                rating = round(width_percent / 20, 2)  # 转换为5分制
+                            except:
+                                pass
+                    
+                    # 获取评论数
+                    review_count = 0
+                    review_element = card.query_selector('span._3cWlbpFG')
+                    if review_element:
+                        review_text = review_element.inner_text().strip()
+                        if review_text:
+                            try:
+                                review_text_clean = review_text.replace("reviews", "").replace(",", "").strip()
+                                review_count = int(review_text_clean)
+                            except:
+                                pass
+                    
+                    # 只保存销量大于等于min_sales的商品
+                    if sales_count >= min_sales:
+                        product = {
+                            "goods_id": goods_id,
+                            "title": title,
+                            "link": link,
+                            "img": img_url or "",
+                            "price": price or "",
+                            "original_price": original_price or "",
+                            "sales_count": sales_count,
+                            "sales_text": sales_text or "",
+                            "rating": rating,
+                            "review_count": review_count
+                        }
+                        results.append(product)
+                        logger.info(f"找到爆款商品: {title[:50]}... 销量: {sales_count}")
+                    else:
+                        logger.debug(f"商品销量不足: {title[:50] if title else 'Unknown'}... 销量: {sales_count}")
+                        
+                except Exception as e:
+                    logger.warning(f"解析商品卡片失败: {e}")
+                    continue
+            
+            # 关闭浏览器
+            if browser and not use_persistent_context and not debug_port:
+                try:
+                    browser.close()
+                except:
+                    pass
+            
+    except Exception as e:
+        import traceback
+        logger.error(f"详细错误信息: {traceback.format_exc()}")
+        logger.error(f"TEMU类目爬虫执行失败: {e}")
+        raise e
+    
+    logger.info(f"TEMU类目爬取完成，共获取 {len(results)} 个爆款商品（销量>={min_sales}）")
+    return results
+
+
+def crawl_temu_product_detail(product_url, use_persistent_context=False, user_data_dir=None, debug_port=None):
+    """
+    爬取TEMU商品详情页，提取卖家店铺信息
+    :param product_url: 商品详情页URL
+    :param use_persistent_context: 是否使用持久化上下文
+    :param user_data_dir: 用户数据目录路径
+    :param debug_port: 调试端口
+    :return: 商品详情信息，包含mall_id, seller_url等
+    """
+    result = {}
+    browser = None
+    context = None
+    
+    try:
+        with sync_playwright() as p:
+            # 连接到浏览器（复用之前的逻辑）
+            if debug_port:
+                try:
+                    browser = p.chromium.connect_over_cdp(f"http://localhost:{debug_port}")
+                    contexts = browser.contexts
+                    if contexts:
+                        context = contexts[0]
+                    else:
+                        context = browser.new_context()
+                except:
+                    browser = None
+            
+            if not browser and use_persistent_context:
+                if not user_data_dir:
+                    import tempfile
+                    user_data_dir = tempfile.mkdtemp(prefix="temu_browser_")
+                context = p.chromium.launch_persistent_context(
+                    user_data_dir=user_data_dir,
+                    headless=False,
+                    channel="chrome",
+                    args=["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu", "--window-size=1920,1080"],
+                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    locale="en-US",
+                    viewport={"width": 1920, "height": 1080}
+                )
+            
+            if not browser and not context:
+                browser = p.chromium.launch(
+                    headless=False,
+                    channel="chrome",
+                    args=["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu", "--disable-web-security", "--window-size=1920,1080"]
+                )
+                context = browser.new_context(
+                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    locale="en-US",
+                    viewport={"width": 1920, "height": 1080}
+                )
+            
+            context.set_default_timeout(30000)
+            
+            if context.pages:
+                page = context.pages[0]
+            else:
+                page = context.new_page()
+            
+            logger.info(f"正在访问商品详情页: {product_url}")
+            
+            # 访问页面，使用load策略
+            try:
+                page.goto(product_url, wait_until="load", timeout=60000)  # 增加到60秒超时
+            except Exception as e:
+                logger.warning(f"页面加载超时，尝试继续: {e}")
+            
+            page.wait_for_timeout(3000)  # 等待页面完全加载，增加等待时间
+            
+            # 从URL中提取goods_id
+            goods_id = None
+            if "/g-" in product_url:
+                parts = product_url.split("/g-")
+                if len(parts) > 1:
+                    goods_id = parts[1].split(".")[0].split("?")[0]
+            
+            result["goods_id"] = goods_id
+            
+            # 查找卖家店铺链接
+            # 方法1：查找包含mall_id的链接
+            mall_id = None
+            seller_url = None
+            
+            # 查找所有链接，寻找包含mall.html的链接
+            all_links = page.query_selector_all('a[href*="mall.html"]')
+            for link in all_links:
+                href = link.get_attribute("href")
+                if href and "mall_id=" in href:
+                    # 提取mall_id
+                    import re
+                    match = re.search(r'mall_id=(\d+)', href)
+                    if match:
+                        mall_id = match.group(1)
+                        if href.startswith("/"):
+                            seller_url = "https://www.temu.com" + href
+                        elif not href.startswith("http"):
+                            seller_url = "https://www.temu.com/" + href
+                        else:
+                            seller_url = href
+                        break
+            
+            # 方法2：如果没找到，尝试从页面中查找mall_id
+            if not mall_id:
+                page_content = page.content()
+                import re
+                match = re.search(r'mall_id["\']?\s*[:=]\s*["\']?(\d+)', page_content)
+                if match:
+                    mall_id = match.group(1)
+                    seller_url = f"https://www.temu.com/mall.html?mall_id={mall_id}"
+            
+            result["mall_id"] = mall_id
+            result["seller_url"] = seller_url
+            
+            # 获取商品描述
+            description = None
+            desc_element = page.query_selector('div[class*="description"]')
+            if not desc_element:
+                desc_element = page.query_selector('div[class*="Description"]')
+            if desc_element:
+                description = desc_element.inner_text().strip()
+            result["description"] = description
+            
+            # 获取商品图片列表
+            images = []
+            img_elements = page.query_selector_all('img[src*="kwcdn.com"]')
+            for img in img_elements:
+                src = img.get_attribute("src")
+                if src and src not in images:
+                    images.append(src)
+            result["images"] = images
+            
+            # 获取视频URL
+            video_url = None
+            video_element = page.query_selector('video[src]')
+            if video_element:
+                video_url = video_element.get_attribute("src")
+            result["video_url"] = video_url
+            
+            # 获取卖家名称
+            seller_name = None
+            # 尝试多种方式查找卖家名称
+            seller_name_element = page.query_selector('span[class*="seller"]')
+            if not seller_name_element:
+                seller_name_element = page.query_selector('a[href*="mall.html"]')
+            if seller_name_element:
+                seller_name = seller_name_element.inner_text().strip()
+            result["seller_name"] = seller_name
+            
+            # 关闭浏览器
+            if browser and not use_persistent_context and not debug_port:
+                try:
+                    browser.close()
+                except:
+                    pass
+            
+    except Exception as e:
+        import traceback
+        logger.error(f"详细错误信息: {traceback.format_exc()}")
+        logger.error(f"TEMU商品详情爬虫执行失败: {e}")
+        raise e
+    
+    logger.info(f"商品详情爬取完成: goods_id={result.get('goods_id')}, mall_id={result.get('mall_id')}")
+    return result
+
+
+def crawl_temu_category_full_workflow(
+    category_url: str,
+    min_sales: int = 1000,
+    crawl_details: bool = True,
+    crawl_seller_products: bool = True,
+    use_persistent_context: bool = False,
+    user_data_dir: str = None,
+    debug_port: int = None
+):
+    """
+    完整的TEMU类目爬取工作流：
+    1. 爬取类目下的所有爆款商品
+    2. 爬取每个商品的详情页，获取卖家信息
+    3. 爬取每个卖家的店铺所有商品
+    
+    :param category_url: 类目URL
+    :param min_sales: 最小销量（默认1000）
+    :param crawl_details: 是否爬取商品详情
+    :param crawl_seller_products: 是否爬取卖家店铺商品
+    :param use_persistent_context: 是否使用持久化上下文
+    :param user_data_dir: 用户数据目录路径
+    :param debug_port: 调试端口
+    :return: 统计信息字典
+    """
+    from temu_db_utils import (
+        save_category, save_products, save_product_detail,
+        save_seller, save_seller_products,
+        update_category_status, update_seller_status
+    )
+    
+    stats = {
+        "category_id": None,
+        "total_products": 0,
+        "saved_products": 0,
+        "details_crawled": 0,
+        "sellers_found": 0,
+        "seller_products_crawled": 0
+    }
+    
+    try:
+        # 步骤1：保存类目信息
+        logger.info("步骤1: 保存类目信息...")
+        category_id = save_category(category_url)
+        stats["category_id"] = category_id
+        if not category_id:
+            logger.error("保存类目失败")
+            return stats
+        
+        update_category_status(category_id, "crawling")
+        
+        # 步骤2：爬取类目下的爆款商品
+        logger.info("步骤2: 爬取类目下的爆款商品...")
+        products = crawl_temu_category(
+            category_url, min_sales, use_persistent_context, user_data_dir, debug_port
+        )
+        stats["total_products"] = len(products)
+        
+        # 保存商品到数据库
+        if products:
+            saved_count = save_products(products, category_id, category_url)
+            stats["saved_products"] = saved_count
+            update_category_status(category_id, "crawling", len(products), saved_count)
+        
+        # 步骤3：爬取商品详情，获取卖家信息
+        if crawl_details and products:
+            logger.info("步骤3: 爬取商品详情，获取卖家信息...")
+            seen_mall_ids = set()
+            
+            for idx, product in enumerate(products, 1):
+                try:
+                    logger.info(f"处理商品 {idx}/{len(products)}: {product.get('title', '')[:50]}...")
+                    
+                    # 爬取商品详情
+                    detail = crawl_temu_product_detail(
+                        product.get('link'),
+                        use_persistent_context,
+                        user_data_dir,
+                        debug_port
+                    )
+                    
+                    if detail.get('goods_id'):
+                        # 保存商品详情
+                        product_id = None
+                        conn = get_db_conn()
+                        cursor = conn.cursor()
+                        try:
+                            cursor.execute("SELECT id FROM temu_products WHERE goods_id = %s", (detail.get('goods_id'),))
+                            result = cursor.fetchone()
+                            if result:
+                                product_id = result[0]
+                        finally:
+                            cursor.close()
+                            conn.close()
+                        
+                        if save_product_detail(detail, product_id):
+                            stats["details_crawled"] += 1
+                        
+                        # 记录找到的卖家
+                        mall_id = detail.get('mall_id')
+                        if mall_id and mall_id not in seen_mall_ids:
+                            seen_mall_ids.add(mall_id)
+                            save_seller(mall_id, detail.get('seller_name'), detail.get('seller_url'))
+                            stats["sellers_found"] += 1
+                    
+                except Exception as e:
+                    logger.error(f"处理商品详情失败: {e}")
+                    continue
+        
+        # 步骤4：爬取卖家店铺的所有商品
+        if crawl_seller_products and stats["sellers_found"] > 0:
+            logger.info("步骤4: 爬取卖家店铺的所有商品...")
+            
+            # 获取所有需要爬取的卖家
+            conn = get_db_conn()
+            cursor = conn.cursor(dictionary=True)
+            try:
+                cursor.execute("""
+                    SELECT DISTINCT tpd.mall_id, ts.id as seller_id
+                    FROM temu_product_details tpd
+                    JOIN temu_sellers ts ON tpd.mall_id = ts.mall_id
+                    WHERE tpd.mall_id IS NOT NULL
+                    AND ts.status != 'completed'
+                """)
+                sellers = cursor.fetchall()
+            finally:
+                cursor.close()
+                conn.close()
+            
+            for seller in sellers:
+                try:
+                    mall_id = seller['mall_id']
+                    seller_id = seller['seller_id']
+                    
+                    logger.info(f"爬取卖家店铺: mall_id={mall_id}")
+                    update_seller_status(seller_id, "crawling")
+                    
+                    # 爬取店铺商品
+                    seller_products = crawl_temu_mall(
+                        mall_id, max_pages=10,
+                        use_persistent_context=use_persistent_context,
+                        user_data_dir=user_data_dir,
+                        debug_port=debug_port
+                    )
+                    
+                    # 保存店铺商品
+                    if seller_products:
+                        saved_count = save_seller_products(seller_products, seller_id, mall_id)
+                        stats["seller_products_crawled"] += saved_count
+                    
+                    update_seller_status(seller_id, "completed")
+                    
+                except Exception as e:
+                    logger.error(f"爬取卖家店铺失败: {e}")
+                    if seller.get('seller_id'):
+                        update_seller_status(seller['seller_id'], "failed")
+                    continue
+        
+        # 更新类目状态为完成
+        update_category_status(category_id, "completed", stats["total_products"], stats["saved_products"])
+        
+        logger.info(f"完整工作流执行完成！统计: {stats}")
+        
+    except Exception as e:
+        logger.error(f"完整工作流执行失败: {e}")
+        if stats.get("category_id"):
+            update_category_status(stats["category_id"], "failed")
+        raise e
+    
+    return stats
+
+
+def get_db_conn():
+    """获取数据库连接（临时函数，用于crawler_utils）"""
+    import mysql.connector
+    return mysql.connector.connect(
+        host="localhost",
+        port=3306,
+        user="root",
+        password="123456789",
+        database="redbubble_ai"
+    )
 
 
 if __name__ == "__main__":

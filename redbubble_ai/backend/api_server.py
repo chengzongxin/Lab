@@ -50,6 +50,15 @@ class TemuCrawlRequest(BaseModel):
     user_data_dir: Optional[str] = None  # 用户数据目录路径（可选）
     debug_port: Optional[int] = None  # 调试端口（连接到已打开的浏览器，例如9222）
 
+class TemuCategoryCrawlRequest(BaseModel):
+    category_url: str  # TEMU类目URL（必填）
+    min_sales: int = 1000  # 最小销量（默认1000）
+    crawl_details: bool = True  # 是否爬取商品详情
+    crawl_seller_products: bool = True  # 是否爬取卖家店铺商品
+    use_persistent_context: bool = False  # 是否使用持久化上下文
+    user_data_dir: Optional[str] = None  # 用户数据目录路径
+    debug_port: Optional[int] = None  # 调试端口
+
 def get_db_conn():
     return mysql.connector.connect(
         host="localhost",
@@ -73,7 +82,7 @@ def init_database():
     cursor.execute("CREATE DATABASE IF NOT EXISTS redbubble_ai DEFAULT CHARACTER SET utf8mb4;")
     cursor.execute("USE redbubble_ai;")
     
-    # 创建商品表
+    # 创建商品表（Redbubble）
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS products (
       id INT PRIMARY KEY AUTO_INCREMENT,
@@ -84,6 +93,119 @@ def init_database():
       local_img VARCHAR(500),
       category VARCHAR(50) DEFAULT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) DEFAULT CHARACTER SET utf8mb4;
+    """)
+    
+    # 创建TEMU类目表
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS temu_categories (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      category_url VARCHAR(1000) NOT NULL,
+      category_url_hash VARCHAR(64) NOT NULL UNIQUE,
+      category_name VARCHAR(255),
+      status ENUM('pending', 'crawling', 'completed', 'failed') DEFAULT 'pending',
+      total_products INT DEFAULT 0,
+      crawled_products INT DEFAULT 0,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      INDEX idx_category_url_hash (category_url_hash)
+    ) DEFAULT CHARACTER SET utf8mb4;
+    """)
+    
+    # 创建TEMU商品表（从类目页爬取的爆款商品）
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS temu_products (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      goods_id VARCHAR(50) NOT NULL UNIQUE,
+      title VARCHAR(500) NOT NULL,
+      img VARCHAR(1000),
+      link VARCHAR(1000) NOT NULL,
+      link_hash VARCHAR(64),
+      price VARCHAR(50),
+      original_price VARCHAR(50),
+      sales_count INT DEFAULT 0,
+      sales_text VARCHAR(50),
+      rating DECIMAL(3,2),
+      review_count INT DEFAULT 0,
+      category_id INT,
+      category_url VARCHAR(1000),
+      mall_id VARCHAR(50),
+      seller_url VARCHAR(1000),
+      detail_crawled BOOLEAN DEFAULT FALSE,
+      detail_crawled_at TIMESTAMP NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      INDEX idx_goods_id (goods_id),
+      INDEX idx_category_id (category_id),
+      INDEX idx_mall_id (mall_id),
+      INDEX idx_sales_count (sales_count),
+      INDEX idx_detail_crawled (detail_crawled),
+      INDEX idx_link_hash (link_hash),
+      FOREIGN KEY (category_id) REFERENCES temu_categories(id) ON DELETE SET NULL
+    ) DEFAULT CHARACTER SET utf8mb4;
+    """)
+    
+    # 创建TEMU商品详情表
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS temu_product_details (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      goods_id VARCHAR(50) NOT NULL UNIQUE,
+      product_id INT,
+      description TEXT,
+      specifications TEXT,
+      images TEXT,
+      video_url VARCHAR(1000),
+      mall_id VARCHAR(50),
+      seller_name VARCHAR(255),
+      seller_url VARCHAR(1000),
+      seller_url_hash VARCHAR(64),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      INDEX idx_goods_id (goods_id),
+      INDEX idx_product_id (product_id),
+      INDEX idx_mall_id (mall_id),
+      INDEX idx_seller_url_hash (seller_url_hash),
+      FOREIGN KEY (product_id) REFERENCES temu_products(id) ON DELETE CASCADE
+    ) DEFAULT CHARACTER SET utf8mb4;
+    """)
+    
+    # 创建TEMU卖家店铺表
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS temu_sellers (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      mall_id VARCHAR(50) NOT NULL UNIQUE,
+      seller_name VARCHAR(255),
+      seller_url VARCHAR(1000),
+      seller_url_hash VARCHAR(64),
+      total_products INT DEFAULT 0,
+      crawled_products INT DEFAULT 0,
+      status ENUM('pending', 'crawling', 'completed', 'failed') DEFAULT 'pending',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      INDEX idx_mall_id (mall_id),
+      INDEX idx_seller_url_hash (seller_url_hash)
+    ) DEFAULT CHARACTER SET utf8mb4;
+    """)
+    
+    # 创建TEMU店铺商品表（从店铺页面爬取的）
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS temu_seller_products (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      goods_id VARCHAR(50) NOT NULL,
+      seller_id INT,
+      mall_id VARCHAR(50),
+      title VARCHAR(500) NOT NULL,
+      img VARCHAR(1000),
+      link VARCHAR(1000) NOT NULL,
+      link_hash VARCHAR(64),
+      price VARCHAR(50),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE KEY uk_goods_seller (goods_id, seller_id),
+      INDEX idx_goods_id (goods_id),
+      INDEX idx_seller_id (seller_id),
+      INDEX idx_mall_id (mall_id),
+      INDEX idx_link_hash (link_hash),
+      FOREIGN KEY (seller_id) REFERENCES temu_sellers(id) ON DELETE CASCADE
     ) DEFAULT CHARACTER SET utf8mb4;
     """)
     
@@ -577,6 +699,81 @@ async def start_temu_crawl(request: TemuCrawlRequest, background_tasks: Backgrou
         "task_id": task_id,
         "message": message
     }
+
+@app.post("/api/crawl/temu/category")
+async def start_temu_category_crawl(request: TemuCategoryCrawlRequest, background_tasks: BackgroundTasks):
+    """
+    启动TEMU类目完整爬取工作流（异步后台执行）
+    包括：爬取类目爆款商品 -> 爬取商品详情 -> 爬取卖家店铺商品
+    """
+    if not request.category_url:
+        raise HTTPException(status_code=400, detail="类目URL不能为空")
+    if request.min_sales < 0:
+        raise HTTPException(status_code=400, detail="最小销量不能小于0")
+    
+    # 检查是否有正在运行的任务
+    running_tasks = get_running_tasks()
+    if running_tasks:
+        raise HTTPException(status_code=400, detail="已有任务正在运行，请等待完成")
+    
+    # 创建任务ID
+    task_id = str(uuid.uuid4())
+    
+    # 启动完整工作流（异步）
+    background_tasks.add_task(
+        run_temu_category_workflow_async,
+        task_id,
+        request.category_url,
+        request.min_sales,
+        request.crawl_details,
+        request.crawl_seller_products,
+        request.use_persistent_context,
+        request.user_data_dir,
+        request.debug_port
+    )
+    
+    message = f"已启动TEMU类目爬取工作流，类目URL: {request.category_url[:50]}...，最小销量: {request.min_sales}"
+    if request.debug_port:
+        message += f"，调试端口: {request.debug_port}"
+    
+    return {
+        "success": True,
+        "task_id": task_id,
+        "message": message
+    }
+
+async def run_temu_category_workflow_async(
+    task_id: str,
+    category_url: str,
+    min_sales: int,
+    crawl_details: bool,
+    crawl_seller_products: bool,
+    use_persistent_context: bool,
+    user_data_dir: str,
+    debug_port: int
+):
+    """异步运行TEMU类目完整工作流"""
+    import asyncio
+    import concurrent.futures
+    from crawler_utils import crawl_temu_category_full_workflow
+    
+    loop = asyncio.get_event_loop()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+        try:
+            stats = await loop.run_in_executor(
+                executor,
+                crawl_temu_category_full_workflow,
+                category_url,
+                min_sales,
+                crawl_details,
+                crawl_seller_products,
+                use_persistent_context,
+                user_data_dir,
+                debug_port
+            )
+            logger.info(f"TEMU类目工作流完成: {stats}")
+        except Exception as e:
+            logger.error(f"TEMU类目工作流执行失败: {e}")
 
 @app.get("/api/crawl/status")
 def get_crawl_status():

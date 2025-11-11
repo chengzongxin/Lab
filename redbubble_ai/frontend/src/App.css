@@ -29,6 +29,53 @@
   font-weight: 400;
 }
 
+.tab-switcher {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 0 24px;
+}
+
+.tab-button {
+  padding: 8px 24px;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px 6px 0 0;
+  background: #f8f9fa;
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: none;
+  position: relative;
+  top: 1px;
+}
+
+.tab-button:hover {
+  background: #e9ecef;
+  color: #1a1a1a;
+}
+
+.tab-button.active {
+  background: #fff;
+  color: #1a1a1a;
+  border-color: #e1e5e9;
+  border-bottom-color: #fff;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .tab-switcher {
+    padding: 0 12px;
+  }
+  
+  .tab-button {
+    padding: 6px 16px;
+    font-size: 0.85rem;
+  }
+}
+
 .toggle-crawler-btn {
   background: #1a1a1a;
   color: #fff;
