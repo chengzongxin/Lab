@@ -29,7 +29,7 @@ const App: React.FC = () => {
   const [sortOption, setSortOption] = useState<SortOption>('default');
   const [showCrawlerControl, setShowCrawlerControl] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [activeTab, setActiveTab] = useState<'redbubble' | 'temu'>('redbubble');
+  const [activeTab, setActiveTab] = useState<'redbubble' | 'temu'>('temu');
 
   const fetchProducts = async (category: string = 'all') => {
     try {

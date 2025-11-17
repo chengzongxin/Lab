@@ -578,27 +578,73 @@ def crawl_temu_category(category_url, min_sales=1000, use_persistent_context=Fal
                     logger.warning(f"点击See more按钮时出错: {e}")
                     break
             
+            # 等待商品卡片内容加载完成
+            logger.info("等待商品卡片内容加载...")
+            page.wait_for_timeout(2000)  # 等待2秒让内容完全加载
+            
             # 获取所有商品卡片
             cards = page.query_selector_all('div.EKDT7a3v')
             logger.info(f"找到 {len(cards)} 个商品卡片")
             
+            if len(cards) == 0:
+                logger.warning("未找到任何商品卡片，尝试使用备用选择器...")
+                # 尝试备用选择器
+                cards = page.query_selector_all('div[class*="EKDT"]')
+                logger.info(f"使用备用选择器找到 {len(cards)} 个商品卡片")
+            
             # 解析每个商品卡片
-            for card in cards:
+            parsed_count = 0
+            for idx, card in enumerate(cards, 1):
+                logger.debug(f"正在解析卡片 {idx}/{len(cards)}")
                 try:
-                    # 获取商品链接
+                    # 等待卡片内容加载（如果元素是动态加载的）
+                    try:
+                        # 尝试等待卡片内的链接元素出现
+                        card.wait_for_selector('a[href]', timeout=2000, state="attached")
+                    except Exception as wait_err:
+                        logger.debug(f"卡片 {idx}: 等待链接元素超时: {wait_err}")
+                        pass  # 如果超时也继续，可能已经加载了
+                    
+                    # 尝试获取卡片的HTML内容用于调试（仅前几个）
+                    if idx <= 3:
+                        try:
+                            card_html = card.inner_html()[:200]  # 只取前200字符
+                            logger.debug(f"卡片 {idx} HTML预览: {card_html}...")
+                        except:
+                            pass
+                    
+                    # 获取商品链接 - 使用更宽松的选择器
                     link_element = None
-                    link_element = card.query_selector('a._2Tl9qLr1._1ak1dai3')
+                    # 方法1：使用完整的class组合
+                    try:
+                        link_element = card.query_selector('a._2Tl9qLr1._1ak1dai3')
+                    except:
+                        pass
+                    
+                    # 方法2：如果方法1失败，尝试只匹配部分class
                     if not link_element:
-                        link_element = card.query_selector('a[class*="_2Tl9qLr1"]')
+                        try:
+                            link_element = card.query_selector('a[class*="_2Tl9qLr1"]')
+                        except:
+                            pass
+                    
+                    # 方法3：查找所有包含href的a标签
                     if not link_element:
-                        all_links = card.query_selector_all('a[href]')
-                        for a in all_links:
-                            href = a.get_attribute("href")
-                            if href and ("/g-" in href or ".html" in href):
-                                link_element = a
-                                break
+                        try:
+                            all_links = card.query_selector_all('a[href]')
+                            for a in all_links:
+                                try:
+                                    href = a.get_attribute("href")
+                                    if href and ("/g-" in href or ".html" in href or "goods" in href.lower()):
+                                        link_element = a
+                                        break
+                                except:
+                                    continue
+                        except:
+                            pass
                     
                     if not link_element:
+                        logger.debug(f"卡片 {idx}: 未找到链接元素")
                         continue
                     
                     link = link_element.get_attribute("href")
@@ -611,48 +657,105 @@ def crawl_temu_category(category_url, min_sales=1000, use_persistent_context=Fal
                     elif not link.startswith("http"):
                         link = "https://www.temu.com/" + link
                     
-                    # 从链接中提取goods_id
+                    # 尝试从链接中提取goods_id（如果有的话）
                     goods_id = None
-                    if "/g-" in link:
-                        parts = link.split("/g-")
-                        if len(parts) > 1:
-                            goods_id = parts[1].split(".")[0].split("?")[0]
+                    if link and "/g-" in link:
+                        try:
+                            parts = link.split("/g-")
+                            if len(parts) > 1:
+                                goods_id = parts[1].split(".")[0].split("?")[0]
+                        except:
+                            pass
                     
-                    if not goods_id or goods_id in seen_goods_ids:
-                        continue
-                    seen_goods_ids.add(goods_id)
+                    # 如果没有goods_id，尝试从URL中提取其他唯一标识
+                    if not goods_id and link:
+                        # 尝试从URL中提取可能的商品ID
+                        import re
+                        match = re.search(r'goods[_-]?id[=:](\d+)', link)
+                        if match:
+                            goods_id = match.group(1)
+                        else:
+                            # 使用URL的一部分作为标识
+                            goods_id = link.split('/')[-1].split('?')[0].split('.')[0][:50]
                     
-                    # 获取商品标题
+                    # 获取商品标题 - 使用更宽松的选择器
                     title = None
-                    title_element = card.query_selector('span._2D9RBAXL')
-                    if title_element:
-                        title = title_element.inner_text().strip()
-                    if not title:
-                        h2_element = card.query_selector('h2._2BvQbnbN')
-                        if h2_element:
-                            title = h2_element.inner_text().strip()
-                    if not title:
-                        title_attr = link_element.get_attribute("aria-label")
-                        if title_attr:
-                            title = title_attr.strip()
+                    try:
+                        title_element = card.query_selector('span._2D9RBAXL')
+                        if title_element:
+                            title = title_element.inner_text().strip()
+                    except:
+                        pass
                     
-                    # 获取商品图片
+                    if not title:
+                        try:
+                            h2_element = card.query_selector('h2._2BvQbnbN')
+                            if h2_element:
+                                title = h2_element.inner_text().strip()
+                        except:
+                            pass
+                    
+                    if not title:
+                        try:
+                            # 尝试查找任何包含文本的标题元素
+                            title_elements = card.query_selector_all('span, h2, h3, div[class*="title"]')
+                            for elem in title_elements:
+                                try:
+                                    text = elem.inner_text().strip()
+                                    if text and len(text) > 5:  # 标题应该有一定长度
+                                        title = text
+                                        break
+                                except:
+                                    continue
+                        except:
+                            pass
+                    
+                    if not title:
+                        try:
+                            title_attr = link_element.get_attribute("aria-label")
+                            if title_attr:
+                                title = title_attr.strip()
+                        except:
+                            pass
+                    
+                    # 获取商品图片 - 使用更宽松的选择器
                     img_url = None
-                    img_element = card.query_selector('img.goods-img-external')
+                    img_element = None
+                    try:
+                        img_element = card.query_selector('img.goods-img-external')
+                    except:
+                        pass
+                    
                     if not img_element:
-                        img_element = card.query_selector('img[class*="goods-img"]')
+                        try:
+                            img_element = card.query_selector('img[class*="goods-img"]')
+                        except:
+                            pass
+                    
                     if not img_element:
-                        all_imgs = card.query_selector_all('img[src]')
-                        for img in all_imgs:
-                            src = img.get_attribute("src")
-                            if src and ("kwcdn.com" in src or "temu.com" in src):
-                                img_element = img
-                                break
+                        try:
+                            # 查找所有图片
+                            all_imgs = card.query_selector_all('img')
+                            for img in all_imgs:
+                                try:
+                                    src = img.get_attribute("src") or img.get_attribute("data-src")
+                                    if src and ("kwcdn.com" in src or "temu.com" in src or "cdn" in src.lower()):
+                                        img_element = img
+                                        break
+                                except:
+                                    continue
+                        except:
+                            pass
                     
                     if img_element:
-                        img_url = img_element.get_attribute("src")
-                        if not img_url:
-                            img_url = img_element.get_attribute("data-src")
+                        try:
+                            img_url = img_element.get_attribute("src")
+                            if not img_url:
+                                img_url = img_element.get_attribute("data-src")
+                            if not img_url:
+                                img_url = img_element.get_attribute("data-lazy-src")
+                        except:
+                            pass
                     
                     # 获取价格
                     price = None
@@ -747,12 +850,31 @@ def crawl_temu_category(category_url, min_sales=1000, use_persistent_context=Fal
                             except:
                                 pass
                     
+                    # 验证必要字段：至少需要标题和链接之一
+                    if not title and not link:
+                        logger.debug(f"卡片 {idx}: 缺少标题和链接，跳过")
+                        continue
+                    
+                    # 如果没有标题，尝试生成默认标题
+                    if not title:
+                        if goods_id:
+                            title = f"商品 {goods_id}"
+                        else:
+                            title = f"未命名商品 {idx}"
+                        logger.debug(f"卡片 {idx}: 使用默认标题: {title}")
+                    
+                    # 使用标题作为唯一性校验（避免重复）
+                    if title in seen_goods_ids:
+                        logger.debug(f"卡片 {idx}: 标题重复，跳过: {title[:50]}")
+                        continue
+                    seen_goods_ids.add(title)
+                    
                     # 只保存销量大于等于min_sales的商品
                     if sales_count >= min_sales:
                         product = {
-                            "goods_id": goods_id,
+                            "goods_id": goods_id or "",  # goods_id可能为空
                             "title": title,
-                            "link": link,
+                            "link": link or "",
                             "img": img_url or "",
                             "price": price or "",
                             "original_price": original_price or "",
@@ -762,13 +884,18 @@ def crawl_temu_category(category_url, min_sales=1000, use_persistent_context=Fal
                             "review_count": review_count
                         }
                         results.append(product)
-                        logger.info(f"找到爆款商品: {title[:50]}... 销量: {sales_count}")
+                        parsed_count += 1
+                        logger.info(f"找到爆款商品 [{parsed_count}]: {title[:50]}... 销量: {sales_count}, goods_id: {goods_id or 'N/A'}")
                     else:
-                        logger.debug(f"商品销量不足: {title[:50] if title else 'Unknown'}... 销量: {sales_count}")
+                        logger.debug(f"商品销量不足: {title[:50]}... 销量: {sales_count}")
                         
                 except Exception as e:
-                    logger.warning(f"解析商品卡片失败: {e}")
+                    logger.warning(f"解析商品卡片 {idx} 失败: {e}")
+                    import traceback
+                    logger.debug(f"详细错误: {traceback.format_exc()}")
                     continue
+            
+            logger.info(f"成功解析 {parsed_count}/{len(cards)} 个商品卡片")
             
             # 关闭浏览器
             if browser and not use_persistent_context and not debug_port:
