@@ -1,0 +1,196 @@
+"""
+AI标题清洗工具
+使用OpenAI API对TEMU商品标题进行清洗，提取核心关键词
+"""
+
+import os
+import json
+import logging
+from typing import List, Dict, Optional
+from openai import OpenAI
+
+logger = logging.getLogger(__name__)
+
+# 从环境变量获取API密钥
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
+
+def clean_title_with_ai(title: str, model: str = "gpt-4o-mini") -> Dict[str, any]:
+    """
+    使用AI清洗商品标题，提取核心关键词
+    
+    :param title: 原始商品标题
+    :param model: 使用的AI模型（默认gpt-4o-mini，更经济）
+    :return: 包含cleaned_keywords（字符串）和keywords_list（列表）的字典
+    """
+    if not OPENAI_API_KEY:
+        logger.error("未设置OPENAI_API_KEY环境变量")
+        raise ValueError("未配置OpenAI API密钥")
+    
+    try:
+        client = OpenAI(
+            api_key=OPENAI_API_KEY,
+            base_url=OPENAI_BASE_URL
+        )
+        
+        # 构建提示词
+        system_prompt = """你是一个专业的商品标题清洗专家。你的任务是：
+1. 从商品标题中提取核心关键词
+2. 去除所有通用的营销形容词（如：hot, best, new, premium, quality, perfect, amazing等）
+3. 去除数量词和规格词（如：1pc, 2pcs, set of, pack）
+4. 保留最重要的商品类型、风格、特征等核心描述词
+5. 返回3-5个最核心的关键词，用空格分隔
+
+示例：
+输入：1pc Retro Brimless Hat With Deep Sea Dive Diving Design - Casual Stylish Accessory For Men & Women
+输出：retro brimless hat deep sea dive design
+
+输入：Men's Winter Warm Knit Beanie - Premium Quality Soft Comfortable Hat
+输出：men winter knit beanie
+
+请只返回清洗后的关键词，不要解释。"""
+
+        user_prompt = f"请清洗这个商品标题：{title}"
+        
+        logger.info(f"正在调用AI清洗标题: {title[:50]}...")
+        
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            temperature=0.3,  # 降低温度以获得更一致的结果
+            max_tokens=100
+        )
+        
+        cleaned_keywords = response.choices[0].message.content.strip()
+        
+        # 将关键词拆分成列表
+        keywords_list = [kw.strip() for kw in cleaned_keywords.split() if kw.strip()]
+        
+        logger.info(f"AI清洗完成: {cleaned_keywords}")
+        
+        return {
+            "cleaned_keywords": cleaned_keywords,
+            "keywords_list": keywords_list,
+            "model_used": model,
+            "success": True
+        }
+        
+    except Exception as e:
+        logger.error(f"AI标题清洗失败: {e}")
+        return {
+            "cleaned_keywords": None,
+            "keywords_list": [],
+            "model_used": model,
+            "success": False,
+            "error": str(e)
+        }
+
+
+def batch_clean_titles(titles: List[str], model: str = "gpt-4o-mini") -> List[Dict[str, any]]:
+    """
+    批量清洗标题
+    
+    :param titles: 标题列表
+    :param model: 使用的AI模型
+    :return: 清洗结果列表
+    """
+    results = []
+    
+    for idx, title in enumerate(titles, 1):
+        logger.info(f"正在清洗标题 {idx}/{len(titles)}")
+        result = clean_title_with_ai(title, model)
+        result["original_title"] = title
+        results.append(result)
+    
+    return results
+
+
+def clean_title_with_fallback(title: str) -> Dict[str, any]:
+    """
+    带降级方案的标题清洗：优先使用AI，失败时使用规则方法
+    
+    :param title: 原始标题
+    :return: 清洗结果
+    """
+    # 首先尝试AI清洗
+    result = clean_title_with_ai(title)
+    
+    if result["success"]:
+        return result
+    
+    # AI失败，使用规则方法作为降级方案
+    logger.warning(f"AI清洗失败，使用规则方法作为降级方案")
+    
+    # 简单的规则：
+    # 1. 转小写
+    # 2. 去除常见营销词
+    # 3. 去除数量词
+    # 4. 去除特殊字符
+    
+    import re
+    
+    # 通用营销词列表
+    marketing_words = [
+        'hot', 'best', 'new', 'premium', 'quality', 'perfect', 'amazing',
+        'great', 'super', 'top', 'special', 'unique', 'exclusive', 'limited',
+        'sale', 'discount', 'cheap', 'free', 'shipping', 'fashion', 'trendy',
+        'stylish', 'casual', 'comfortable', 'soft', 'warm', 'cool'
+    ]
+    
+    # 数量词模式
+    quantity_patterns = [
+        r'\d+\s*pc[s]?',  # 1pc, 2pcs
+        r'\d+\s*pack',    # 1pack
+        r'set\s+of\s+\d+', # set of 2
+        r'\d+\s*piece',   # 1piece
+    ]
+    
+    cleaned = title.lower()
+    
+    # 去除数量词
+    for pattern in quantity_patterns:
+        cleaned = re.sub(pattern, '', cleaned, flags=re.IGNORECASE)
+    
+    # 去除营销词
+    for word in marketing_words:
+        cleaned = re.sub(r'\b' + word + r'\b', '', cleaned, flags=re.IGNORECASE)
+    
+    # 去除特殊字符，只保留字母数字和空格
+    cleaned = re.sub(r'[^\w\s]', ' ', cleaned)
+    
+    # 去除多余空格
+    cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+    
+    # 取前5个词
+    keywords_list = cleaned.split()[:5]
+    cleaned_keywords = ' '.join(keywords_list)
+    
+    logger.info(f"规则清洗完成: {cleaned_keywords}")
+    
+    return {
+        "cleaned_keywords": cleaned_keywords,
+        "keywords_list": keywords_list,
+        "model_used": "rule-based-fallback",
+        "success": True
+    }
+
+
+if __name__ == "__main__":
+    # 测试
+    logging.basicConfig(level=logging.INFO)
+    
+    test_titles = [
+        "1pc Retro Brimless Hat With Deep Sea Dive Diving Design - Casual Stylish Accessory For Men & Women",
+        "Men's Winter Warm Knit Beanie - Premium Quality Soft Comfortable Hat",
+        "Colorful Pullover Hat Ski Hat For Men Women Casual Neck Hair Hoop Skull Cap Hip Hop Hat Beanie Christmas Gift"
+    ]
+    
+    for title in test_titles:
+        print(f"\n原标题: {title}")
+        result = clean_title_with_fallback(title)
+        print(f"清洗后: {result['cleaned_keywords']}")
+        print(f"关键词列表: {result['keywords_list']}")
+

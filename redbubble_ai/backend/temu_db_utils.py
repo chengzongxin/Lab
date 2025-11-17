@@ -90,6 +90,12 @@ def save_products(products: List[Dict], category_id: int = None, category_url: s
                 # 计算链接哈希值
                 link_hash = calculate_url_hash(product.get('link', ''))
                 
+                # 确保标题长度不超过数据库限制（1000字符）
+                title = product.get('title', '')
+                if title and len(title) > 1000:
+                    logger.warning(f"标题过长（{len(title)}字符），截断至1000字符: {title[:50]}...")
+                    title = title[:1000]
+                
                 if existing:
                     # 更新商品信息
                     cursor.execute("""
@@ -99,7 +105,7 @@ def save_products(products: List[Dict], category_id: int = None, category_url: s
                             category_id = %s, category_url = %s
                         WHERE goods_id = %s
                     """, (
-                        product.get('title'),
+                        title,
                         product.get('img'),
                         product.get('link'),
                         link_hash,
@@ -123,7 +129,7 @@ def save_products(products: List[Dict], category_id: int = None, category_url: s
                         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """, (
                         product.get('goods_id'),
-                        product.get('title'),
+                        title,
                         product.get('img'),
                         product.get('link'),
                         link_hash,
@@ -306,6 +312,12 @@ def save_seller_products(products: List[Dict], seller_id: int, mall_id: str) -> 
                 if not goods_id:
                     continue
                 
+                # 确保标题长度不超过数据库限制（1000字符）
+                title = product.get('title', '')
+                if title and len(title) > 1000:
+                    logger.warning(f"标题过长（{len(title)}字符），截断至1000字符: {title[:50]}...")
+                    title = title[:1000]
+                
                 # 检查商品是否已存在（同一卖家的同一商品）
                 cursor.execute(
                     "SELECT id FROM temu_seller_products WHERE goods_id = %s AND seller_id = %s",
@@ -326,7 +338,7 @@ def save_seller_products(products: List[Dict], seller_id: int, mall_id: str) -> 
                         goods_id,
                         seller_id,
                         mall_id,
-                        product.get('title'),
+                        title,
                         product.get('img'),
                         product.get('link'),
                         link_hash,

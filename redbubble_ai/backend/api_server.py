@@ -53,11 +53,16 @@ class TemuCrawlRequest(BaseModel):
 class TemuCategoryCrawlRequest(BaseModel):
     category_url: str  # TEMU类目URL（必填）
     min_sales: int = 1000  # 最小销量（默认1000）
-    crawl_details: bool = True  # 是否爬取商品详情
-    crawl_seller_products: bool = True  # 是否爬取卖家店铺商品
+    crawl_details: bool = False  # 是否爬取商品详情（暂时禁用）
+    crawl_seller_products: bool = False  # 是否爬取卖家店铺商品（暂时禁用）
     use_persistent_context: bool = False  # 是否使用持久化上下文
     user_data_dir: Optional[str] = None  # 用户数据目录路径
     debug_port: Optional[int] = None  # 调试端口
+
+class TemuAIWorkflowRequest(BaseModel):
+    category_id: Optional[int] = None  # 类目ID（可选，为None时处理所有类目）
+    batch_size: int = 10  # 每批处理数量（默认10）
+    redbubble_pages: int = 2  # Redbubble搜索页数（默认2页）
 
 def get_db_conn():
     return mysql.connector.connect(
@@ -206,6 +211,51 @@ def init_database():
       INDEX idx_mall_id (mall_id),
       INDEX idx_link_hash (link_hash),
       FOREIGN KEY (seller_id) REFERENCES temu_sellers(id) ON DELETE CASCADE
+    ) DEFAULT CHARACTER SET utf8mb4;
+    """)
+    
+    # 创建TEMU标题清洗记录表
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS temu_title_cleaning (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      product_id INT NOT NULL,
+      goods_id VARCHAR(50),
+      original_title VARCHAR(1000) NOT NULL,
+      cleaned_keywords TEXT,
+      keywords_json JSON,
+      ai_model VARCHAR(50) DEFAULT 'gpt-4',
+      status ENUM('pending', 'processing', 'completed', 'failed') DEFAULT 'pending',
+      error_message TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      INDEX idx_product_id (product_id),
+      INDEX idx_goods_id (goods_id),
+      INDEX idx_status (status),
+      FOREIGN KEY (product_id) REFERENCES temu_products(id) ON DELETE CASCADE
+    ) DEFAULT CHARACTER SET utf8mb4;
+    """)
+    
+    # 创建TEMU商品与Redbubble搜索关联表
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS temu_redbubble_matches (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      temu_product_id INT NOT NULL,
+      temu_goods_id VARCHAR(50),
+      search_keywords TEXT NOT NULL,
+      redbubble_product_id INT,
+      redbubble_title VARCHAR(1000),
+      redbubble_img VARCHAR(1000),
+      redbubble_link VARCHAR(1000),
+      redbubble_score DECIMAL(3,2),
+      match_score DECIMAL(5,4),
+      rank_position INT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      INDEX idx_temu_product_id (temu_product_id),
+      INDEX idx_temu_goods_id (temu_goods_id),
+      INDEX idx_redbubble_product_id (redbubble_product_id),
+      INDEX idx_match_score (match_score),
+      FOREIGN KEY (temu_product_id) REFERENCES temu_products(id) ON DELETE CASCADE,
+      FOREIGN KEY (redbubble_product_id) REFERENCES products(id) ON DELETE SET NULL
     ) DEFAULT CHARACTER SET utf8mb4;
     """)
     
@@ -587,6 +637,177 @@ async def run_temu_crawler_async(task_id: str, mall_id: str, max_pages: int = 10
 
 # 初始化数据库
 init_database()
+
+@app.post("/api/temu/ai-workflow")
+async def start_temu_ai_workflow(request: TemuAIWorkflowRequest, background_tasks: BackgroundTasks):
+    """
+    启动TEMU商品标题AI清洗 + Redbubble搜索匹配工作流
+    工作流程：
+    1. 获取未清洗的TEMU商品
+    2. 使用AI清洗标题，提取核心关键词
+    3. 用关键词在Redbubble搜索相关商品
+    4. 保存匹配关系
+    """
+    import asyncio
+    from concurrent.futures import ThreadPoolExecutor
+    from temu_ai_workflow import process_temu_to_redbubble_workflow
+    
+    task_id = str(uuid.uuid4())
+    
+    async def run_ai_workflow():
+        """异步执行AI工作流"""
+        try:
+            logger.info(f"开始执行TEMU AI工作流: task_id={task_id}")
+            logger.info(f"参数: category_id={request.category_id}, batch_size={request.batch_size}, redbubble_pages={request.redbubble_pages}")
+            
+            # 在线程池中执行同步的工作流函数
+            loop = asyncio.get_event_loop()
+            with ThreadPoolExecutor() as executor:
+                stats = await loop.run_in_executor(
+                    executor,
+                    process_temu_to_redbubble_workflow,
+                    request.category_id,
+                    request.batch_size,
+                    request.redbubble_pages
+                )
+            
+            logger.info(f"TEMU AI工作流执行完成: {stats}")
+            
+        except Exception as e:
+            logger.error(f"TEMU AI工作流执行失败: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+    
+    # 添加后台任务
+    background_tasks.add_task(run_ai_workflow)
+    
+    return {
+        "success": True,
+        "task_id": task_id,
+        "message": f"已启动TEMU AI清洗工作流，批量处理 {request.batch_size} 个商品"
+    }
+
+@app.get("/api/temu/ai-workflow/stats")
+def get_ai_workflow_stats(category_id: Optional[int] = None):
+    """
+    获取AI工作流统计信息
+    """
+    try:
+        conn = get_db_conn()
+        cursor = conn.cursor(dictionary=True)
+        
+        # 清洗统计
+        query = "SELECT COUNT(*) as total, SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) as completed FROM temu_title_cleaning"
+        params = []
+        
+        if category_id:
+            query += " WHERE product_id IN (SELECT id FROM temu_products WHERE category_id = %s)"
+            params.append(category_id)
+        
+        cursor.execute(query, tuple(params) if params else ())
+        cleaning_stats = cursor.fetchone()
+        
+        # 匹配统计
+        query = "SELECT COUNT(DISTINCT temu_product_id) as matched_products, COUNT(*) as total_matches FROM temu_redbubble_matches"
+        if category_id:
+            query += " WHERE temu_product_id IN (SELECT id FROM temu_products WHERE category_id = %s)"
+        
+        cursor.execute(query, tuple(params) if params else ())
+        match_stats = cursor.fetchone()
+        
+        cursor.close()
+        conn.close()
+        
+        return {
+            "cleaning": {
+                "total": cleaning_stats['total'] or 0,
+                "completed": cleaning_stats['completed'] or 0
+            },
+            "matches": {
+                "matched_products": match_stats['matched_products'] or 0,
+                "total_matches": match_stats['total_matches'] or 0
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"获取AI工作流统计失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取统计信息失败: {str(e)}")
+
+@app.get("/api/temu/matches")
+def get_temu_matches(
+    limit: int = 50,
+    offset: int = 0,
+    category_id: Optional[int] = None,
+    min_match_score: float = 0.5
+):
+    """
+    获取TEMU商品与Redbubble的匹配结果
+    """
+    try:
+        conn = get_db_conn()
+        cursor = conn.cursor(dictionary=True)
+        
+        query = """
+            SELECT 
+                m.id,
+                m.temu_product_id,
+                m.temu_goods_id,
+                tp.title as temu_title,
+                tp.img as temu_img,
+                tp.price as temu_price,
+                tp.sales_count,
+                m.search_keywords,
+                m.redbubble_title,
+                m.redbubble_img,
+                m.redbubble_link,
+                m.redbubble_score,
+                m.match_score,
+                m.rank_position,
+                m.created_at
+            FROM temu_redbubble_matches m
+            LEFT JOIN temu_products tp ON m.temu_product_id = tp.id
+            WHERE m.match_score >= %s
+        """
+        params = [min_match_score]
+        
+        if category_id:
+            query += " AND tp.category_id = %s"
+            params.append(category_id)
+        
+        query += " ORDER BY tp.sales_count DESC, m.match_score DESC LIMIT %s OFFSET %s"
+        params.extend([limit, offset])
+        
+        cursor.execute(query, tuple(params))
+        matches = cursor.fetchall()
+        
+        # 获取总数
+        count_query = """
+            SELECT COUNT(*) as total
+            FROM temu_redbubble_matches m
+            LEFT JOIN temu_products tp ON m.temu_product_id = tp.id
+            WHERE m.match_score >= %s
+        """
+        count_params = [min_match_score]
+        if category_id:
+            count_query += " AND tp.category_id = %s"
+            count_params.append(category_id)
+        
+        cursor.execute(count_query, tuple(count_params))
+        total = cursor.fetchone()['total']
+        
+        cursor.close()
+        conn.close()
+        
+        return {
+            "total": total,
+            "matches": matches,
+            "limit": limit,
+            "offset": offset
+        }
+        
+    except Exception as e:
+        logger.error(f"获取匹配结果失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取匹配结果失败: {str(e)}")
 
 # 预加载NIMA模型（可选，提升首次评分速度）
 @app.on_event("startup")

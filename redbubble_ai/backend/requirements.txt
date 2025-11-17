@@ -13,6 +13,10 @@ tensorflow==2.13.0
 keras
 numpy
 
+# OpenAI API for title cleaning
+openai>=1.0.0
+python-dotenv
+
 # Optional dependencies (uncomment if needed)
 # transformers
 # torch

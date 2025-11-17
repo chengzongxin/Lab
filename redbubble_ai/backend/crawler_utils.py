@@ -1158,8 +1158,8 @@ def crawl_temu_product_detail(product_url, use_persistent_context=False, user_da
 def crawl_temu_category_full_workflow(
     category_url: str,
     min_sales: int = 1000,
-    crawl_details: bool = True,
-    crawl_seller_products: bool = True,
+    crawl_details: bool = False,  # 默认改为False，暂时不执行
+    crawl_seller_products: bool = False,  # 默认改为False，暂时不执行
     use_persistent_context: bool = False,
     user_data_dir: str = None,
     debug_port: int = None
