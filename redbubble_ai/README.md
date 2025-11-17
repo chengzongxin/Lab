@@ -311,3 +311,15 @@ export HTTPS_PROXY=http://127.0.0.1:7890
 # 或者在 .env 文件中配置
 HTTP_PROXY=http://127.0.0.1:7897
 HTTPS_PROXY=http://127.0.0.1:7897
+
+## 启动命令
+
+Windows:
+```bash
+"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="C:\selenum\ChromeProfile"
+```
+
+macOS:
+```bash
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 --user-data-dir="$HOME/selenium/ChromeProfile"
+```
