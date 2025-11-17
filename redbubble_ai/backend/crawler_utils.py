@@ -513,6 +513,81 @@ def crawl_temu_category(category_url, min_sales=1000, use_persistent_context=Fal
                 logger.warning(f"页面加载超时，尝试继续: {e}")
                 # 即使超时也继续，可能页面已经部分加载
             
+            # 检测是否出现安全验证页面
+            security_check_detected = False
+            try:
+                # 检测多种可能的安全验证标识
+                security_selectors = [
+                    'div.title-DH5-h:has-text("Security Verification")',
+                    'div:has-text("Security Verification")',
+                    'div:has-text("安全验证")',
+                    'div:has-text("Please verify")',
+                    'div[class*="security"]',
+                    'div[class*="verification"]'
+                ]
+                
+                for selector in security_selectors:
+                    try:
+                        element = page.query_selector(selector)
+                        if element:
+                            text = element.inner_text().strip().lower()
+                            if 'security' in text or 'verification' in text or '验证' in text:
+                                security_check_detected = True
+                                break
+                    except:
+                        continue
+                
+                # 也检查页面标题
+                if not security_check_detected:
+                    page_title = page.title().lower()
+                    if 'security' in page_title or 'verification' in page_title:
+                        security_check_detected = True
+                
+                if security_check_detected:
+                    logger.warning("=" * 60)
+                    logger.warning("⚠️  检测到安全验证页面！")
+                    logger.warning("=" * 60)
+                    logger.warning("请在浏览器中完成安全验证（滑块验证、点击图片等）")
+                    logger.warning("完成后，爬虫将自动继续...")
+                    logger.warning("=" * 60)
+                    
+                    # 等待用户完成验证 - 检测页面是否跳转或验证元素消失
+                    max_wait_time = 300  # 最多等待5分钟
+                    wait_interval = 5  # 每5秒检查一次
+                    waited_time = 0
+                    
+                    while waited_time < max_wait_time:
+                        page.wait_for_timeout(wait_interval * 1000)
+                        waited_time += wait_interval
+                        
+                        # 检查是否还在验证页面
+                        still_in_verification = False
+                        for selector in security_selectors:
+                            try:
+                                element = page.query_selector(selector)
+                                if element and element.is_visible():
+                                    still_in_verification = True
+                                    break
+                            except:
+                                continue
+                        
+                        if not still_in_verification:
+                            logger.info("✅ 安全验证已完成，继续爬取...")
+                            break
+                        
+                        logger.info(f"⏳ 等待验证完成... 已等待 {waited_time}/{max_wait_time} 秒")
+                    
+                    if waited_time >= max_wait_time:
+                        logger.error("❌ 等待安全验证超时，请手动完成验证后重新运行")
+                        raise Exception("安全验证超时")
+                    
+                    # 验证完成后，等待页面加载
+                    page.wait_for_timeout(3000)
+            except Exception as e:
+                if "安全验证超时" in str(e):
+                    raise e
+                logger.debug(f"安全验证检测出错（可能没有验证）: {e}")
+            
             # 等待商品加载，增加超时时间
             try:
                 page.wait_for_selector('div.EKDT7a3v', timeout=30000)
