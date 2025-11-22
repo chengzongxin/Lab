@@ -7,13 +7,21 @@ import os
 import json
 import logging
 from typing import List, Dict, Optional
-from openai import OpenAI
+import httpx
+from openai import OpenAI, RateLimitError
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
 # 从环境变量获取API密钥
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
+# 获取代理配置
+HTTP_PROXY = os.getenv("HTTP_PROXY")
+HTTPS_PROXY = os.getenv("HTTPS_PROXY")
 
 def clean_title_with_ai(title: str, model: str = "gpt-4o-mini") -> Dict[str, any]:
     """
@@ -28,9 +36,27 @@ def clean_title_with_ai(title: str, model: str = "gpt-4o-mini") -> Dict[str, any
         raise ValueError("未配置OpenAI API密钥")
     
     try:
+        # 配置代理
+        # httpx 0.28.0+ 使用 proxy 参数而不是 proxies
+        proxy_url = None
+        if HTTPS_PROXY:
+            proxy_url = HTTPS_PROXY
+        elif HTTP_PROXY:
+            proxy_url = HTTP_PROXY
+            
+        # 显式创建 httpx client
+        # 1. 避免 openai 内部初始化错误
+        # 2. 确保代理配置生效
+        if proxy_url:
+            logger.info(f"使用代理连接OpenAI: {proxy_url}")
+            http_client = httpx.Client(proxy=proxy_url)
+        else:
+            http_client = httpx.Client()
+        
         client = OpenAI(
             api_key=OPENAI_API_KEY,
-            base_url=OPENAI_BASE_URL
+            base_url=OPENAI_BASE_URL,
+            http_client=http_client
         )
         
         # 构建提示词
@@ -77,7 +103,16 @@ def clean_title_with_ai(title: str, model: str = "gpt-4o-mini") -> Dict[str, any
             "model_used": model,
             "success": True
         }
-        
+    
+    except RateLimitError as e:
+        logger.warning(f"OpenAI API额度不足或请求过快: {e}")
+        return {
+            "cleaned_keywords": None,
+            "keywords_list": [],
+            "model_used": model,
+            "success": False,
+            "error": str(e)
+        }
     except Exception as e:
         logger.error(f"AI标题清洗失败: {e}")
         return {

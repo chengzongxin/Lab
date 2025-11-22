@@ -30,7 +30,7 @@ const App: React.FC = () => {
   const [sortOption, setSortOption] = useState<SortOption>('default');
   const [showCrawlerControl, setShowCrawlerControl] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [activeTab, setActiveTab] = useState<'redbubble' | 'temu' | 'ai-workflow'>('temu');
+  const [activeTab, setActiveTab] = useState<'redbubble' | 'temu' | 'ai-workflow'>('ai-workflow');
 
   const fetchProducts = async (category: string = 'all') => {
     try {
@@ -89,15 +89,13 @@ const App: React.FC = () => {
     <div className="app">
       <div className="header">
         <h2>商品爬取与分析平台</h2>
-        <p className="subtitle">支持 Redbubble 和 TEMU 商品爬取与AI美学评分</p>
-        
         {/* 标签页切换 */}
         <div className="tab-switcher">
           <button
-            className={`tab-button ${activeTab === 'redbubble' ? 'active' : ''}`}
-            onClick={() => setActiveTab('redbubble')}
+            className={`tab-button ${activeTab === 'ai-workflow' ? 'active' : ''}`}
+            onClick={() => setActiveTab('ai-workflow')}
           >
-            Redbubble
+            🤖 AI工作流
           </button>
           <button
             className={`tab-button ${activeTab === 'temu' ? 'active' : ''}`}
@@ -106,10 +104,10 @@ const App: React.FC = () => {
             TEMU
           </button>
           <button
-            className={`tab-button ${activeTab === 'ai-workflow' ? 'active' : ''}`}
-            onClick={() => setActiveTab('ai-workflow')}
+            className={`tab-button ${activeTab === 'redbubble' ? 'active' : ''}`}
+            onClick={() => setActiveTab('redbubble')}
           >
-            🤖 AI工作流
+            Redbubble
           </button>
         </div>
       </div>
@@ -117,7 +115,7 @@ const App: React.FC = () => {
       {/* Redbubble 标签页内容 */}
       {activeTab === 'redbubble' && (
         <>
-          <button 
+          <button
             className="toggle-crawler-btn"
             onClick={() => setShowCrawlerControl(!showCrawlerControl)}
           >

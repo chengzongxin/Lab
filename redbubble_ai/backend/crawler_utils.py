@@ -12,6 +12,8 @@ import sys
 logger = logging.getLogger(__name__)
 
 # 修复Windows下的事件循环问题
+import os
+
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
@@ -169,6 +171,8 @@ def crawl_temu_mall(mall_id, max_pages=10, use_persistent_context=False, user_da
         with sync_playwright() as p:
             # 方式1：连接到已打开的浏览器（调试模式）
             if debug_port:
+                # 确保连接本地调试端口时不走代理
+                os.environ["NO_PROXY"] = "localhost,127.0.0.1"
                 logger.info(f"连接到调试端口 {debug_port} 的浏览器...")
                 try:
                     browser = p.chromium.connect_over_cdp(f"http://localhost:{debug_port}")
@@ -452,6 +456,8 @@ def crawl_temu_category(category_url, min_sales=1000, use_persistent_context=Fal
         with sync_playwright() as p:
             # 方式1：连接到已打开的浏览器（调试模式）
             if debug_port:
+                # 确保连接本地调试端口时不走代理
+                os.environ["NO_PROXY"] = "localhost,127.0.0.1"
                 logger.info(f"连接到调试端口 {debug_port} 的浏览器...")
                 try:
                     browser = p.chromium.connect_over_cdp(f"http://localhost:{debug_port}")
@@ -604,7 +610,7 @@ def crawl_temu_category(category_url, min_sales=1000, use_persistent_context=Fal
             seen_goods_ids = set()
             
             # 点击"See more"按钮加载更多商品
-            max_click_attempts = 1  # 最多点击20次
+            max_click_attempts = 20  # 最多点击20次
             click_attempts = 0
             
             while click_attempts < max_click_attempts:
