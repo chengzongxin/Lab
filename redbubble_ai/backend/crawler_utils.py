@@ -29,7 +29,7 @@ def crawl_redbubble(keyword, pages, category):
             # 启动浏览器，使用headless模式
             # 使用Playwright内置的chromium（更稳定，特别是在异步环境中）
             browser = p.chromium.launch(
-                headless=False,
+                headless=True,
                 args=[
                     "--no-sandbox",
                     "--disable-dev-shm-usage", 

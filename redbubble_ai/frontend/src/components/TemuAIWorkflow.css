@@ -1,403 +1,418 @@
-.temu-ai-workflow {
-  padding: 24px;
-  max-width: 1400px;
+.temu-ai-workflow-compact {
+  padding: 16px;
+  max-width: 1600px;
   margin: 0 auto;
-}
-
-.workflow-header {
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.workflow-header h2 {
-  font-size: 28px;
-  color: #2c3e50;
-  margin-bottom: 8px;
-}
-
-.workflow-description {
-  font-size: 16px;
-  color: #7f8c8d;
-  margin: 0;
-}
-
-/* 统计卡片 */
-.stats-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 32px;
-}
-
-.stat-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  color: white;
-  text-align: center;
-}
-
-.stat-label {
-  font-size: 14px;
-  opacity: 0.9;
-  margin-bottom: 8px;
-}
-
-.stat-value {
-  font-size: 28px;
-  font-weight: bold;
-}
-
-/* 控制面板 */
-.control-panel {
-  background: white;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  margin-bottom: 32px;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 8px;
-}
-
-.help-text {
-  font-size: 13px;
-  color: #95a5a6;
-  font-weight: normal;
-  margin-left: 8px;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 2px solid #e1e8ed;
-  border-radius: 8px;
-  font-size: 15px;
-  transition: border-color 0.3s;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: #667eea;
-}
-
-.form-group input:disabled {
   background: #f5f7fa;
-  cursor: not-allowed;
+  min-height: 100vh;
 }
 
-.start-button {
-  width: 100%;
-  padding: 14px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.start-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-
-.start-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.message {
-  margin-top: 16px;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-}
-
-.message.success {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.message.error {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-/* 商品列表区域 */
-.products-section {
-  margin-top: 32px;
-}
-
-.section-header {
+/* 紧凑的顶部 */
+.compact-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-}
-
-.section-header h3 {
-  font-size: 22px;
-  color: #2c3e50;
-  margin: 0;
-}
-
-.refresh-button {
-  padding: 8px 16px;
   background: white;
-  color: #667eea;
-  border: 2px solid #667eea;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 16px;
 }
 
-.refresh-button:hover:not(:disabled) {
-  background: #667eea;
-  color: white;
-}
-
-.refresh-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.loading,
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: #7f8c8d;
-}
-
-.empty-state p {
-  font-size: 18px;
-  margin-bottom: 8px;
-}
-
-.hint {
-  font-size: 14px;
-  color: #95a5a6;
-}
-
-/* 商品卡片 */
-.products-list {
+.stats-mini {
   display: flex;
-  flex-direction: column;
   gap: 24px;
-}
-
-.product-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  padding: 24px;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.product-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
-}
-
-/* TEMU商品部分 */
-.temu-section {
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #f0f3f6;
-}
-
-.temu-product {
-  display: flex;
-  gap: 20px;
-  align-items: start;
-}
-
-.temu-img {
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 8px;
-  flex-shrink: 0;
-}
-
-.temu-info {
-  flex: 1;
-}
-
-.temu-title {
-  font-size: 16px;
-  color: #2c3e50;
-  margin: 0 0 12px 0;
-  line-height: 1.5;
-}
-
-.temu-meta {
-  display: flex;
-  gap: 16px;
   font-size: 14px;
 }
 
-.temu-meta .price {
-  color: #e74c3c;
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.temu-meta .sales {
-  color: #27ae60;
-  font-weight: 500;
-}
-
-/* AI关键词部分 */
-.keywords-section {
-  margin-bottom: 20px;
-  padding: 16px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
-  border-radius: 8px;
-  border-left: 4px solid #667eea;
-}
-
-.keywords-label {
-  font-size: 13px;
+.stat-item strong {
   color: #667eea;
-  font-weight: 600;
-  margin-bottom: 8px;
+  font-size: 18px;
+  margin-right: 4px;
 }
 
-.keywords-value {
-  font-size: 16px;
-  color: #2c3e50;
-  font-weight: 500;
-  line-height: 1.6;
-}
-
-/* Redbubble搜索结果部分 */
-.redbubble-section {
-  margin-top: 20px;
-}
-
-.redbubble-title {
-  font-size: 15px;
-  color: #34495e;
-  margin: 0 0 16px 0;
-  font-weight: 600;
-}
-
-.no-results {
-  text-align: center;
-  padding: 40px;
-  color: #95a5a6;
-  font-size: 14px;
-}
-
-.redbubble-results {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-}
-
-.redbubble-card {
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 12px;
-  transition: all 0.3s;
-  border: 2px solid transparent;
-}
-
-.redbubble-card:hover {
-  border-color: #667eea;
-  transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-}
-
-.redbubble-img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 6px;
-  margin-bottom: 10px;
-}
-
-.redbubble-info {
+.action-buttons {
   display: flex;
-  flex-direction: column;
   gap: 8px;
 }
 
-.redbubble-product-title {
-  font-size: 13px;
-  color: #2c3e50;
-  margin: 0;
-  line-height: 1.4;
-  height: 36px;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+.btn-start {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
 }
 
-.redbubble-meta {
+.btn-start:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn-start:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-settings {
+  padding: 10px 16px;
+  background: #e8eef5;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.btn-settings:hover {
+  background: #d0dae8;
+}
+
+/* 可折叠的控制面板 */
+.controls-panel-compact {
+  background: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.controls-panel-compact label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #555;
+}
+
+.controls-panel-compact input {
+  width: 80px;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* 消息提示 */
+.message-compact {
+  padding: 10px 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.message-compact.success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.message-compact.error {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* 分页控制 */
+.pagination-top,
+.pagination-bottom {
+  background: white;
+  padding: 10px 20px;
+  border-radius: 6px;
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
-.redbubble-meta .score {
-  color: #f39c12;
-  font-weight: 600;
+.pagination-bottom {
+  margin-top: 12px;
+  margin-bottom: 0;
 }
 
-.redbubble-meta .rank {
-  color: #667eea;
-  font-weight: 600;
+.page-info {
+  font-size: 14px;
+  color: #666;
 }
 
-.view-link {
-  display: inline-block;
-  color: #667eea;
+.page-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.page-buttons button,
+.pagination-bottom button {
+  padding: 6px 14px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
   font-size: 13px;
+  transition: background 0.2s;
+}
+
+.page-buttons button:hover:not(:disabled),
+.pagination-bottom button:hover:not(:disabled) {
+  background: #5568d3;
+}
+
+.page-buttons button:disabled,
+.pagination-bottom button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* 加载和空状态 */
+.loading-compact,
+.empty-compact {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 8px;
+  color: #888;
+}
+
+.empty-compact .hint {
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 8px;
+}
+
+/* 商品列表 */
+.products-grid-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 每行商品：左右分栏 */
+.product-row-compact {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: 16px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s;
+}
+
+.product-row-compact:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* 左侧：TEMU商品卡片 */
+.temu-card-compact {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-right: 1px solid #e8eef5;
+}
+
+.temu-img-compact {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.temu-info-compact {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.temu-title-compact {
+  font-size: 14px;
+  color: #333;
+  margin: 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.temu-meta-compact {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.temu-meta-compact .price {
+  color: #e74c3c;
   font-weight: 600;
-  text-decoration: none;
-  transition: color 0.3s;
+  font-size: 15px;
 }
 
-.view-link:hover {
-  color: #764ba2;
-  text-decoration: underline;
+.temu-meta-compact .sales {
+  color: #f39c12;
+  font-weight: 500;
 }
 
-/* 响应式设计 */
+/* 右侧：结果卡片 */
+.results-card-compact {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* AI关键词 */
+.keywords-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #e8eef5 0%, #f0f3f8 100%);
+  border-radius: 6px;
+  border-left: 3px solid #667eea;
+}
+
+.keywords-compact .label {
+  font-size: 12px;
+  color: #667eea;
+  font-weight: 600;
+}
+
+.keywords-compact .value {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.keywords-compact .pending {
+  font-size: 13px;
+  color: #999;
+  font-style: italic;
+}
+
+/* Redbubble结果 - 九宫格布局 */
+.redbubble-grid-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.redbubble-grid-compact {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
+.rb-grid-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: block;
+}
+
+.rb-grid-item:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  z-index: 1;
+}
+
+.rb-grid-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.rb-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  padding: 8px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.rb-grid-item:hover .rb-overlay {
+  opacity: 1;
+}
+
+.rb-score {
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* 展开按钮 */
+.expand-btn {
+  width: 100%;
+  padding: 10px;
+  background: #e8eef5;
+  border: none;
+  border-radius: 6px;
+  color: #667eea;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 13px;
+}
+
+.expand-btn:hover {
+  background: #d0dae8;
+}
+
+.more-results {
+  text-align: center;
+  padding: 6px;
+  font-size: 12px;
+  color: #667eea;
+  background: #e8eef5;
+  border-radius: 4px;
+}
+
+.no-results-compact {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+  font-size: 13px;
+}
+
+/* 响应式 */
+@media (max-width: 1200px) {
+  .product-row-compact {
+    grid-template-columns: 1fr;
+  }
+
+  .temu-card-compact {
+    border-right: none;
+    border-bottom: 1px solid #e8eef5;
+  }
+}
+
 @media (max-width: 768px) {
-  .temu-product {
+  .compact-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .stats-mini {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .temu-card-compact {
     flex-direction: column;
   }
 
-  .temu-img {
+  .temu-img-compact {
     width: 100%;
     height: 200px;
-  }
-
-  .redbubble-results {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  }
-
-  .stats-container {
-    grid-template-columns: 1fr;
   }
 }
