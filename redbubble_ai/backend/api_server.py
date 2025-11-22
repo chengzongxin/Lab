@@ -10,6 +10,10 @@ from datetime import datetime
 from pydantic import BaseModel
 import uuid
 
+# 加载.env环境变量
+from dotenv import load_dotenv
+load_dotenv()  # 这会自动加载当前目录的.env文件
+
 # 配置日志
 logging.basicConfig(
     level=logging.INFO,
@@ -808,6 +812,120 @@ def get_temu_matches(
     except Exception as e:
         logger.error(f"获取匹配结果失败: {e}")
         raise HTTPException(status_code=500, detail=f"获取匹配结果失败: {str(e)}")
+
+@app.get("/api/temu/products-with-matches")
+def get_temu_products_with_matches(
+    limit: int = 20,
+    offset: int = 0,
+    category_id: Optional[int] = None,
+    min_match_score: float = 0.5
+):
+    """
+    获取TEMU商品及其AI清洗结果和Redbubble搜索结果（分组展示）
+    返回格式：每个TEMU商品对应多个Redbubble搜索结果
+    """
+    try:
+        conn = get_db_conn()
+        cursor = conn.cursor(dictionary=True)
+        
+        # 第一步：获取TEMU商品列表（包括未清洗的）
+        products_query = """
+            SELECT 
+                p.id,
+                p.goods_id,
+                p.title,
+                p.img,
+                p.price,
+                p.sales_count,
+                p.category_id,
+                tc.cleaned_keywords,
+                tc.status as cleaning_status,
+                tc.created_at as cleaned_at
+            FROM temu_products p
+            LEFT JOIN temu_title_cleaning tc ON p.id = tc.product_id
+            WHERE 1=1
+        """
+        params = []
+        
+        if category_id:
+            products_query += " AND p.category_id = %s"
+            params.append(category_id)
+        
+        products_query += " ORDER BY p.sales_count DESC, p.id DESC LIMIT %s OFFSET %s"
+        params.extend([limit, offset])
+        
+        cursor.execute(products_query, tuple(params))
+        temu_products = cursor.fetchall()
+        
+        # 第二步：为每个TEMU商品获取对应的Redbubble搜索结果
+        result_products = []
+        for product in temu_products:
+            # 查询该商品的Redbubble匹配结果
+            matches_query = """
+                SELECT 
+                    m.id,
+                    m.redbubble_title,
+                    m.redbubble_img,
+                    m.redbubble_link,
+                    m.redbubble_score,
+                    m.match_score,
+                    m.rank_position,
+                    m.created_at
+                FROM temu_redbubble_matches m
+                WHERE m.temu_product_id = %s
+                AND m.match_score >= %s
+                ORDER BY m.rank_position ASC, m.match_score DESC
+                LIMIT 10
+            """
+            cursor.execute(matches_query, (product['id'], min_match_score))
+            redbubble_results = cursor.fetchall()
+            
+            # 组装数据
+            result_products.append({
+                "temu_product": {
+                    "id": product['id'],
+                    "goods_id": product['goods_id'],
+                    "title": product['title'],
+                    "img": product['img'],
+                    "price": product['price'],
+                    "sales_count": product['sales_count'],
+                    "category_id": product['category_id']
+                },
+                "cleaned_keywords": product['cleaned_keywords'],
+                "cleaning_status": product['cleaning_status'],
+                "cleaned_at": product['cleaned_at'].isoformat() if product['cleaned_at'] else None,
+                "redbubble_results": redbubble_results
+            })
+        
+        # 第三步：获取总数（用于分页）
+        count_query = """
+            SELECT COUNT(*) as total
+            FROM temu_products p
+            WHERE 1=1
+        """
+        count_params = []
+        if category_id:
+            count_query += " AND p.category_id = %s"
+            count_params.append(category_id)
+        
+        cursor.execute(count_query, tuple(count_params) if count_params else ())
+        total = cursor.fetchone()['total']
+        
+        cursor.close()
+        conn.close()
+        
+        return {
+            "total": total,
+            "products": result_products,
+            "limit": limit,
+            "offset": offset
+        }
+        
+    except Exception as e:
+        logger.error(f"获取TEMU商品及匹配结果失败: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"获取数据失败: {str(e)}")
 
 # 预加载NIMA模型（可选，提升首次评分速度）
 @app.on_event("startup")

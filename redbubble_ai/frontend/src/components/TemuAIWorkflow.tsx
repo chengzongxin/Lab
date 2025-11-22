@@ -13,15 +13,8 @@ interface AIWorkflowStats {
   };
 }
 
-interface Match {
+interface RedbubbleResult {
   id: number;
-  temu_product_id: number;
-  temu_goods_id: string;
-  temu_title: string;
-  temu_img: string;
-  temu_price: string;
-  sales_count: number;
-  search_keywords: string;
   redbubble_title: string;
   redbubble_img: string;
   redbubble_link: string;
@@ -31,6 +24,24 @@ interface Match {
   created_at: string;
 }
 
+interface TemuProduct {
+  id: number;
+  goods_id: string;
+  title: string;
+  img: string;
+  price: string;
+  sales_count: number;
+  category_id: number;
+}
+
+interface ProductWithMatches {
+  temu_product: TemuProduct;
+  cleaned_keywords: string;
+  cleaning_status: string;
+  cleaned_at: string | null;
+  redbubble_results: RedbubbleResult[];
+}
+
 const TemuAIWorkflow: React.FC = () => {
   const [categoryId, setCategoryId] = useState<string>('');
   const [batchSize, setBatchSize] = useState<number>(10);
@@ -38,8 +49,8 @@ const TemuAIWorkflow: React.FC = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [message, setMessage] = useState('');
   const [stats, setStats] = useState<AIWorkflowStats | null>(null);
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [isLoadingMatches, setIsLoadingMatches] = useState(false);
+  const [products, setProducts] = useState<ProductWithMatches[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
   // 加载统计信息
   const loadStats = async () => {
@@ -51,30 +62,30 @@ const TemuAIWorkflow: React.FC = () => {
     }
   };
 
-  // 加载匹配结果
-  const loadMatches = async () => {
-    setIsLoadingMatches(true);
+  // 加载TEMU商品及其匹配结果
+  const loadProducts = async () => {
+    setIsLoadingProducts(true);
     try {
-      const response = await axios.get('http://localhost:8000/api/temu/matches', {
+      const response = await axios.get('http://localhost:8000/api/temu/products-with-matches', {
         params: {
           limit: 20,
           offset: 0,
-          min_match_score: 0.5
+          min_match_score: 0.3
         }
       });
-      setMatches(response.data.matches || []);
+      setProducts(response.data.products || []);
     } catch (error) {
-      console.error('加载匹配结果失败:', error);
-      setMatches([]);
+      console.error('加载商品数据失败:', error);
+      setProducts([]);
     } finally {
-      setIsLoadingMatches(false);
+      setIsLoadingProducts(false);
     }
   };
 
-  // 页面加载时获取统计和匹配结果
+  // 页面加载时获取统计和商品数据
   useEffect(() => {
     loadStats();
-    loadMatches();
+    loadProducts();
     const interval = setInterval(() => {
       loadStats();
     }, 5000); // 每5秒刷新统计
@@ -104,7 +115,7 @@ const TemuAIWorkflow: React.FC = () => {
         // 启动后等待一段时间再刷新数据
         setTimeout(() => {
           loadStats();
-          loadMatches();
+          loadProducts();
         }, 3000);
       } else {
         setMessage('❌ 启动失败');
@@ -138,7 +149,7 @@ const TemuAIWorkflow: React.FC = () => {
             <div className="stat-value">{stats.matches.matched_products}</div>
           </div>
           <div className="stat-card">
-            <div className="stat-label">总匹配结果</div>
+            <div className="stat-label">总搜索结果</div>
             <div className="stat-value">{stats.matches.total_matches}</div>
           </div>
         </div>
@@ -208,59 +219,98 @@ const TemuAIWorkflow: React.FC = () => {
         )}
       </div>
 
-      {/* 匹配结果展示 */}
-      <div className="matches-section">
+      {/* TEMU商品列表 */}
+      <div className="products-section">
         <div className="section-header">
-          <h3>📊 匹配结果</h3>
-          <button onClick={loadMatches} disabled={isLoadingMatches} className="refresh-button">
-            {isLoadingMatches ? '⏳ 加载中...' : '🔄 刷新'}
+          <h3>📦 TEMU商品及Redbubble搜索结果</h3>
+          <button onClick={loadProducts} disabled={isLoadingProducts} className="refresh-button">
+            {isLoadingProducts ? '⏳ 加载中...' : '🔄 刷新'}
           </button>
         </div>
 
-        {isLoadingMatches ? (
+        {isLoadingProducts ? (
           <div className="loading">加载中...</div>
-        ) : matches.length === 0 ? (
+        ) : products.length === 0 ? (
           <div className="empty-state">
-            <p>暂无匹配结果</p>
-            <p className="hint">启动工作流后，AI将清洗TEMU商品标题并搜索Redbubble匹配设计</p>
+            <p>暂无数据</p>
+            <p className="hint">启动AI工作流后，系统将清洗TEMU商品标题并搜索Redbubble设计</p>
           </div>
         ) : (
-          <div className="matches-grid">
-            {matches.map((match) => (
-              <div key={match.id} className="match-card">
-                <div className="match-header">
-                  <span className="match-score">匹配度: {(match.match_score * 100).toFixed(0)}%</span>
-                  <span className="sales-badge">销量: {match.sales_count}</span>
-                </div>
-
-                <div className="match-content">
-                  {/* TEMU商品 */}
-                  <div className="product-section temu-section">
-                    <h4>🛍️ TEMU商品</h4>
-                    <img src={match.temu_img} alt={match.temu_title} />
-                    <p className="product-title">{match.temu_title}</p>
-                    <p className="product-price">{match.temu_price}</p>
-                  </div>
-
-                  {/* 搜索关键词 */}
-                  <div className="keywords-section">
-                    <div className="arrow">→</div>
-                    <div className="keywords">
-                      <strong>AI提取关键词:</strong>
-                      <p>{match.search_keywords}</p>
+          <div className="products-list">
+            {products.map((item) => (
+              <div key={item.temu_product.id} className="product-card">
+                {/* TEMU商品信息 */}
+                <div className="temu-section">
+                  <div className="temu-product">
+                    <img
+                      src={item.temu_product.img}
+                      alt={item.temu_product.title}
+                      className="temu-img"
+                    />
+                    <div className="temu-info">
+                      <h4 className="temu-title">{item.temu_product.title}</h4>
+                      <div className="temu-meta">
+                        <span className="price">{item.temu_product.price}</span>
+                        <span className="sales">销量: {item.temu_product.sales_count}</span>
+                      </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Redbubble匹配 */}
-                  <div className="product-section redbubble-section">
-                    <h4>🎨 Redbubble匹配</h4>
-                    <img src={match.redbubble_img} alt={match.redbubble_title} />
-                    <p className="product-title">{match.redbubble_title}</p>
-                    <p className="product-score">评分: {match.redbubble_score.toFixed(2)}</p>
-                    <a href={match.redbubble_link} target="_blank" rel="noopener noreferrer" className="view-link">
-                      查看商品 →
-                    </a>
-                  </div>
+                {/* AI清洗关键词 */}
+                <div className="keywords-section">
+                  {item.cleaning_status === 'completed' && item.cleaned_keywords ? (
+                    <>
+                      <div className="keywords-label">🤖 AI提取关键词:</div>
+                      <div className="keywords-value">{item.cleaned_keywords}</div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="keywords-label">⏳ 待处理</div>
+                      <div className="keywords-value" style={{ color: '#95a5a6', fontStyle: 'italic' }}>
+                        点击上方"🚀 启动AI工作流"按钮来清洗标题并搜索Redbubble设计
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Redbubble搜索结果 */}
+                <div className="redbubble-section">
+                  <h5 className="redbubble-title">
+                    🎨 Redbubble搜索结果 ({item.redbubble_results.length})
+                  </h5>
+                  {item.redbubble_results.length === 0 ? (
+                    <div className="no-results">
+                      {item.cleaning_status === 'completed' ? '暂无搜索结果' : '需要先运行AI工作流'}
+                    </div>
+                  ) : (
+                    <div className="redbubble-results">
+                      {item.redbubble_results.map((result) => (
+                        <div key={result.id} className="redbubble-card">
+                          <img
+                            src={result.redbubble_img}
+                            alt={result.redbubble_title}
+                            className="redbubble-img"
+                          />
+                          <div className="redbubble-info">
+                            <p className="redbubble-product-title">{result.redbubble_title}</p>
+                            <div className="redbubble-meta">
+                              <span className="score">评分: {result.redbubble_score.toFixed(1)}</span>
+                              <span className="rank">#{result.rank_position}</span>
+                            </div>
+                            <a
+                              href={result.redbubble_link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="view-link"
+                            >
+                              查看 →
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -272,4 +322,3 @@ const TemuAIWorkflow: React.FC = () => {
 };
 
 export default TemuAIWorkflow;
-

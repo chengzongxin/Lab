@@ -172,7 +172,7 @@ def save_redbubble_matches(temu_product_id: int, temu_goods_id: str, search_keyw
                     product['img'],
                     product['link'],
                     product.get('score', 0.0),
-                    1.0 - (idx - 1) * 0.1,  # 简单的匹配分数：排名越靠前分数越高
+                    max(0.1, 1.0 - (idx - 1) * 0.05),  # 匹配分数0.1-1.0，排名越靠前分数越高
                     idx
                 ))
                 
@@ -202,6 +202,7 @@ def process_temu_to_redbubble_workflow(
 ) -> Dict:
     """
     完整工作流：清洗TEMU标题 → 搜索Redbubble → 保存匹配结果
+    优化版：跳过已处理的商品，避免重复工作
     
     :param category_id: 类目ID（可选，为None时处理所有类目）
     :param batch_size: 每批处理数量
@@ -209,54 +210,109 @@ def process_temu_to_redbubble_workflow(
     :return: 统计信息
     """
     stats = {
-        "total_processed": 0,
+        "total_checked": 0,
         "cleaned_success": 0,
+        "cleaned_skipped": 0,  # 已清洗过，跳过
         "cleaned_failed": 0,
         "redbubble_searched": 0,
+        "redbubble_skipped": 0,  # 已有搜索结果，跳过
         "matches_saved": 0
     }
     
     try:
-        # 步骤1：获取未清洗的TEMU商品
-        logger.info(f"步骤1: 获取未清洗的TEMU商品（batch_size={batch_size}）...")
-        products = get_uncleaned_temu_products(limit=batch_size, category_id=category_id)
+        # 步骤1：获取TEMU商品（包括已清洗和未清洗的）
+        logger.info(f"步骤1: 获取TEMU商品（batch_size={batch_size}）...")
+        
+        conn = get_db_conn()
+        cursor = conn.cursor(dictionary=True)
+        
+        # 查询TEMU商品，按销量排序
+        query = """
+            SELECT p.id, p.goods_id, p.title, p.img, p.link, p.price, p.sales_count,
+                   tc.id as cleaning_id, tc.cleaned_keywords, tc.status as cleaning_status
+            FROM temu_products p
+            LEFT JOIN temu_title_cleaning tc ON p.id = tc.product_id
+        """
+        
+        params = []
+        if category_id:
+            query += " WHERE p.category_id = %s"
+            params.append(category_id)
+        
+        query += " ORDER BY p.sales_count DESC LIMIT %s"
+        params.append(batch_size)
+        
+        cursor.execute(query, tuple(params) if params else (batch_size,))
+        products = cursor.fetchall()
+        
+        cursor.close()
+        conn.close()
         
         if not products:
             logger.info("没有需要处理的商品")
             return stats
         
-        stats["total_processed"] = len(products)
+        logger.info(f"找到 {len(products)} 个商品待检查")
+        stats["total_checked"] = len(products)
         
         # 步骤2: 逐个处理商品
         for idx, product in enumerate(products, 1):
             product_id = product['id']
             goods_id = product['goods_id']
             title = product['title']
+            cleaning_status = product.get('cleaning_status')
+            cleaned_keywords = product.get('cleaned_keywords')
             
-            logger.info(f"===== 处理商品 {idx}/{len(products)} =====")
+            logger.info(f"\n{'='*60}")
+            logger.info(f"处理商品 {idx}/{len(products)}")
             logger.info(f"商品ID: {product_id}, goods_id: {goods_id}")
             logger.info(f"原标题: {title}")
+            logger.info(f"{'='*60}")
             
-            # 2.1 AI清洗标题
-            logger.info("步骤2.1: AI清洗标题...")
-            cleaning_result = clean_title_with_fallback(title)
+            # 2.1 检查是否已清洗
+            if cleaning_status == 'completed' and cleaned_keywords:
+                logger.info(f"✓ 标题已清洗过，跳过清洗步骤")
+                logger.info(f"  清洗后关键词: {cleaned_keywords}")
+                stats["cleaned_skipped"] += 1
+            else:
+                # 需要清洗标题
+                logger.info("→ 开始AI清洗标题...")
+                cleaning_result = clean_title_with_fallback(title)
+                
+                if not cleaning_result.get('success'):
+                    logger.error(f"✗ 标题清洗失败: {cleaning_result.get('error')}")
+                    save_title_cleaning_result(product_id, goods_id, title, cleaning_result, status='failed')
+                    stats["cleaned_failed"] += 1
+                    continue
+                
+                cleaned_keywords = cleaning_result['cleaned_keywords']
+                logger.info(f"✓ 清洗成功: {cleaned_keywords}")
+                
+                # 保存清洗结果
+                cleaning_id = save_title_cleaning_result(product_id, goods_id, title, cleaning_result, status='completed')
+                if cleaning_id:
+                    stats["cleaned_success"] += 1
             
-            if not cleaning_result.get('success'):
-                logger.error(f"标题清洗失败: {cleaning_result.get('error')}")
-                save_title_cleaning_result(product_id, goods_id, title, cleaning_result, status='failed')
-                stats["cleaned_failed"] += 1
+            # 2.2 检查是否已有Redbubble搜索结果
+            conn = get_db_conn()
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT COUNT(*) as count 
+                FROM temu_redbubble_matches 
+                WHERE temu_product_id = %s
+            """, (product_id,))
+            result = cursor.fetchone()
+            existing_matches = result[0] if result else 0
+            cursor.close()
+            conn.close()
+            
+            if existing_matches > 0:
+                logger.info(f"✓ 已有 {existing_matches} 条Redbubble搜索结果，跳过搜索")
+                stats["redbubble_skipped"] += 1
                 continue
             
-            cleaned_keywords = cleaning_result['cleaned_keywords']
-            logger.info(f"清洗后关键词: {cleaned_keywords}")
-            
-            # 保存清洗结果
-            cleaning_id = save_title_cleaning_result(product_id, goods_id, title, cleaning_result, status='completed')
-            if cleaning_id:
-                stats["cleaned_success"] += 1
-            
-            # 2.2 使用清洗后的关键词在Redbubble搜索
-            logger.info(f"步骤2.2: 在Redbubble搜索关键词: {cleaned_keywords}...")
+            # 2.3 使用清洗后的关键词在Redbubble搜索
+            logger.info(f"→ 在Redbubble搜索关键词: {cleaned_keywords}...")
             try:
                 redbubble_results = crawl_redbubble(
                     keyword=cleaned_keywords,
@@ -264,29 +320,47 @@ def process_temu_to_redbubble_workflow(
                     category="u-clothing"  # 默认搜索服装类
                 )
                 
-                logger.info(f"Redbubble搜索完成，找到 {len(redbubble_results)} 个商品")
+                logger.info(f"✓ Redbubble搜索完成，找到 {len(redbubble_results)} 个商品")
                 stats["redbubble_searched"] += 1
                 
-                # 2.3 保存匹配结果
+                # 2.4 保存匹配结果
                 if redbubble_results:
-                    logger.info("步骤2.3: 保存匹配结果...")
+                    logger.info("→ 保存匹配结果...")
                     matched_count = save_redbubble_matches(
                         product_id, goods_id, cleaned_keywords, redbubble_results
                     )
                     stats["matches_saved"] += matched_count
+                    logger.info(f"✓ 成功保存 {matched_count} 条匹配结果")
                 else:
-                    logger.warning("未找到Redbubble匹配商品")
+                    logger.warning("✗ 未找到Redbubble匹配商品")
                 
             except Exception as e:
-                logger.error(f"Redbubble搜索失败: {e}")
+                logger.error(f"✗ Redbubble搜索失败: {e}")
+                import traceback
+                logger.error(traceback.format_exc())
                 continue
         
-        logger.info(f"工作流完成！统计: {stats}")
+        logger.info(f"\n{'='*60}")
+        logger.info("工作流完成！")
+        logger.info(f"{'='*60}")
+        logger.info(f"统计信息:")
+        logger.info(f"  检查商品数: {stats['total_checked']}")
+        logger.info(f"  新清洗成功: {stats['cleaned_success']}")
+        logger.info(f"  已清洗跳过: {stats['cleaned_skipped']}")
+        logger.info(f"  清洗失败: {stats['cleaned_failed']}")
+        logger.info(f"  新搜索次数: {stats['redbubble_searched']}")
+        logger.info(f"  已搜索跳过: {stats['redbubble_skipped']}")
+        logger.info(f"  保存匹配数: {stats['matches_saved']}")
+        logger.info(f"{'='*60}\n")
+        
         return stats
         
     except Exception as e:
         logger.error(f"工作流执行失败: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         raise e
+
 
 
 if __name__ == "__main__":

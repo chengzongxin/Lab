@@ -9,8 +9,8 @@ interface TemuCategoryCrawlerProps {
 const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = ({ onCrawlComplete }) => {
   const [categoryUrl, setCategoryUrl] = useState('');
   const [minSales, setMinSales] = useState(1000);
-  const [crawlDetails, setCrawlDetails] = useState(true);
-  const [crawlSellerProducts, setCrawlSellerProducts] = useState(true);
+  const [crawlDetails, setCrawlDetails] = useState(false);
+  const [crawlSellerProducts, setCrawlSellerProducts] = useState(false);
   const [usePersistentContext, setUsePersistentContext] = useState(false);
   const [userDataDir, setUserDataDir] = useState('');
   const [debugPort, setDebugPort] = useState<number | null>(9222);
@@ -64,7 +64,7 @@ const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = ({ onCrawlComple
     setMessage('正在启动TEMU类目爬取工作流...');
     setMessageType('info');
     setTaskId(null);
-    
+
     try {
       const requestData: any = {
         category_url: categoryUrl.trim(),
@@ -83,7 +83,7 @@ const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = ({ onCrawlComple
       }
 
       const response = await axios.post('http://localhost:8000/api/crawl/temu/category', requestData);
-      
+
       setTaskId(response.data.task_id);
       setMessage(response.data.message || '工作流已启动，正在后台运行...');
       setMessageType('info');
@@ -117,7 +117,7 @@ const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = ({ onCrawlComple
       <div className="crawler-form">
         <div className="form-section">
           <h4>基本设置</h4>
-          
+
           <div className="form-group">
             <label htmlFor="category-url">
               类目URL <span className="required">*</span>
@@ -165,7 +165,7 @@ const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = ({ onCrawlComple
 
         <div className="form-section">
           <h4>爬取选项</h4>
-          
+
           <div className="form-group checkbox-group">
             <label className="checkbox-label">
               <input
@@ -193,7 +193,7 @@ const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = ({ onCrawlComple
 
         <div className="form-section">
           <h4>浏览器设置（可选）</h4>
-          
+
           <div className="form-group checkbox-group">
             <label className="checkbox-label">
               <input

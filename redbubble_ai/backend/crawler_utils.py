@@ -26,11 +26,10 @@ def crawl_redbubble(keyword, pages, category):
     results = []
     try:
         with sync_playwright() as p:
-            # 启动浏览器，使用headless模式，增加稳定性配置
-            # 使用系统的Chrome浏览器
+            # 启动浏览器，使用headless模式
+            # 使用Playwright内置的chromium（更稳定，特别是在异步环境中）
             browser = p.chromium.launch(
-                headless=True,
-                channel="chrome",  # 使用系统的Chrome浏览器
+                headless=False,
                 args=[
                     "--no-sandbox",
                     "--disable-dev-shm-usage", 
@@ -56,11 +55,11 @@ def crawl_redbubble(keyword, pages, category):
             for page_num in range(1, pages + 1):
                 try:
                     # 构建搜索URL
-                    # 判断keyword是否存在，如果不存在则不添加query参数
+                    # 判断keyword是否存在，如果不存在则不添加query参数  如果要按销量排名，加上 &sortOrder=top%20selling
                     if keyword:
-                        url = f"https://www.redbubble.com/shop/?iaCode={category}&query={keyword}&ref=search_box&page={page_num}&sortOrder=top%20selling"
+                        url = f"https://www.redbubble.com/shop/?iaCode={category}&query={keyword}&ref=search_box&page={page_num}"
                     else:
-                        url = f"https://www.redbubble.com/shop/?iaCode={category}&ref=search_box&page={page_num}&sortOrder=top%20selling"
+                        url = f"https://www.redbubble.com/shop/?iaCode={category}&ref=search_box&page={page_num}"
                     logger.info(f"正在爬取第{page_num}页: {url}")
                     
                     # 访问页面
