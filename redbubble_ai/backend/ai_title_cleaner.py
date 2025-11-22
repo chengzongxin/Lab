@@ -23,7 +23,7 @@ OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
 HTTP_PROXY = os.getenv("HTTP_PROXY")
 HTTPS_PROXY = os.getenv("HTTPS_PROXY")
 
-def clean_title_with_ai(title: str, model: str = "gpt-4o-mini") -> Dict[str, any]:
+def clean_title_with_ai(title: str, model: str = "deepseek-chat") -> Dict[str, any]:
     """
     使用AI清洗商品标题，提取核心关键词
     
@@ -65,7 +65,7 @@ def clean_title_with_ai(title: str, model: str = "gpt-4o-mini") -> Dict[str, any
 2. 去除所有通用的营销形容词（如：hot, best, new, premium, quality, perfect, amazing等）
 3. 去除数量词和规格词（如：1pc, 2pcs, set of, pack）
 4. 保留最重要的商品类型、风格、特征等核心描述词
-5. 返回3-5个最核心的关键词，用空格分隔
+5. 返回最多不超过5个关键词，用空格分隔
 
 示例：
 输入：1pc Retro Brimless Hat With Deep Sea Dive Diving Design - Casual Stylish Accessory For Men & Women
@@ -124,7 +124,7 @@ def clean_title_with_ai(title: str, model: str = "gpt-4o-mini") -> Dict[str, any
         }
 
 
-def batch_clean_titles(titles: List[str], model: str = "gpt-4o-mini") -> List[Dict[str, any]]:
+def batch_clean_titles(titles: List[str], model: str = "deepseek-chat") -> List[Dict[str, any]]:
     """
     批量清洗标题
     
