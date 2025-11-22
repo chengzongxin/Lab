@@ -198,7 +198,8 @@ def save_redbubble_matches(temu_product_id: int, temu_goods_id: str, search_keyw
 def process_temu_to_redbubble_workflow(
     category_id: Optional[int] = None,
     batch_size: int = 10,
-    redbubble_pages: int = 2
+    redbubble_pages: int = 2,
+    redbubble_category: str = "u-socks"
 ) -> Dict:
     """
     完整工作流：清洗TEMU标题 → 搜索Redbubble → 保存匹配结果
@@ -207,6 +208,7 @@ def process_temu_to_redbubble_workflow(
     :param category_id: 类目ID（可选，为None时处理所有类目）
     :param batch_size: 每批处理数量
     :param redbubble_pages: Redbubble搜索页数
+    :param redbubble_category: Redbubble搜索类目
     :return: 统计信息
     """
     stats = {
@@ -317,7 +319,7 @@ def process_temu_to_redbubble_workflow(
                 redbubble_results = crawl_redbubble(
                     keyword=cleaned_keywords,
                     pages=redbubble_pages,
-                    category="u-clothing"  # 默认搜索服装类
+                    category=redbubble_category
                 )
                 
                 logger.info(f"✓ Redbubble搜索完成，找到 {len(redbubble_results)} 个商品")

@@ -8,7 +8,7 @@ interface TemuCategoryCrawlerProps {
 
 const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = ({ onCrawlComplete }) => {
   const [categoryUrl, setCategoryUrl] = useState('');
-  const [minSales, setMinSales] = useState(1000);
+  const [minSales, setMinSales] = useState(200);
   const [crawlDetails, setCrawlDetails] = useState(false);
   const [crawlSellerProducts, setCrawlSellerProducts] = useState(false);
   const [usePersistentContext, setUsePersistentContext] = useState(false);

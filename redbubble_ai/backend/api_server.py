@@ -45,7 +45,7 @@ app.mount("/images", StaticFiles(directory="results"), name="images")
 class CrawlRequest(BaseModel):
     keyword: str = ""
     pages: int = 1
-    category: str = "u-clothing"  # 默认衣服
+    category: str = "u-socks"  # 默认袜子
 
 class TemuCrawlRequest(BaseModel):
     mall_id: str  # TEMU店铺ID（必填）
@@ -56,7 +56,7 @@ class TemuCrawlRequest(BaseModel):
 
 class TemuCategoryCrawlRequest(BaseModel):
     category_url: str  # TEMU类目URL（必填）
-    min_sales: int = 1000  # 最小销量（默认1000）
+    min_sales: int = 200  # 最小销量（默认200）
     crawl_details: bool = False  # 是否爬取商品详情（暂时禁用）
     crawl_seller_products: bool = False  # 是否爬取卖家店铺商品（暂时禁用）
     use_persistent_context: bool = False  # 是否使用持久化上下文
@@ -66,7 +66,8 @@ class TemuCategoryCrawlRequest(BaseModel):
 class TemuAIWorkflowRequest(BaseModel):
     category_id: Optional[int] = None  # 类目ID（可选，为None时处理所有类目）
     batch_size: int = 10  # 每批处理数量（默认10）
-    redbubble_pages: int = 2  # Redbubble搜索页数（默认2页）
+    redbubble_pages: int = 1  # Redbubble搜索页数（默认1页）
+    redbubble_category: str = "u-socks"  # Redbubble搜索类目（默认袜子）
 
 def get_db_conn():
     return mysql.connector.connect(
@@ -672,7 +673,8 @@ async def start_temu_ai_workflow(request: TemuAIWorkflowRequest, background_task
                     process_temu_to_redbubble_workflow,
                     request.category_id,
                     request.batch_size,
-                    request.redbubble_pages
+                    request.redbubble_pages,
+                    request.redbubble_category
                 )
             
             logger.info(f"TEMU AI工作流执行完成: {stats}")

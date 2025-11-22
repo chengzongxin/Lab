@@ -65,7 +65,8 @@ def clean_title_with_ai(title: str, model: str = "deepseek-chat") -> Dict[str, a
 2. 去除所有通用的营销形容词（如：hot, best, new, premium, quality, perfect, amazing等）
 3. 去除数量词和规格词（如：1pc, 2pcs, set of, pack）
 4. 保留最重要的商品类型、风格、特征等核心描述词
-5. 返回最多不超过5个关键词，用空格分隔
+5. 必须去除以下类目词：cap, scarf, beanie, hat, sock, socks
+6. 返回最多不超过5个关键词，用空格分隔
 
 示例：
 输入：1pc Retro Brimless Hat With Deep Sea Dive Diving Design - Casual Stylish Accessory For Men & Women
@@ -151,10 +152,12 @@ def clean_title_with_fallback(title: str) -> Dict[str, any]:
     :return: 清洗结果
     """
     # 首先尝试AI清洗
-    result = clean_title_with_ai(title)
-    
-    if result["success"]:
-        return result
+    try:
+        result = clean_title_with_ai(title)
+        if result["success"]:
+            return result
+    except Exception as e:
+        logger.warning(f"AI清洗调用失败: {e}")
     
     # AI失败，使用规则方法作为降级方案
     logger.warning(f"AI清洗失败，使用规则方法作为降级方案")
@@ -172,7 +175,8 @@ def clean_title_with_fallback(title: str) -> Dict[str, any]:
         'hot', 'best', 'new', 'premium', 'quality', 'perfect', 'amazing',
         'great', 'super', 'top', 'special', 'unique', 'exclusive', 'limited',
         'sale', 'discount', 'cheap', 'free', 'shipping', 'fashion', 'trendy',
-        'stylish', 'casual', 'comfortable', 'soft', 'warm', 'cool'
+        'stylish', 'casual', 'comfortable', 'soft', 'warm', 'cool',
+        'cap', 'scarf', 'beanie', 'hat', 'sock', 'socks'
     ]
     
     # 数量词模式

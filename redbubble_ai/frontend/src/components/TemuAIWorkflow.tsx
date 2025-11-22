@@ -42,7 +42,8 @@ interface ProductWithMatches {
 const TemuAIWorkflow: React.FC = () => {
   // 控制参数
   const [batchSize, setBatchSize] = useState<number>(100);
-  const [redbubblePages, setRedbubblePages] = useState<number>(2);
+  const [redbubblePages, setRedbubblePages] = useState<number>(1);
+  const [redbubbleCategory, setRedbubbleCategory] = useState<string>('u-socks');
   const [isRunning, setIsRunning] = useState(false);
   const [message, setMessage] = useState('');
   const [showControls, setShowControls] = useState(false);
@@ -123,7 +124,8 @@ const TemuAIWorkflow: React.FC = () => {
       const response = await axios.post('http://localhost:8000/api/temu/ai-workflow', {
         category_id: null,
         batch_size: batchSize,
-        redbubble_pages: redbubblePages
+        redbubble_pages: redbubblePages,
+        redbubble_category: redbubbleCategory
       });
 
       if (response.data.success) {
@@ -199,6 +201,22 @@ const TemuAIWorkflow: React.FC = () => {
               onChange={(e) => setRedbubblePages(parseInt(e.target.value))}
               min="1" max="5"
             />
+          </label>
+          <label>
+            搜索类目:
+            <select
+              value={redbubbleCategory}
+              onChange={(e) => setRedbubbleCategory(e.target.value)}
+            >
+              <option value="u-socks">袜子 (Socks)</option>
+              <option value="u-clothing">衣服 (Clothing)</option>
+              <option value="u-stickers">贴纸 (Stickers)</option>
+              <option value="u-phone-cases">手机壳 (Phone Cases)</option>
+              <option value="u-mugs">马克杯 (Mugs)</option>
+              <option value="u-tshirts">T恤 (T-Shirts)</option>
+              <option value="u-hoodies">卫衣 (Hoodies)</option>
+              <option value="u-bags">包包 (Bags)</option>
+            </select>
           </label>
         </div>
       )}
