@@ -304,9 +304,9 @@ const TemuAIWorkflow: React.FC = () => {
                           className="rb-grid-item"
                           title={result.redbubble_title}
                         >
-                          <img src={result.redbubble_img} alt={result.redbubble_title} />
+                          <img src={result.redbubble_img} alt="Item preview" />
                           <div className="rb-overlay">
-                            <span className="rb-score">⭐ {result.redbubble_score.toFixed(1)}</span>
+                            <div className="rb-title-overlay">{result.redbubble_title}</div>
                           </div>
                         </a>
                       ))}
