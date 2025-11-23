@@ -19,18 +19,25 @@ logger = logging.getLogger(__name__)
 # 从环境变量获取API密钥
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL")
 # 获取代理配置
 HTTP_PROXY = os.getenv("HTTP_PROXY")
 HTTPS_PROXY = os.getenv("HTTPS_PROXY")
 
-def clean_title_with_ai(title: str, model: str = "deepseek-chat") -> Dict[str, any]:
+def clean_title_with_ai(title: str) -> Dict[str, any]:
     """
     使用AI清洗商品标题，提取核心关键词
     
     :param title: 原始商品标题
-    :param model: 使用的AI模型（默认gpt-4o-mini，更经济）
     :return: 包含cleaned_keywords（字符串）和keywords_list（列表）的字典
     """
+
+    model = OPENAI_MODEL
+
+    if not model:
+        logger.error("未设置OPENAI_MODEL环境变量")
+        raise ValueError("未配置OpenAI模型")
+
     if not OPENAI_API_KEY:
         logger.error("未设置OPENAI_API_KEY环境变量")
         raise ValueError("未配置OpenAI API密钥")
@@ -123,25 +130,6 @@ def clean_title_with_ai(title: str, model: str = "deepseek-chat") -> Dict[str, a
             "success": False,
             "error": str(e)
         }
-
-
-def batch_clean_titles(titles: List[str], model: str = "deepseek-chat") -> List[Dict[str, any]]:
-    """
-    批量清洗标题
-    
-    :param titles: 标题列表
-    :param model: 使用的AI模型
-    :return: 清洗结果列表
-    """
-    results = []
-    
-    for idx, title in enumerate(titles, 1):
-        logger.info(f"正在清洗标题 {idx}/{len(titles)}")
-        result = clean_title_with_ai(title, model)
-        result["original_title"] = title
-        results.append(result)
-    
-    return results
 
 
 def clean_title_with_fallback(title: str) -> Dict[str, any]:
