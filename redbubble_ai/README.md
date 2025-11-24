@@ -115,7 +115,7 @@ npm install
 **启动后端 API 服务**
 ```bash
 cd backend
-uvicorn api_server:app --reload --port 8000
+uvicorn api_server:app --reload --host 0.0.0.0 --port 8000
 ```
 
 **启动前端开发服务器**

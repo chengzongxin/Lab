@@ -28,7 +28,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 echo "🚀 启动 FastAPI 服务器..."
-uvicorn api_server:app --reload --port 8000 &
+uvicorn api_server:app --reload --host 0.0.0.0 --port 8000 &
 BACKEND_PID=$!
 echo "✅ 后端服务已启动 (PID: $BACKEND_PID)"
 

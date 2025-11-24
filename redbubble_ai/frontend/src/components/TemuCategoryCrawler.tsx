@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from '../config';
 import './TemuCategoryCrawler.css';
 
 interface TemuCategoryCrawlerProps {
@@ -44,7 +45,7 @@ const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = ({ onCrawlComple
     statusTimer.current = setInterval(async () => {
       try {
         // 检查任务状态（这里可以扩展为检查TEMU任务状态）
-        const res = await axios.get('http://localhost:8000/api/crawl/status');
+        const res = await axios.get(`${API_BASE_URL}/api/crawl/status`);
         // 注意：这里需要根据实际API调整
         // 目前先简单检查，后续可以添加专门的TEMU任务状态接口
       } catch (e) {
@@ -82,7 +83,7 @@ const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = ({ onCrawlComple
         requestData.debug_port = debugPort;
       }
 
-      const response = await axios.post('http://localhost:8000/api/crawl/temu/category', requestData);
+      const response = await axios.post(`${API_BASE_URL}/api/crawl/temu/category`, requestData);
 
       setTaskId(response.data.task_id);
       setMessage(response.data.message || '工作流已启动，正在后台运行...');

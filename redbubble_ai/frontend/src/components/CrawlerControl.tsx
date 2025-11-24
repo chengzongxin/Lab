@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from '../config';
 import './CrawlerControl.css';
 
 interface CrawlerControlProps {
@@ -53,7 +54,7 @@ const CrawlerControl: React.FC<CrawlerControlProps> = ({ onCrawlComplete }) => {
 
   const checkRunningTask = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/crawl/status');
+      const response = await axios.get(`${API_BASE_URL}/api/crawl/status`);
       if (response.data.has_running_task) {
         setCurrentTask(response.data.current_task);
         setIsCrawling(true);
@@ -70,7 +71,7 @@ const CrawlerControl: React.FC<CrawlerControlProps> = ({ onCrawlComplete }) => {
     if (statusTimer.current) clearInterval(statusTimer.current);
     statusTimer.current = setInterval(async () => {
       try {
-        const res = await axios.get('http://localhost:8000/api/crawl/status');
+        const res = await axios.get(`${API_BASE_URL}/api/crawl/status`);
         if (res.data.has_running_task) {
           setCurrentTask(res.data.current_task);
           setIsCrawling(true);
@@ -115,7 +116,7 @@ const CrawlerControl: React.FC<CrawlerControlProps> = ({ onCrawlComplete }) => {
     setCurrentTask(null);
     startPollingStatus();
     try {
-      const response = await axios.post('http://localhost:8000/api/crawl', {
+      const response = await axios.post(`${API_BASE_URL}/api/crawl`, {
         keyword: keyword.trim(),
         pages,
         category
@@ -135,7 +136,7 @@ const CrawlerControl: React.FC<CrawlerControlProps> = ({ onCrawlComplete }) => {
     if (!currentTask) return;
     if (!window.confirm('确定要取消当前任务吗？')) return;
     try {
-      await axios.delete(`http://localhost:8000/api/crawl/tasks/${currentTask.id}`);
+      await axios.delete(`${API_BASE_URL}/api/crawl/tasks/${currentTask.id}`);
       setMessage('任务已取消');
       setMessageType('info');
       setIsCrawling(false);
@@ -151,7 +152,7 @@ const CrawlerControl: React.FC<CrawlerControlProps> = ({ onCrawlComplete }) => {
   const handleClearData = async () => {
     if (!window.confirm('确定要清空所有商品数据吗？此操作不可恢复。')) return;
     try {
-      await axios.delete('http://localhost:8000/api/products');
+      await axios.delete(`${API_BASE_URL}/api/products`);
       setMessage('已清空所有商品数据');
       setMessageType('success');
       onCrawlComplete();

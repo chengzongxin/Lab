@@ -6,6 +6,7 @@ import SortFilter, { SortOption } from "./components/SortFilter";
 import CrawlerControl from "./components/CrawlerControl";
 import TemuCategoryCrawler from "./components/TemuCategoryCrawler";
 import TemuAIWorkflow from "./components/TemuAIWorkflow";
+import { API_BASE_URL } from './config';
 import "./App.css";
 
 const categoryOptions = [
@@ -37,8 +38,8 @@ const App: React.FC = () => {
       setLoading(true);
       setError(null);
       const url = category === 'all'
-        ? "http://localhost:8000/api/products"
-        : `http://localhost:8000/api/products?category=${category}`;
+        ? `${API_BASE_URL}/api/products`
+        : `${API_BASE_URL}/api/products?category=${category}`;
       const response = await axios.get<Product[]>(url);
       setProducts(response.data);
       setFilteredProducts(response.data);

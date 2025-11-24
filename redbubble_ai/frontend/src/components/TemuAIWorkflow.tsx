@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from '../config';
 import './TemuAIWorkflow.css';
 
 interface AIWorkflowStats {
@@ -75,7 +76,7 @@ const TemuAIWorkflow: React.FC = () => {
   // 加载统计信息
   const loadStats = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/temu/ai-workflow/stats');
+      const response = await axios.get(`${API_BASE_URL}/api/temu/ai-workflow/stats`);
       setStats(response.data);
     } catch (error) {
       console.error('加载统计失败:', error);
@@ -87,7 +88,7 @@ const TemuAIWorkflow: React.FC = () => {
     setIsLoadingProducts(true);
     try {
       const offset = (page - 1) * pageSize;
-      const response = await axios.get('http://localhost:8000/api/temu/products-with-matches', {
+      const response = await axios.get(`${API_BASE_URL}/api/temu/products-with-matches`, {
         params: {
           limit: pageSize,
           offset: offset,
@@ -121,7 +122,7 @@ const TemuAIWorkflow: React.FC = () => {
     setMessage('正在启动AI工作流...');
 
     try {
-      const response = await axios.post('http://localhost:8000/api/temu/ai-workflow', {
+      const response = await axios.post(`${API_BASE_URL}/api/temu/ai-workflow`, {
         category_id: null,
         batch_size: batchSize,
         redbubble_pages: redbubblePages,
