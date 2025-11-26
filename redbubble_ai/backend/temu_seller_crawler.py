@@ -294,18 +294,24 @@ def crawl_temu_seller_products(mall_id, max_pages=10, min_sales=0, use_persisten
                     
                     # 提取商品ID（从link中提取）
                     goods_id = None
-                    # 尝试从URL中提取goods_id（如 /g-601100311994848.html）
-                    if link and "/g-" in link:
-                        try:
-                            parts = link.split("/g-")
-                            if len(parts) > 1:
-                                goods_id = parts[1].split(".")[0].split("?")[0]
-                        except:
-                            pass
+                    # 方法1：尝试从URL中提取goods_id（支持多种格式）
+                    # 格式1: /g-601100311994848.html
+                    # 格式2: ---g-601100311994848.html
+                    if link:
+                        # 使用正则表达式匹配 /g- 或 -g- 后面的数字
+                        match = re.search(r'[-/]g-(\d+)', link)
+                        if match:
+                            goods_id = match.group(1)
                     
-                    # 如果没有goods_id，尝试从URL参数中提取
-                    if not goods_id:
+                    # 方法2：如果没有goods_id，尝试从URL参数中提取
+                    if not goods_id and link:
                         match = re.search(r'goods[_-]?id[=:](\d+)', link)
+                        if match:
+                            goods_id = match.group(1)
+                    
+                    # 方法3：如果还是没有，尝试提取URL中任何连续的纯数字（至少10位）
+                    if not goods_id and link:
+                        match = re.search(r'(\d{10,})', link)
                         if match:
                             goods_id = match.group(1)
                     
@@ -415,9 +421,28 @@ def crawl_temu_seller_products(mall_id, max_pages=10, min_sales=0, use_persisten
                     if sales_count < min_sales:
                         continue
                     
+                    # 确保goods_id有效且不超过50个字符（数据库限制）
+                    if not goods_id:
+                        # 尝试从URL最后部分提取短ID
+                        url_last_part = link.split('/')[-1]
+                        # 如果URL包含 .html，移除它
+                        url_last_part = url_last_part.replace('.html', '')
+                        # 如果仍然太长，使用link的hash值
+                        if len(url_last_part) > 50:
+                            import hashlib
+                            goods_id = hashlib.md5(link.encode('utf-8')).hexdigest()[:50]
+                            logger.warning(f"goods_id过长，使用hash: {url_last_part[:30]}... -> {goods_id}")
+                        else:
+                            goods_id = url_last_part
+                    
+                    # 再次检查长度（双重保险）
+                    if goods_id and len(goods_id) > 50:
+                        goods_id = goods_id[:50]
+                        logger.warning(f"goods_id截断至50字符: {goods_id}")
+                    
                     # 组装商品数据（包含卖家信息）
                     product = {
-                        'goods_id': goods_id or link.split('/')[-1],  # 如果没提取到就用URL最后一部分
+                        'goods_id': goods_id,
                         'title': title,
                         'img': img,
                         'link': link,
