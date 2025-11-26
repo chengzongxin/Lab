@@ -323,3 +323,9 @@ macOS:
 ```bash
 /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 --user-data-dir="$HOME/selenium/ChromeProfile"
 ```
+
+男士袜子
+https://www.temu.com/ca/mens-hats-caps-o3-800.html?opt_level=2&title=Men%27s%20Hats%20%26%20Caps&_x_enter_scene_type=cate_tab
+
+卖家店铺
+https://www.temu.com/mall.html?_bg_fs=1&mall_id=634418218462973&goods_id=601099751586094&sticky_type=3&_x_channel_src=1&_x_channel_scene=spike&_x_sessn_id=7s9ad09xgn&refer_page_name=goods&refer_page_id=10032_1764144043222_mnsadxrfc6&refer_page_sn=10032&filter_items=1%3A1

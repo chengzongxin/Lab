@@ -151,9 +151,6 @@ def crawl_redbubble(keyword, pages, category):
     
     logger.info(f"爬取完成，共获取{len(results)}个商品")
     return results 
-
-
-def crawl_temu_mall(mall_id, max_pages=10, use_persistent_context=False, user_data_dir=None, debug_port=None):
     """
     爬取TEMU某个卖家店铺的所有商品
     :param mall_id: 店铺ID（从URL中的mall_id参数获取）
@@ -1223,100 +1220,6 @@ def crawl_temu_category_full_workflow(
             stats["saved_products"] = saved_count
             update_category_status(category_id, "crawling", len(products), saved_count)
         
-        # 步骤3：爬取商品详情，获取卖家信息
-        if crawl_details and products:
-            logger.info("步骤3: 爬取商品详情，获取卖家信息...")
-            seen_mall_ids = set()
-            
-            for idx, product in enumerate(products, 1):
-                try:
-                    logger.info(f"处理商品 {idx}/{len(products)}: {product.get('title', '')[:50]}...")
-                    
-                    # 爬取商品详情
-                    detail = crawl_temu_product_detail(
-                        product.get('link'),
-                        use_persistent_context,
-                        user_data_dir,
-                        debug_port
-                    )
-                    
-                    if detail.get('goods_id'):
-                        # 保存商品详情
-                        product_id = None
-                        conn = get_db_conn()
-                        cursor = conn.cursor()
-                        try:
-                            cursor.execute("SELECT id FROM temu_products WHERE goods_id = %s", (detail.get('goods_id'),))
-                            result = cursor.fetchone()
-                            if result:
-                                product_id = result[0]
-                        finally:
-                            cursor.close()
-                            conn.close()
-                        
-                        if save_product_detail(detail, product_id):
-                            stats["details_crawled"] += 1
-                        
-                        # 记录找到的卖家
-                        mall_id = detail.get('mall_id')
-                        if mall_id and mall_id not in seen_mall_ids:
-                            seen_mall_ids.add(mall_id)
-                            save_seller(mall_id, detail.get('seller_name'), detail.get('seller_url'))
-                            stats["sellers_found"] += 1
-                    
-                except Exception as e:
-                    logger.error(f"处理商品详情失败: {e}")
-                    continue
-        
-        # 步骤4：爬取卖家店铺的所有商品
-        if crawl_seller_products and stats["sellers_found"] > 0:
-            logger.info("步骤4: 爬取卖家店铺的所有商品...")
-            
-            # 获取所有需要爬取的卖家
-            conn = get_db_conn()
-            cursor = conn.cursor(dictionary=True)
-            try:
-                cursor.execute("""
-                    SELECT DISTINCT tpd.mall_id, ts.id as seller_id
-                    FROM temu_product_details tpd
-                    JOIN temu_sellers ts ON tpd.mall_id = ts.mall_id
-                    WHERE tpd.mall_id IS NOT NULL
-                    AND ts.status != 'completed'
-                """)
-                sellers = cursor.fetchall()
-            finally:
-                cursor.close()
-                conn.close()
-            
-            for seller in sellers:
-                try:
-                    mall_id = seller['mall_id']
-                    seller_id = seller['seller_id']
-                    
-                    logger.info(f"爬取卖家店铺: mall_id={mall_id}")
-                    update_seller_status(seller_id, "crawling")
-                    
-                    # 爬取店铺商品
-                    seller_products = crawl_temu_mall(
-                        mall_id, max_pages=10,
-                        use_persistent_context=use_persistent_context,
-                        user_data_dir=user_data_dir,
-                        debug_port=debug_port
-                    )
-                    
-                    # 保存店铺商品
-                    if seller_products:
-                        saved_count = save_seller_products(seller_products, seller_id, mall_id)
-                        stats["seller_products_crawled"] += saved_count
-                    
-                    update_seller_status(seller_id, "completed")
-                    
-                except Exception as e:
-                    logger.error(f"爬取卖家店铺失败: {e}")
-                    if seller.get('seller_id'):
-                        update_seller_status(seller['seller_id'], "failed")
-                    continue
-        
         # 更新类目状态为完成
         update_category_status(category_id, "completed", stats["total_products"], stats["saved_products"])
         
@@ -1344,12 +1247,4 @@ def get_db_conn():
 
 
 if __name__ == "__main__":
-    # 测试Redbubble爬虫
-    # results = crawl_redbubble("animal", 1, "u-socks")
-    # print(results)
-    
-    # 测试TEMU爬虫
-    results = crawl_temu_mall("634418223796259", max_pages=1, use_persistent_context=True, user_data_dir="/tmp/chrome_debug", debug_port=9222)
-    print(f"爬取到 {len(results)} 个商品")
-    for i, item in enumerate(results[:5], 1):  # 只打印前5个
-        print(f"{i}. {item['title'][:50]}... - {item['price']}")
+    pass

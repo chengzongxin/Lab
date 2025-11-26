@@ -1,281 +1,154 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import { API_BASE_URL } from '../config';
 import './TemuCategoryCrawler.css';
 
 interface TemuCategoryCrawlerProps {
   onCrawlComplete?: () => void;
 }
 
-const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = ({ onCrawlComplete }) => {
+const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = () => {
   const [categoryUrl, setCategoryUrl] = useState('');
   const [minSales, setMinSales] = useState(200);
   const [crawlDetails, setCrawlDetails] = useState(false);
   const [crawlSellerProducts, setCrawlSellerProducts] = useState(false);
+  const [debugPort, setDebugPort] = useState<number | null>(null);
   const [usePersistentContext, setUsePersistentContext] = useState(false);
-  const [userDataDir, setUserDataDir] = useState('');
-  const [debugPort, setDebugPort] = useState<number | null>(9222);
-  const [isCrawling, setIsCrawling] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
   const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
-  const [taskId, setTaskId] = useState<string | null>(null);
-  const statusTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // 示例URL
-  const exampleUrls = [
-    {
-      label: '男士帽子',
-      url: 'https://www.temu.com/ca/mens-hats-caps-o3-800.html?opt_level=2&title=Men%27s%20Hats%20%26%20Caps&_x_enter_scene_type=cate_tab'
-    },
-    {
-      label: '女士服装',
-      url: 'https://www.temu.com/ca/womens-clothing-o3-800.html?opt_level=2&title=Women%27s%20Clothing&_x_enter_scene_type=cate_tab'
-    }
-  ];
-
-  const stopPollingStatus = () => {
-    if (statusTimer.current) {
-      clearInterval(statusTimer.current);
-      statusTimer.current = null;
-    }
-  };
-
-  const startPollingStatus = () => {
-    if (statusTimer.current) clearInterval(statusTimer.current);
-    statusTimer.current = setInterval(async () => {
-      try {
-        // 检查任务状态（这里可以扩展为检查TEMU任务状态）
-        const res = await axios.get(`${API_BASE_URL}/api/crawl/status`);
-        // 注意：这里需要根据实际API调整
-        // 目前先简单检查，后续可以添加专门的TEMU任务状态接口
-      } catch (e) {
-        console.error('轮询状态失败:', e);
-      }
-    }, 2000);
-  };
-
-  const handleCrawl = async () => {
+  const startCrawl = async () => {
     if (!categoryUrl.trim()) {
-      setMessage('请输入类目URL');
-      setMessageType('error');
+      setMessage('❌ 请输入类目URL');
       return;
     }
 
-    setIsCrawling(true);
-    setMessage('正在启动TEMU类目爬取工作流...');
-    setMessageType('info');
-    setTaskId(null);
+    setIsRunning(true);
+    setMessage('正在启动TEMU类目爬取...');
 
     try {
-      const requestData: any = {
+      const response = await axios.post('http://localhost:8000/api/crawl/temu/category', {
         category_url: categoryUrl.trim(),
         min_sales: minSales,
         crawl_details: crawlDetails,
         crawl_seller_products: crawlSellerProducts,
         use_persistent_context: usePersistentContext,
-      };
+        debug_port: debugPort
+      });
 
-      if (userDataDir) {
-        requestData.user_data_dir = userDataDir;
+      if (response.data.success) {
+        setMessage(`✅ ${response.data.message}`);
       }
-
-      if (debugPort) {
-        requestData.debug_port = debugPort;
-      }
-
-      const response = await axios.post(`${API_BASE_URL}/api/crawl/temu/category`, requestData);
-
-      setTaskId(response.data.task_id);
-      setMessage(response.data.message || '工作流已启动，正在后台运行...');
-      setMessageType('info');
-      startPollingStatus();
     } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || '工作流启动失败，请检查后端服务';
-      setMessage(errorMessage);
-      setMessageType('error');
-      setIsCrawling(false);
-      stopPollingStatus();
+      setMessage(`❌ 启动失败: ${error.response?.data?.detail || error.message}`);
+    } finally {
+      setIsRunning(false);
     }
   };
 
-  const handleUseExample = (url: string) => {
-    setCategoryUrl(url);
-  };
-
-  useEffect(() => {
-    return () => {
-      stopPollingStatus();
-    };
-  }, []);
-
   return (
     <div className="temu-category-crawler">
-      <div className="crawler-header">
-        <h3>TEMU 类目爆款商品爬取</h3>
-        <p className="subtitle">爬取指定类目下的所有爆款商品（销量≥1000），并自动爬取商品详情和卖家店铺商品</p>
+      <div className="header">
+        <h2>📦 TEMU类目商品爬取</h2>
+        <p className="subtitle">爬取指定类目下的所有爆款商品，支持销量筛选</p>
       </div>
 
-      <div className="crawler-form">
-        <div className="form-section">
-          <h4>基本设置</h4>
+      <div className="form-container">
+        <div className="form-group">
+          <label>类目URL</label>
+          <input
+            type="text"
+            value={categoryUrl}
+            onChange={(e) => setCategoryUrl(e.target.value)}
+            placeholder="https://www.temu.com/channel/xxxxx.html"
+            className="input-url"
+          />
+          <span className="hint">粘贴TEMU类目页面的完整链接</span>
+        </div>
 
+        <div className="form-row">
           <div className="form-group">
-            <label htmlFor="category-url">
-              类目URL <span className="required">*</span>
-            </label>
+            <label>最小销量</label>
             <input
-              id="category-url"
-              type="text"
-              value={categoryUrl}
-              onChange={e => setCategoryUrl(e.target.value)}
-              placeholder="https://www.temu.com/ca/mens-hats-caps-o3-800.html?..."
-              disabled={isCrawling}
-              className="url-input"
+              type="number"
+              value={minSales}
+              onChange={(e) => setMinSales(parseInt(e.target.value))}
+              min="0"
+              className="input-number"
             />
-            <div className="example-urls">
-              <span className="example-label">示例URL：</span>
-              {exampleUrls.map((example, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  className="example-btn"
-                  onClick={() => handleUseExample(example.url)}
-                  disabled={isCrawling}
-                >
-                  {example.label}
-                </button>
-              ))}
-            </div>
+            <span className="hint">只保存销量大于此值的商品</span>
           </div>
 
           <div className="form-group">
-            <label htmlFor="min-sales">
-              最小销量 <span className="required">*</span>
-            </label>
+            <label>调试端口（可选）</label>
             <input
-              id="min-sales"
               type="number"
-              value={minSales}
-              onChange={e => setMinSales(Number(e.target.value))}
-              min="0"
-              disabled={isCrawling}
+              value={debugPort || ''}
+              onChange={(e) => setDebugPort(e.target.value ? parseInt(e.target.value) : null)}
+              placeholder="9222"
+              className="input-number"
             />
-            <span className="form-hint">只爬取销量大于等于此值的爆款商品</span>
+            <span className="hint">连接已打开的浏览器（高级）</span>
           </div>
         </div>
 
-        <div className="form-section">
-          <h4>爬取选项</h4>
+        <div className="checkbox-group">
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={crawlDetails}
+              onChange={(e) => setCrawlDetails(e.target.checked)}
+            />
+            <span>爬取商品详情（获取卖家信息）</span>
+          </label>
+        </div>
 
-          <div className="form-group checkbox-group">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={crawlDetails}
-                onChange={e => setCrawlDetails(e.target.checked)}
-                disabled={isCrawling}
-              />
-              <span>爬取商品详情（获取卖家店铺信息）</span>
-            </label>
-          </div>
-
-          <div className="form-group checkbox-group">
+        {crawlDetails && (
+          <div className="checkbox-group" style={{ marginLeft: '24px' }}>
             <label className="checkbox-label">
               <input
                 type="checkbox"
                 checked={crawlSellerProducts}
-                onChange={e => setCrawlSellerProducts(e.target.checked)}
-                disabled={isCrawling}
+                onChange={(e) => setCrawlSellerProducts(e.target.checked)}
               />
-              <span>爬取卖家店铺商品</span>
+              <span>同时爬取卖家店铺所有商品</span>
             </label>
           </div>
-        </div>
+        )}
 
-        <div className="form-section">
-          <h4>浏览器设置（可选）</h4>
-
-          <div className="form-group checkbox-group">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={usePersistentContext}
-                onChange={e => setUsePersistentContext(e.target.checked)}
-                disabled={isCrawling}
-              />
-              <span>使用持久化上下文（保持登录状态）</span>
-            </label>
-          </div>
-
-          {usePersistentContext && (
-            <div className="form-group">
-              <label htmlFor="user-data-dir">用户数据目录：</label>
-              <input
-                id="user-data-dir"
-                type="text"
-                value={userDataDir}
-                onChange={e => setUserDataDir(e.target.value)}
-                placeholder="/tmp/chrome_debug"
-                disabled={isCrawling}
-              />
-              <span className="form-hint">留空则使用临时目录</span>
-            </div>
-          )}
-
-          <div className="form-group">
-            <label htmlFor="debug-port">调试端口：</label>
+        <div className="checkbox-group">
+          <label className="checkbox-label">
             <input
-              id="debug-port"
-              type="number"
-              value={debugPort || ''}
-              onChange={e => setDebugPort(e.target.value ? Number(e.target.value) : null)}
-              placeholder="9222"
-              disabled={isCrawling}
+              type="checkbox"
+              checked={usePersistentContext}
+              onChange={(e) => setUsePersistentContext(e.target.checked)}
             />
-            <span className="form-hint">连接到已打开的Chrome浏览器（推荐）</span>
-          </div>
+            <span>使用持久化上下文（保持登录状态）</span>
+          </label>
         </div>
 
-        <div className="form-actions">
-          <button
-            className="crawl-button"
-            onClick={handleCrawl}
-            disabled={isCrawling || !categoryUrl.trim()}
-          >
-            {isCrawling ? '爬取中...' : '开始爬取'}
-          </button>
-        </div>
+        <button
+          className="btn-start"
+          onClick={startCrawl}
+          disabled={isRunning}
+        >
+          {isRunning ? '⏳ 爬取中...' : '🚀 开始爬取'}
+        </button>
+
+        {message && (
+          <div className={`message ${message.startsWith('❌') ? 'error' : 'success'}`}>
+            {message}
+          </div>
+        )}
       </div>
 
-      {message && (
-        <div className={`message ${messageType}`}>{message}</div>
-      )}
-
-      {isCrawling && (
-        <div className="crawling-status">
-          <div className="spinner"></div>
-          <div className="status-info">
-            <span className="status-text">工作流正在运行中...</span>
-            <span className="status-detail">请保持浏览器打开，任务在后台执行</span>
-          </div>
-        </div>
-      )}
-
-      {taskId && (
-        <div className="task-info">
-          <p><strong>任务ID:</strong> {taskId}</p>
-          <p className="info-hint">任务正在后台执行，完成后会自动保存到数据库</p>
-        </div>
-      )}
-
-      <div className="workflow-steps">
-        <h4>工作流程</h4>
+      <div className="info-box">
+        <h3>📖 使用说明</h3>
         <ol>
-          <li>保存类目信息到数据库</li>
-          <li>爬取类目下的所有商品，筛选销量≥{minSales}的爆款商品</li>
-          {crawlDetails && <li>爬取每个商品的详情页，提取卖家店铺信息</li>}
-          {crawlSellerProducts && <li>爬取每个卖家的店铺所有商品</li>}
-          <li>所有数据自动保存到数据库</li>
+          <li>访问TEMU，找到目标类目页面（如"袜子"、"T恤"等）</li>
+          <li>复制类目页面的完整URL</li>
+          <li>粘贴到上方输入框，设置最小销量筛选条件</li>
+          <li>点击"开始爬取"，等待爬取完成</li>
+          <li>爬取的商品会自动保存到数据库的 <code>temu_products</code> 表</li>
         </ol>
       </div>
     </div>
@@ -283,4 +156,3 @@ const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = ({ onCrawlComple
 };
 
 export default TemuCategoryCrawler;
-

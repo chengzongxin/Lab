@@ -6,6 +6,7 @@ import SortFilter, { SortOption } from "./components/SortFilter";
 import CrawlerControl from "./components/CrawlerControl";
 import TemuCategoryCrawler from "./components/TemuCategoryCrawler";
 import TemuAIWorkflow from "./components/TemuAIWorkflow";
+import TemuSellerCrawler from "./components/TemuSellerCrawler";
 import { API_BASE_URL } from './config';
 import "./App.css";
 
@@ -31,7 +32,7 @@ const App: React.FC = () => {
   const [sortOption, setSortOption] = useState<SortOption>('default');
   const [showCrawlerControl, setShowCrawlerControl] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [activeTab, setActiveTab] = useState<'redbubble' | 'temu' | 'ai-workflow'>('ai-workflow');
+  const [activeTab, setActiveTab] = useState<'redbubble' | 'temu' | 'ai-workflow' | 'seller'>('ai-workflow');
 
   const fetchProducts = async (category: string = 'all') => {
     try {
@@ -91,27 +92,54 @@ const App: React.FC = () => {
       <div className="header">
         <h2>商品爬取与分析平台</h2>
         {/* 标签页切换 */}
-        <div className="tab-switcher">
+        <div className="tabs">
           <button
-            className={`tab-button ${activeTab === 'ai-workflow' ? 'active' : ''}`}
+            className={activeTab === 'ai-workflow' ? 'active' : ''}
             onClick={() => setActiveTab('ai-workflow')}
           >
             🤖 AI工作流
           </button>
           <button
-            className={`tab-button ${activeTab === 'temu' ? 'active' : ''}`}
+            className={activeTab === 'temu' ? 'active' : ''}
             onClick={() => setActiveTab('temu')}
           >
-            TEMU
+            📦 TEMU类目
           </button>
           <button
-            className={`tab-button ${activeTab === 'redbubble' ? 'active' : ''}`}
+            className={activeTab === 'seller' ? 'active' : ''}
+            onClick={() => setActiveTab('seller')}
+          >
+            🏪 TEMU卖家
+          </button>
+          <button
+            className={activeTab === 'redbubble' ? 'active' : ''}
             onClick={() => setActiveTab('redbubble')}
           >
-            Redbubble
+            🎨 Redbubble
           </button>
         </div>
       </div>
+
+      {/* AI工作流标签页内容 */}
+      {activeTab === 'ai-workflow' && (
+        <div className="ai-workflow-container">
+          <TemuAIWorkflow />
+        </div>
+      )}
+
+      {/* TEMU类目爬取标签页内容 */}
+      {activeTab === 'temu' && (
+        <div className="temu-crawler-container">
+          <TemuCategoryCrawler onCrawlComplete={handleCrawlComplete} />
+        </div>
+      )}
+
+      {/* TEMU卖家店铺标签页内容 */}
+      {activeTab === 'seller' && (
+        <div className="seller-crawler-container">
+          <TemuSellerCrawler />
+        </div>
+      )}
 
       {/* Redbubble 标签页内容 */}
       {activeTab === 'redbubble' && (
@@ -150,16 +178,6 @@ const App: React.FC = () => {
             )}
           </div>
         </>
-      )}
-
-      {/* TEMU 标签页内容 */}
-      {activeTab === 'temu' && (
-        <TemuCategoryCrawler onCrawlComplete={handleCrawlComplete} />
-      )}
-
-      {/* AI工作流标签页内容 */}
-      {activeTab === 'ai-workflow' && (
-        <TemuAIWorkflow />
       )}
     </div>
   );

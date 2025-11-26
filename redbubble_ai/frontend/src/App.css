@@ -1,3 +1,42 @@
+/* Tab样式 */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 4px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tabs button {
+  flex: 1;
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.tabs button:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.tabs button.active {
+  background: white;
+  color: #667eea;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  font-weight: 600;
+}
+
 .app {
   min-height: 100vh;
   background: #f8f9fa;
@@ -11,7 +50,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .header h2 {
@@ -27,53 +66,6 @@
   font-size: 0.875rem;
   color: #666;
   font-weight: 400;
-}
-
-.tab-switcher {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 12px;
-  padding: 0 24px;
-}
-
-.tab-button {
-  padding: 8px 24px;
-  border: 1px solid #e1e5e9;
-  border-radius: 6px 6px 0 0;
-  background: #f8f9fa;
-  color: #666;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-bottom: none;
-  position: relative;
-  top: 1px;
-}
-
-.tab-button:hover {
-  background: #e9ecef;
-  color: #1a1a1a;
-}
-
-.tab-button.active {
-  background: #fff;
-  color: #1a1a1a;
-  border-color: #e1e5e9;
-  border-bottom-color: #fff;
-  font-weight: 600;
-}
-
-@media (max-width: 768px) {
-  .tab-switcher {
-    padding: 0 12px;
-  }
-  
-  .tab-button {
-    padding: 6px 16px;
-    font-size: 0.85rem;
-  }
 }
 
 .toggle-crawler-btn {
@@ -93,7 +85,7 @@
 .toggle-crawler-btn:hover {
   background: #333;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .stats {
@@ -131,29 +123,29 @@
   .header {
     padding: 10px 0;
   }
-  
+
   .header h2 {
     font-size: 1.1rem;
   }
-  
+
   .subtitle {
     font-size: 0.8rem;
   }
-  
+
   .toggle-crawler-btn {
     padding: 6px 12px;
     font-size: 0.75rem;
   }
-  
+
   .stats {
     gap: 32px;
     padding: 24px 16px;
   }
-  
+
   .stat-number {
     font-size: 1.5rem;
   }
-  
+
   .stat-label {
     font-size: 0.8rem;
   }
@@ -165,13 +157,13 @@
     gap: 24px;
     padding: 20px 16px;
   }
-  
+
   .stat-item {
     flex-direction: row;
     justify-content: center;
     gap: 12px;
   }
-  
+
   .stat-number {
     font-size: 1.25rem;
   }
@@ -215,6 +207,7 @@
     gap: 8px;
     padding: 10px 12px;
   }
+
   .category-filter-bar label {
     margin-bottom: 2px;
   }

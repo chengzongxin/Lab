@@ -408,3 +408,87 @@ def update_seller_status(seller_id: int, status: str):
         cursor.close()
         conn.close()
 
+
+def save_temu_products_to_db(products, source_type='category'):
+    """
+    保存TEMU商品到数据库
+    
+    :param products: 商品列表，每个商品包含所有字段
+    :param source_type: 来源类型 ('category' 或 'seller')
+    :return: 保存成功的商品数量
+    """
+    if not products:
+        return 0
+    
+    conn = get_db_conn()
+    cursor = conn.cursor()
+    saved_count = 0
+    
+    try:
+        for product in products:
+            try:
+                # 生成link_hash
+                link = product.get('link', '')
+                link_hash = calculate_url_hash(link)
+                
+                # 确保标题长度不超过限制
+                title = product.get('title', '')
+                if len(title) > 1000:
+                    title = title[:1000]
+                
+                # 插入或更新商品
+                cursor.execute("""
+                    INSERT INTO temu_products (
+                        goods_id, title, img, link, link_hash, price, original_price,
+                        sales_count, sales_text, rating, review_count,
+                        mall_id, seller_url, seller_name, seller_avatar,
+                        category_url
+                    ) VALUES (
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                    ) ON DUPLICATE KEY UPDATE
+                        title = VALUES(title),
+                        img = VALUES(img),
+                        price = VALUES(price),
+                        original_price = VALUES(original_price),
+                        sales_count = VALUES(sales_count),
+                        sales_text = VALUES(sales_text),
+                        rating = VALUES(rating),
+                        review_count = VALUES(review_count),
+                        seller_name = VALUES(seller_name),
+                        seller_avatar = VALUES(seller_avatar)
+                """, (
+                    product.get('goods_id'),
+                    title,
+                    product.get('img'),
+                    product.get('link'),
+                    link_hash,
+                    product.get('price'),
+                    product.get('original_price'),
+                    product.get('sales_count', 0),
+                    product.get('sales_text'),
+                    product.get('rating'),
+                    product.get('review_count', 0),
+                    product.get('mall_id'),
+                    product.get('seller_url'),
+                    product.get('seller_name'),
+                    product.get('seller_avatar'),
+                    product.get('category_url')
+                ))
+                
+                saved_count += 1
+                
+            except Exception as e:
+                logger.warning(f"保存商品失败: {e} - {product.get('title', '')[:50]}")
+                continue
+        
+        conn.commit()
+        logger.info(f"成功保存 {saved_count}/{len(products)} 个TEMU商品到数据库")
+        
+    except Exception as e:
+        conn.rollback()
+        logger.error(f"批量保存商品失败: {e}")
+    finally:
+        cursor.close()
+        conn.close()
+    
+    return saved_count
