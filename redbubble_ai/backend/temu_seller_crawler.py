@@ -294,48 +294,122 @@ def crawl_temu_seller_products(mall_id, max_pages=10, min_sales=0, use_persisten
                     
                     # 提取商品ID（从link中提取）
                     goods_id = None
-                    import re
-                    match = re.search(r'goods_id[=/-](\d+)', link)
-                    if match:
-                        goods_id = match.group(1)
+                    # 尝试从URL中提取goods_id（如 /g-601100311994848.html）
+                    if link and "/g-" in link:
+                        try:
+                            parts = link.split("/g-")
+                            if len(parts) > 1:
+                                goods_id = parts[1].split(".")[0].split("?")[0]
+                        except:
+                            pass
+                    
+                    # 如果没有goods_id，尝试从URL参数中提取
+                    if not goods_id:
+                        match = re.search(r'goods[_-]?id[=:](\d+)', link)
+                        if match:
+                            goods_id = match.group(1)
                     
                     # 提取标题
                     title = None
-                    title_elem = card.query_selector('span._2D9RBAXL, h3._2BvQbnbN')
+                    # 方法1：从标题span获取
+                    title_elem = card.query_selector('span._2D9RBAXL')
                     if title_elem:
                         title = title_elem.inner_text().strip()
+                    
+                    # 方法2：如果标题元素不存在，尝试从h3标签获取
+                    if not title:
+                        h3_element = card.query_selector('h3._2BvQbnbN, h2._2BvQbnbN')
+                        if h3_element:
+                            title = h3_element.inner_text().strip()
+                    
+                    # 方法3：从链接的aria-label获取
                     if not title and link_element:
-                        title = link_element.get_attribute("aria-label") or link_element.get_attribute("title") or "Unknown"
+                        title_attr = link_element.get_attribute("aria-label")
+                        if title_attr:
+                            title = title_attr.strip()
                     
                     # 提取图片
                     img = None
-                    img_elem = card.query_selector('img[data-cui-image], img[src]')
+                    # 方法1：查找goods-img-external类
+                    img_elem = card.query_selector('img.goods-img-external')
+                    # 方法2：查找_3frBeExI类
+                    if not img_elem:
+                        img_elem = card.query_selector('img._3frBeExI')
+                    # 方法3：查找任何包含src的img标签
+                    if not img_elem:
+                        img_elem = card.query_selector('img[src]')
+                    
                     if img_elem:
                         img = img_elem.get_attribute("src")
+                        # 如果没有src，尝试从data-src获取（懒加载）
+                        if not img:
+                            img = img_elem.get_attribute("data-src")
                     
                     # 提取价格
                     price = None
-                    price_elem = card.query_selector('span._1hSDLXGN, span[class*="price"]')
+                    # 查找价格容器中的_2XgTiMJi类
+                    price_elem = card.query_selector('div[data-type="price"] span._2XgTiMJi')
+                    if not price_elem:
+                        price_elem = card.query_selector('span._2XgTiMJi')
                     if price_elem:
                         price = price_elem.inner_text().strip()
                     
-                    # 提取销量
+                    # 提取销量（关键信息）
                     sales_count = 0
                     sales_text = None
-                    sales_elem = card.query_selector('span._1UlnQhKJ, span:has-text("Sold"), div:has-text("Sold")')
+                    # 尝试多种选择器查找销量元素
+                    sales_elem = card.query_selector('span._1GKMA1Nk')
+                    if not sales_elem:
+                        sales_elem = card.query_selector('span[class*="_1GKMA1Nk"]')
+                    if not sales_elem:
+                        # 查找包含 "sold" 文本的元素
+                        all_spans = card.query_selector_all('span')
+                        for span in all_spans:
+                            try:
+                                text = span.inner_text().strip().lower()
+                                if 'sold' in text and any(c.isdigit() for c in text):
+                                    sales_elem = span
+                                    break
+                            except:
+                                continue
+                    
                     if sales_elem:
-                        sales_text = sales_elem.inner_text().strip()
-                        # 解析销量数字（如 "35K+ Sold" -> 35000）
-                        match = re.search(r'([\d.]+)([KkMm]?)', sales_text)
-                        if match:
-                            num_str, unit = match.groups()
-                            num = float(num_str)
-                            if unit.upper() == 'K':
-                                sales_count = int(num * 1000)
-                            elif unit.upper() == 'M':
-                                sales_count = int(num * 1000000)
-                            else:
-                                sales_count = int(num)
+                        # 获取销量文本，优先从 _2XgTiMJi 类获取（包含完整文本）
+                        sales_text_element = sales_elem.query_selector('span._2XgTiMJi')
+                        if sales_text_element:
+                            sales_text = sales_text_element.inner_text().strip()
+                        else:
+                            sales_text = sales_elem.inner_text().strip()
+                        
+                        # 解析销量文本，支持格式如 "102sold", "1.2K+sold" -> 1200, "100K+" -> 100000
+                        if sales_text:
+                            sales_text_lower = sales_text.lower()
+                            try:
+                                # 移除 "sold" 文本
+                                num_text = sales_text_lower.replace("sold", "").strip()
+                                
+                                # 如果清理后的文本为空或只有标点符号，跳过
+                                if not num_text or not any(c.isdigit() for c in num_text):
+                                    sales_count = 0
+                                # 处理 K+ 格式（如 "1.2K+" -> 1200）
+                                elif "k+" in num_text or (num_text.endswith("k") and "+" not in num_text):
+                                    # 提取数字部分
+                                    num_str = num_text.replace("k+", "").replace("k", "").replace("+", "").strip()
+                                    if num_str and num_str.replace(".", "").isdigit():
+                                        sales_count = int(float(num_str) * 1000)
+                                # 处理 M+ 格式（如 "1.5M+" -> 1500000）
+                                elif "m+" in num_text or (num_text.endswith("m") and "+" not in num_text):
+                                    num_str = num_text.replace("m+", "").replace("m", "").replace("+", "").strip()
+                                    if num_str and num_str.replace(".", "").isdigit():
+                                        sales_count = int(float(num_str) * 1000000)
+                                # 如果是纯数字，直接转换
+                                elif num_text.replace(".", "").replace("+", "").replace(",", "").isdigit():
+                                    sales_count = int(float(num_text.replace("+", "").replace(",", "")))
+                                
+                                logger.debug(f"解析销量: '{sales_text}' -> {sales_count}")
+                            except Exception as e:
+                                logger.warning(f"解析销量失败: '{sales_text}', 错误: {e}")
+                                sales_count = 0
                     
                     # 销量过滤
                     if sales_count < min_sales:
