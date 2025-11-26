@@ -7,6 +7,8 @@ TEMU卖家店铺商品爬取功能
 import os
 import re
 import logging
+import sys
+import asyncio
 from playwright.sync_api import sync_playwright
 
 logger = logging.getLogger(__name__)
@@ -29,6 +31,10 @@ def crawl_temu_seller_products(mall_id, max_pages=10, min_sales=0, use_persisten
     seller_info = {}
     
     try:
+        # 在Windows上强制使用ProactorEventLoopPolicy，以支持子进程（Playwright需要）
+        if sys.platform == 'win32':
+            asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+
         with sync_playwright() as p:
             # 启动浏览器（与类目爬取逻辑一致）
             if debug_port:
@@ -211,6 +217,90 @@ def crawl_temu_seller_products(mall_id, max_pages=10, min_sales=0, use_persisten
                     raise Exception("无法找到商品元素，请检查页面是否需要登录")
             
             seen_links = set()
+            
+            # ===== 筛选：按销量排序（Top sales） =====
+            logger.info("开始设置筛选条件：按销量排序（Top sales）...")
+            try:
+                # 等待筛选下拉菜单加载
+                try:
+                    page.wait_for_selector('div.IR0nIPsF, div._2-JRVsSd', timeout=10000)
+                    logger.info("筛选下拉菜单已加载")
+                except Exception as e:
+                    logger.warning(f"等待筛选下拉菜单超时: {e}，尝试继续...")
+                
+                # 查找并点击筛选下拉按钮
+                sort_button = None
+                # 方法1：通过class查找下拉按钮
+                sort_button = page.query_selector('div._2-JRVsSd[role="button"]')
+                # 方法2：通过包含"Sort by"文本的父容器查找
+                if not sort_button:
+                    sort_container = page.query_selector('div.IR0nIPsF')
+                    if sort_container:
+                        sort_button = sort_container.query_selector('div._2-JRVsSd[role="button"]')
+                # 方法3：通过文本查找包含"Top sales"的按钮
+                if not sort_button:
+                    all_buttons = page.query_selector_all('div[role="button"]')
+                    for btn in all_buttons:
+                        try:
+                            text = btn.inner_text().strip()
+                            if "Top sales" in text or "Sort by" in text:
+                                sort_button = btn
+                                break
+                        except:
+                            continue
+                
+                if sort_button:
+                    # 检查当前是否已经是"Top sales"排序
+                    current_text = sort_button.inner_text().strip()
+                    if "Top sales" in current_text:
+                        logger.info("当前已经是按销量排序（Top sales），跳过筛选操作")
+                    else:
+                        logger.info("点击筛选下拉按钮...")
+                        # 滚动到按钮位置
+                        sort_button.scroll_into_view_if_needed()
+                        page.wait_for_timeout(500)
+                        # 点击打开下拉菜单
+                        sort_button.click()
+                        page.wait_for_timeout(1000)  # 等待下拉菜单展开
+                        
+                        # 查找并点击"Top sales"选项
+                        top_sales_option = None
+                        # 方法1：通过data-item属性查找
+                        top_sales_option = page.query_selector('li[data-item="Top sales"]')
+                        # 方法2：通过data-filter属性查找（data-filter="1:1"）
+                        if not top_sales_option:
+                            top_sales_option = page.query_selector('li[data-filter="1:1"]')
+                        # 方法3：通过文本内容查找
+                        if not top_sales_option:
+                            all_list_items = page.query_selector_all('li._1asRZIQH')
+                            for li in all_list_items:
+                                try:
+                                    text = li.inner_text().strip()
+                                    if text == "Top sales":
+                                        top_sales_option = li
+                                        break
+                                except:
+                                    continue
+                        
+                        if top_sales_option:
+                            logger.info("找到'Top sales'选项，正在点击...")
+                            # 滚动到选项位置
+                            top_sales_option.scroll_into_view_if_needed()
+                            page.wait_for_timeout(300)
+                            # 点击选项
+                            top_sales_option.click()
+                            logger.info("✓ 已选择按销量排序（Top sales）")
+                            # 等待页面重新加载/排序完成
+                            page.wait_for_timeout(3000)  # 等待3秒让页面重新排序
+                            logger.info("等待页面排序完成...")
+                        else:
+                            logger.warning("未找到'Top sales'选项，可能页面结构已变化")
+                else:
+                    logger.warning("未找到筛选下拉按钮，可能页面结构已变化，继续使用默认排序")
+            except Exception as e:
+                logger.warning(f"设置筛选条件时出错: {e}，继续使用默认排序")
+                import traceback
+                logger.debug(traceback.format_exc())
             
             # ===== 点击"See more"按钮加载更多商品 =====
             logger.info(f"开始点击'See more'按钮加载商品（最多 {max_pages} 次）...")

@@ -149,6 +149,8 @@ def init_database():
       category_url VARCHAR(1000),
       mall_id VARCHAR(50),
       seller_url VARCHAR(1000),
+      seller_name VARCHAR(255),
+      seller_avatar VARCHAR(1000),
       detail_crawled BOOLEAN DEFAULT FALSE,
       detail_crawled_at TIMESTAMP NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
