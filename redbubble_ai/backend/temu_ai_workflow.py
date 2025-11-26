@@ -113,36 +113,35 @@ def save_title_cleaning_result(product_id: int, goods_id: str, original_title: s
         conn.close()
 
 
-def save_redbubble_matches(temu_product_id: int, temu_goods_id: str, search_keywords: str,
-                           redbubble_products: List[Dict]) -> int:
+def save_redbubble_matches(
+    temu_product_id: int,
+    temu_goods_id: str,
+    search_keywords: str,
+    redbubble_results: List[Dict],
+    search_category: str
+) -> int:
     """
-    保存TEMU与Redbubble的匹配结果
-    
-    :param temu_product_id: TEMU商品ID
-    :param temu_goods_id: TEMU商品goods_id
-    :param search_keywords: 搜索关键词
-    :param redbubble_products: Redbubble商品列表（已包含评分）
-    :return: 保存的记录数
+    保存TEMU商品和Redbubble商品的匹配关系
     """
-    if not redbubble_products:
-        logger.warning(f"没有Redbubble匹配结果可保存: temu_product_id={temu_product_id}")
-        return 0
-    
     conn = get_db_conn()
     cursor = conn.cursor()
-    saved_count = 0
     
+    saved_count = 0
     try:
-        for idx, product in enumerate(redbubble_products, 1):
+        if not redbubble_results:
+            logger.warning(f"没有Redbubble匹配结果可保存: temu_product_id={temu_product_id}")
+            return 0
+
+        for idx, product in enumerate(redbubble_results, 1):
             try:
-                # 先保存或更新Redbubble商品到products表
-                cursor.execute("""
-                    SELECT id FROM products WHERE link = %s
-                """, (product['link'],))
-                existing = cursor.fetchone()
+                # 1. 确保Redbubble商品存在于products表
+                # 先检查是否存在
+                cursor.execute("SELECT id FROM products WHERE link = %s", (product['link'],))
+                result = cursor.fetchone()
                 
-                if existing:
-                    redbubble_product_id = existing[0]
+                if result:
+                    redbubble_product_id = result[0]
+                    # 更新信息（可选）
                 else:
                     # 插入新商品
                     cursor.execute("""
@@ -156,23 +155,19 @@ def save_redbubble_matches(temu_product_id: int, temu_goods_id: str, search_keyw
                     ))
                     redbubble_product_id = cursor.lastrowid
                 
-                # 保存匹配关系
+                # 2. 保存匹配关系（去除冗余字段，增加search_category）
                 cursor.execute("""
                     INSERT INTO temu_redbubble_matches 
                     (temu_product_id, temu_goods_id, search_keywords, redbubble_product_id,
-                     redbubble_title, redbubble_img, redbubble_link, redbubble_score,
-                     match_score, rank_position)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                     search_category, match_score, rank_position)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """, (
                     temu_product_id,
                     temu_goods_id,
                     search_keywords,
                     redbubble_product_id,
-                    product['title'],
-                    product['img'],
-                    product['link'],
-                    product.get('score', 0.0),
-                    max(0.1, 1.0 - (idx - 1) * 0.05),  # 匹配分数0.1-1.0，排名越靠前分数越高
+                    search_category,
+                    max(0.1, 1.0 - (idx - 1) * 0.05),  # 匹配分数
                     idx
                 ))
                 
@@ -295,26 +290,26 @@ def process_temu_to_redbubble_workflow(
                 if cleaning_id:
                     stats["cleaned_success"] += 1
             
-            # 2.2 检查是否已有Redbubble搜索结果
+            # 2.2 检查是否已有该类目的Redbubble搜索结果
             conn = get_db_conn()
             cursor = conn.cursor()
             cursor.execute("""
                 SELECT COUNT(*) as count 
                 FROM temu_redbubble_matches 
-                WHERE temu_product_id = %s
-            """, (product_id,))
+                WHERE temu_product_id = %s AND search_category = %s
+            """, (product_id, redbubble_category))
             result = cursor.fetchone()
             existing_matches = result[0] if result else 0
             cursor.close()
             conn.close()
             
             if existing_matches > 0:
-                logger.info(f"✓ 已有 {existing_matches} 条Redbubble搜索结果，跳过搜索")
+                logger.info(f"✓ 已有 {existing_matches} 条 '{redbubble_category}' 类目的搜索结果，跳过")
                 stats["redbubble_skipped"] += 1
                 continue
             
             # 2.3 使用清洗后的关键词在Redbubble搜索
-            logger.info(f"→ 在Redbubble搜索关键词: {cleaned_keywords}...")
+            logger.info(f"→ 在Redbubble搜索关键词: {cleaned_keywords} (类目: {redbubble_category})...")
             try:
                 redbubble_results = crawl_redbubble(
                     keyword=cleaned_keywords,
@@ -329,7 +324,8 @@ def process_temu_to_redbubble_workflow(
                 if redbubble_results:
                     logger.info("→ 保存匹配结果...")
                     matched_count = save_redbubble_matches(
-                        product_id, goods_id, cleaned_keywords, redbubble_results
+                        product_id, goods_id, cleaned_keywords, redbubble_results, 
+                        search_category=redbubble_category
                     )
                     stats["matches_saved"] += matched_count
                     logger.info(f"✓ 成功保存 {matched_count} 条匹配结果")

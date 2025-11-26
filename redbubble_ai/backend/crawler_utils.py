@@ -22,7 +22,7 @@ def crawl_redbubble(keyword, pages, category):
     爬取Redbubble多页商品信息
     :param keyword: 搜索关键词
     :param pages: 要爬取的页数
-    :param category: 商品类目（如u-clothing等）
+    :param category: 商品类目（如u-socks等）
     :return: 商品信息列表，每个元素包含title, img, link
     """
     results = []

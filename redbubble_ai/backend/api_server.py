@@ -248,10 +248,7 @@ def init_database():
       temu_goods_id VARCHAR(50),
       search_keywords TEXT NOT NULL,
       redbubble_product_id INT,
-      redbubble_title VARCHAR(1000),
-      redbubble_img VARCHAR(1000),
-      redbubble_link VARCHAR(1000),
-      redbubble_score DECIMAL(3,2),
+      search_category VARCHAR(50) DEFAULT 'u-socks',
       match_score DECIMAL(5,4),
       rank_position INT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -820,11 +817,12 @@ def get_temu_products_with_matches(
     limit: int = 20,
     offset: int = 0,
     category_id: Optional[int] = None,
-    min_match_score: float = 0.5
+    min_match_score: float = 0.5,
+    redbubble_category: Optional[str] = None
 ):
     """
     获取TEMU商品及其AI清洗结果和Redbubble搜索结果（分组展示）
-    返回格式：每个TEMU商品对应多个Redbubble搜索结果
+    支持按Redbubble类目筛选结果
     """
     try:
         conn = get_db_conn()
@@ -862,24 +860,32 @@ def get_temu_products_with_matches(
         # 第二步：为每个TEMU商品获取对应的Redbubble搜索结果
         result_products = []
         for product in temu_products:
-            # 查询该商品的Redbubble匹配结果
+            # 查询该商品的Redbubble匹配结果 (JOIN products表获取详情)
             matches_query = """
                 SELECT 
                     m.id,
-                    m.redbubble_title,
-                    m.redbubble_img,
-                    m.redbubble_link,
-                    m.redbubble_score,
+                    p.title as redbubble_title,
+                    p.img as redbubble_img,
+                    p.link as redbubble_link,
+                    p.score as redbubble_score,
                     m.match_score,
                     m.rank_position,
+                    m.search_category,
                     m.created_at
                 FROM temu_redbubble_matches m
+                JOIN products p ON m.redbubble_product_id = p.id
                 WHERE m.temu_product_id = %s
                 AND m.match_score >= %s
-                ORDER BY m.rank_position ASC, m.match_score DESC
-                LIMIT 10
             """
-            cursor.execute(matches_query, (product['id'], min_match_score))
+            match_params = [product['id'], min_match_score]
+            
+            if redbubble_category:
+                matches_query += " AND m.search_category = %s"
+                match_params.append(redbubble_category)
+                
+            matches_query += " ORDER BY m.rank_position ASC, m.match_score DESC LIMIT 10"
+            
+            cursor.execute(matches_query, tuple(match_params))
             redbubble_results = cursor.fetchall()
             
             # 组装数据

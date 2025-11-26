@@ -11,9 +11,9 @@ import "./App.css";
 
 const categoryOptions = [
   { value: 'all', label: '全部' },
+  { value: 'u-socks', label: '袜子' },
   { value: 'u-clothing', label: '衣服' },
   { value: 'u-bags', label: '包' },
-  { value: 'u-socks', label: '袜子' },
   { value: 'u-masks', label: '口罩' },
   { value: 'u-cases', label: '手机壳' },
   { value: 'u-stickers', label: '贴纸' },

@@ -78,7 +78,7 @@ uvicorn api_server:app --reload --port 8000
 # 启动爬虫
 curl -X POST "http://localhost:8000/api/crawl" \
   -H "Content-Type: application/json" \
-  -d '{"keyword": "cat", "pages": 1, "category": "u-clothing"}'
+  -d '{"keyword": "cat", "pages": 1, "category": "u-socks"}'
 
 # 查看商品
 curl "http://localhost:8000/api/products"

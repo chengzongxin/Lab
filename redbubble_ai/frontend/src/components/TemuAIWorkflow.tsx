@@ -41,10 +41,20 @@ interface ProductWithMatches {
 }
 
 const TemuAIWorkflow: React.FC = () => {
+  // Redbubble类目定义
+  const RedbubbleCategories = [
+    { id: 'u-socks', name: '🧦 袜子 (Socks)' },
+    { id: 'u-clothing', name: '👕 服装 (Clothing)' },
+    { id: 'u-stickers', name: '🏷️ 贴纸 (Stickers)' },
+    { id: 'u-phone-cases', name: '📱 手机壳 (Phone Cases)' },
+    { id: 'u-pillows', name: '🛋️ 抱枕 (Pillows)' },
+    { id: 'u-totes', name: '👜 托特包 (Tote Bags)' },
+  ];
+
   // 控制参数
   const [batchSize, setBatchSize] = useState<number>(100);
   const [redbubblePages, setRedbubblePages] = useState<number>(1);
-  const [redbubbleCategory, setRedbubbleCategory] = useState<string>('u-socks');
+  const [selectedCategory, setSelectedCategory] = useState<string>('u-socks'); // 新增类目选择
   const [isRunning, setIsRunning] = useState(false);
   const [message, setMessage] = useState('');
   const [showControls, setShowControls] = useState(false);
@@ -76,23 +86,24 @@ const TemuAIWorkflow: React.FC = () => {
   // 加载统计信息
   const loadStats = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/temu/ai-workflow/stats`);
+      const response = await axios.get('http://localhost:8000/api/temu/ai-workflow/stats');
       setStats(response.data);
     } catch (error) {
       console.error('加载统计失败:', error);
     }
   };
 
-  // 加载商品数据（支持分页）
+  // 加载商品数据（支持分页和类目筛选）
   const loadProducts = async (page: number = 1) => {
     setIsLoadingProducts(true);
     try {
       const offset = (page - 1) * pageSize;
-      const response = await axios.get(`${API_BASE_URL}/api/temu/products-with-matches`, {
+      const response = await axios.get('http://localhost:8000/api/temu/products-with-matches', {
         params: {
           limit: pageSize,
           offset: offset,
-          min_match_score: 0.1
+          min_match_score: 0.1,
+          redbubble_category: selectedCategory // 传递类目参数
         }
       });
       setProducts(response.data.products || []);
@@ -112,21 +123,26 @@ const TemuAIWorkflow: React.FC = () => {
     loadProducts(1);
     const interval = setInterval(loadStats, 10000); // 每10秒刷新统计
     return () => clearInterval(interval);
-  }, []);
+  }, []); // 仅在组件挂载时执行一次
+
+  // 当类目改变时重新加载数据
+  useEffect(() => {
+    loadProducts(1);
+  }, [selectedCategory]);
 
   // 启动AI工作流
   const startWorkflow = async () => {
     if (isRunning) return;
 
     setIsRunning(true);
-    setMessage('正在启动AI工作流...');
+    setMessage(`正在启动AI工作流 (类目: ${RedbubbleCategories.find(c => c.id === selectedCategory)?.name})...`);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/temu/ai-workflow`, {
+      const response = await axios.post('http://localhost:8000/api/temu/ai-workflow', {
         category_id: null,
         batch_size: batchSize,
         redbubble_pages: redbubblePages,
-        redbubble_category: redbubbleCategory
+        redbubble_category: selectedCategory // 传递类目参数
       });
 
       if (response.data.success) {
@@ -166,6 +182,18 @@ const TemuAIWorkflow: React.FC = () => {
         </div>
 
         <div className="action-buttons">
+          {/* 类目选择器 */}
+          <select
+            className="category-select"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            disabled={isRunning}
+          >
+            {RedbubbleCategories.map(cat => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+
           <button
             className="btn-start"
             onClick={startWorkflow}
@@ -203,30 +231,17 @@ const TemuAIWorkflow: React.FC = () => {
               min="1" max="5"
             />
           </label>
-          <label>
-            搜索类目:
-            <select
-              value={redbubbleCategory}
-              onChange={(e) => setRedbubbleCategory(e.target.value)}
-            >
-              <option value="u-socks">袜子 (Socks)</option>
-              <option value="u-clothing">衣服 (Clothing)</option>
-              <option value="u-stickers">贴纸 (Stickers)</option>
-              <option value="u-phone-cases">手机壳 (Phone Cases)</option>
-              <option value="u-mugs">马克杯 (Mugs)</option>
-              <option value="u-tshirts">T恤 (T-Shirts)</option>
-              <option value="u-hoodies">卫衣 (Hoodies)</option>
-              <option value="u-bags">包包 (Bags)</option>
-            </select>
-          </label>
-        </div>
+
+        </div >
       )}
 
-      {message && (
-        <div className={`message-compact ${message.startsWith('❌') ? 'error' : 'success'}`}>
-          {message}
-        </div>
-      )}
+      {
+        message && (
+          <div className={`message-compact ${message.startsWith('❌') ? 'error' : 'success'}`}>
+            {message}
+          </div>
+        )
+      }
 
       {/* 分页控制 */}
       <div className="pagination-top">
@@ -248,111 +263,115 @@ const TemuAIWorkflow: React.FC = () => {
       </div>
 
       {/* 主要内容区：左右分栏 */}
-      {isLoadingProducts ? (
-        <div className="loading-compact">加载中...</div>
-      ) : products.length === 0 ? (
-        <div className="empty-compact">
-          <p>暂无数据</p>
-          <p className="hint">点击"🚀 启动AI工作流"开始处理TEMU商品</p>
-        </div>
-      ) : (
-        <div className="products-grid-compact">
-          {products.map((item) => (
-            <div key={item.temu_product.id} className="product-row-compact">
-              {/* 左侧：TEMU商品 */}
-              <div className="temu-card-compact">
-                <img
-                  src={item.temu_product.img}
-                  alt={item.temu_product.title}
-                  className="temu-img-compact"
-                />
-                <div className="temu-info-compact">
-                  <h4 className="temu-title-compact">{item.temu_product.title}</h4>
-                  <div className="temu-meta-compact">
-                    <span className="price">{item.temu_product.price}</span>
-                    <span className="sales">🔥 {item.temu_product.sales_count.toLocaleString()}</span>
+      {
+        isLoadingProducts ? (
+          <div className="loading-compact">加载中...</div>
+        ) : products.length === 0 ? (
+          <div className="empty-compact">
+            <p>暂无数据</p>
+            <p className="hint">点击"🚀 启动AI工作流"开始处理TEMU商品</p>
+          </div>
+        ) : (
+          <div className="products-grid-compact">
+            {products.map((item) => (
+              <div key={item.temu_product.id} className="product-row-compact">
+                {/* 左侧：TEMU商品 */}
+                <div className="temu-card-compact">
+                  <img
+                    src={item.temu_product.img}
+                    alt={item.temu_product.title}
+                    className="temu-img-compact"
+                  />
+                  <div className="temu-info-compact">
+                    <h4 className="temu-title-compact">{item.temu_product.title}</h4>
+                    <div className="temu-meta-compact">
+                      <span className="price">{item.temu_product.price}</span>
+                      <span className="sales">🔥 {item.temu_product.sales_count.toLocaleString()}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* 右侧：AI关键词 + Redbubble结果 */}
-              <div className="results-card-compact">
-                {/* AI关键词 */}
-                <div className="keywords-compact">
-                  {item.cleaning_status === 'completed' && item.cleaned_keywords ? (
-                    <>
-                      <span className="label">🤖 关键词:</span>
-                      <span className="value">{item.cleaned_keywords}</span>
-                    </>
-                  ) : (
-                    <span className="pending">⏳ 待处理</span>
-                  )}
-                </div>
-
-                {/* Redbubble结果列表 - 九宫格 */}
-                {item.redbubble_results.length > 0 ? (
-                  <div className="redbubble-grid-container">
-                    <div className="redbubble-grid-compact">
-                      {(expandedProducts.has(item.temu_product.id)
-                        ? item.redbubble_results
-                        : item.redbubble_results.slice(0, 6)
-                      ).map((result) => (
-                        <a
-                          key={result.id}
-                          href={result.redbubble_link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="rb-grid-item"
-                          title={result.redbubble_title}
-                        >
-                          <img src={result.redbubble_img} alt="Item preview" />
-                          <div className="rb-overlay">
-                            <div className="rb-title-overlay">{result.redbubble_title}</div>
-                          </div>
-                        </a>
-                      ))}
-                    </div>
-                    {item.redbubble_results.length > 6 && (
-                      <button
-                        className="expand-btn"
-                        onClick={() => toggleExpand(item.temu_product.id)}
-                      >
-                        {expandedProducts.has(item.temu_product.id)
-                          ? `收起 ▲`
-                          : `查看全部 ${item.redbubble_results.length} 个结果 ▼`}
-                      </button>
+                {/* 右侧：AI关键词 + Redbubble结果 */}
+                <div className="results-card-compact">
+                  {/* AI关键词 */}
+                  <div className="keywords-compact">
+                    {item.cleaning_status === 'completed' && item.cleaned_keywords ? (
+                      <>
+                        <span className="label">🤖 关键词:</span>
+                        <span className="value">{item.cleaned_keywords}</span>
+                      </>
+                    ) : (
+                      <span className="pending">⏳ 待处理</span>
                     )}
                   </div>
-                ) : (
-                  <div className="no-results-compact">
-                    {item.cleaning_status === 'completed' ? '无搜索结果' : '需要先运行AI工作流'}
-                  </div>
-                )}
+
+                  {/* Redbubble结果列表 - 九宫格 */}
+                  {item.redbubble_results.length > 0 ? (
+                    <div className="redbubble-grid-container">
+                      <div className="redbubble-grid-compact">
+                        {(expandedProducts.has(item.temu_product.id)
+                          ? item.redbubble_results
+                          : item.redbubble_results.slice(0, 6)
+                        ).map((result) => (
+                          <a
+                            key={result.id}
+                            href={result.redbubble_link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rb-grid-item"
+                            title={result.redbubble_title}
+                          >
+                            <img src={result.redbubble_img} alt="Item preview" />
+                            <div className="rb-overlay">
+                              <div className="rb-title-overlay">{result.redbubble_title}</div>
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                      {item.redbubble_results.length > 6 && (
+                        <button
+                          className="expand-btn"
+                          onClick={() => toggleExpand(item.temu_product.id)}
+                        >
+                          {expandedProducts.has(item.temu_product.id)
+                            ? `收起 ▲`
+                            : `查看全部 ${item.redbubble_results.length} 个结果 ▼`}
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="no-results-compact">
+                      {item.cleaning_status === 'completed' ? '无搜索结果' : '需要先运行AI工作流'}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )
+      }
 
       {/* 底部分页 */}
-      {products.length > 0 && (
-        <div className="pagination-bottom">
-          <button
-            onClick={() => loadProducts(currentPage - 1)}
-            disabled={currentPage === 1 || isLoadingProducts}
-          >
-            ← 上一页
-          </button>
-          <span>第 {currentPage}/{totalPages} 页</span>
-          <button
-            onClick={() => loadProducts(currentPage + 1)}
-            disabled={currentPage >= totalPages || isLoadingProducts}
-          >
-            下一页 →
-          </button>
-        </div>
-      )}
-    </div>
+      {
+        products.length > 0 && (
+          <div className="pagination-bottom">
+            <button
+              onClick={() => loadProducts(currentPage - 1)}
+              disabled={currentPage === 1 || isLoadingProducts}
+            >
+              ← 上一页
+            </button>
+            <span>第 {currentPage}/{totalPages} 页</span>
+            <button
+              onClick={() => loadProducts(currentPage + 1)}
+              disabled={currentPage >= totalPages || isLoadingProducts}
+            >
+              下一页 →
+            </button>
+          </div>
+        )
+      }
+    </div >
   );
 };
 

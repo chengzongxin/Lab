@@ -40,7 +40,7 @@
 from .crawler_utils import crawl_redbubble
 
 # 爬取商品信息
-items = crawl_redbubble(keyword="cat", pages=2, category="u-clothing")
+items = crawl_redbubble(keyword="cat", pages=2, category="u-socks")
 ```
 
 **功能特性：**
@@ -124,7 +124,7 @@ curl -X POST "http://localhost:8000/api/crawl" \
   -d '{
     "keyword": "cat",
     "pages": 2,
-    "category": "u-clothing"
+    "category": "u-socks"
   }'
 
 # 查看任务状态
