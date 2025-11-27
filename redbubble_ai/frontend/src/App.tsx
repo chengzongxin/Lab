@@ -1,128 +1,65 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { Product } from "./types/product";
-import ProductList from "./components/ProductList";
-import SortFilter, { SortOption } from "./components/SortFilter";
-import CrawlerControl from "./components/CrawlerControl";
+import React, { useState } from "react";
 import TemuCategoryCrawler from "./components/TemuCategoryCrawler";
 import TemuAIWorkflow from "./components/TemuAIWorkflow";
 import TemuSellerCrawler from "./components/TemuSellerCrawler";
 import AIDebugger from "./components/AIDebugger";
-import { API_BASE_URL } from './config';
+import RedbubblePage from "./components/RedbubblePage";
 import "./App.css";
 
-const categoryOptions = [
-  { value: 'all', label: '全部' },
-  { value: 'u-socks', label: '袜子' },
-  { value: 'u-clothing', label: '衣服' },
-  { value: 'u-bags', label: '包' },
-  { value: 'u-masks', label: '口罩' },
-  { value: 'u-cases', label: '手机壳' },
-  { value: 'u-stickers', label: '贴纸' },
-  { value: 'u-wall-art', label: '墙饰' },
-  { value: 'u-home-decor', label: '家居' },
-  { value: 'u-stationery', label: '文具' },
-  { value: 'u-kids-babies', label: '儿童婴儿' },
-];
-
 const App: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [sortOption, setSortOption] = useState<SortOption>('default');
-  const [showCrawlerControl, setShowCrawlerControl] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('all');
   const [activeTab, setActiveTab] = useState<'redbubble' | 'temu' | 'ai-workflow' | 'seller' | 'ai-debugger'>('ai-workflow');
 
-  const fetchProducts = async (category: string = 'all') => {
-    try {
-      setLoading(true);
-      setError(null);
-      const url = category === 'all'
-        ? `${API_BASE_URL}/api/products`
-        : `${API_BASE_URL}/api/products?category=${category}`;
-      const response = await axios.get<Product[]>(url);
-      setProducts(response.data);
-      setFilteredProducts(response.data);
-    } catch (err) {
-      setError("无法连接到后端服务器，请确保后端服务正在运行");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProducts(selectedCategory);
-  }, [selectedCategory]);
-
-  useEffect(() => {
-    let sorted = [...products].sort((a, b) => {
-      switch (sortOption) {
-        case 'score-high':
-          const scoreA = typeof a.score === 'number' ? a.score : parseFloat(a.score || '0');
-          const scoreB = typeof b.score === 'number' ? b.score : parseFloat(b.score || '0');
-          return scoreB - scoreA;
-        case 'score-low':
-          const scoreA2 = typeof a.score === 'number' ? a.score : parseFloat(a.score || '0');
-          const scoreB2 = typeof b.score === 'number' ? b.score : parseFloat(b.score || '0');
-          return scoreA2 - scoreB2;
-        case 'title':
-          return a.title.localeCompare(b.title);
-        default:
-          return 0;
-      }
-    });
-    setFilteredProducts(sorted);
-  }, [sortOption, products]);
-
-  const handleSortChange = (sort: SortOption) => {
-    setSortOption(sort);
-  };
-
-  const handleRetry = () => {
-    fetchProducts(selectedCategory);
+  const handleTabChange = (tab: 'redbubble' | 'temu' | 'ai-workflow' | 'seller' | 'ai-debugger') => {
+    setActiveTab(tab);
   };
 
   const handleCrawlComplete = () => {
-    fetchProducts(selectedCategory);
+    // 当爬取完成时可以在这里添加全局的处理逻辑
   };
 
   return (
     <div className="app">
       <div className="header">
-        <h2>商品爬取与分析平台</h2>
-        {/* 标签页切换 */}
+        {/* 标题放在左边 */}
+        <div className="header-title">
+          <h2>商品爬取与分析平台</h2>
+        </div>
+
+        {/* 标签页切换放在中间 */}
         <div className="tabs">
           <button
             className={activeTab === 'ai-workflow' ? 'active' : ''}
-            onClick={() => setActiveTab('ai-workflow')}
+            onClick={() => handleTabChange('ai-workflow')}
           >
             🤖 AI工作流
           </button>
           <button
-            className={activeTab === 'ai-debugger' ? 'active' : ''}
-            onClick={() => setActiveTab('ai-debugger')}
-          >
-            🔧 AI调试器
-          </button>
-          <button
             className={activeTab === 'temu' ? 'active' : ''}
-            onClick={() => setActiveTab('temu')}
+            onClick={() => handleTabChange('temu')}
           >
             📦 TEMU类目
           </button>
           <button
             className={activeTab === 'seller' ? 'active' : ''}
-            onClick={() => setActiveTab('seller')}
+            onClick={() => handleTabChange('seller')}
           >
             🏪 TEMU卖家
           </button>
           <button
             className={activeTab === 'redbubble' ? 'active' : ''}
-            onClick={() => setActiveTab('redbubble')}
+            onClick={() => handleTabChange('redbubble')}
           >
             🎨 Redbubble
+          </button>
+        </div>
+
+        {/* AI调试器放在右边 */}
+        <div className="header-right">
+          <button
+            className={`ai-debugger-tab ${activeTab === 'ai-debugger' ? 'active' : ''}`}
+            onClick={() => handleTabChange('ai-debugger')}
+          >
+            🔧 AI调试器
           </button>
         </div>
       </div>
@@ -157,41 +94,9 @@ const App: React.FC = () => {
 
       {/* Redbubble 标签页内容 */}
       {activeTab === 'redbubble' && (
-        <>
-          <button
-            className="toggle-crawler-btn"
-            onClick={() => setShowCrawlerControl(!showCrawlerControl)}
-          >
-            {showCrawlerControl ? '隐藏爬虫控制' : '显示爬虫控制'}
-          </button>
-          {showCrawlerControl && (
-            <CrawlerControl onCrawlComplete={handleCrawlComplete} />
-          )}
-          <div className="filter-bar" style={{ display: 'flex', alignItems: 'center', gap: 24, padding: '12px 24px', background: '#fff', borderBottom: '1px solid #e1e5e9' }}>
-            <div className="category-filter-bar" style={{ margin: 0, padding: 0, border: 'none', background: 'none' }}>
-              <label htmlFor="category-filter">筛选类目：</label>
-              <select
-                id="category-filter"
-                value={selectedCategory}
-                onChange={e => setSelectedCategory(e.target.value)}
-              >
-                {categoryOptions.map(opt => (
-                  <option value={opt.value} key={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
-            <SortFilter currentSort={sortOption} onSortChange={handleSortChange} />
-          </div>
-          <div className="main-content">
-            {loading ? (
-              <div className="loading">正在加载商品数据...</div>
-            ) : error ? (
-              <div className="error">{error} <button onClick={handleRetry}>重试</button></div>
-            ) : (
-              <ProductList products={filteredProducts} loading={loading} error={error} onRetry={handleRetry} />
-            )}
-          </div>
-        </>
+        <div className="redbubble-container">
+          <RedbubblePage onCrawlComplete={handleCrawlComplete} />
+        </div>
       )}
     </div>
   );

@@ -1,23 +1,23 @@
 /* Tab样式 */
 .tabs {
   display: flex;
-  gap: 8px;
+  gap: 0;
   margin-top: 16px;
   padding: 4px;
   background: #f8f9fa;
   border-radius: 10px;
-  max-width: 600px;
+  width: fit-content;
   margin-left: auto;
   margin-right: auto;
 }
 
 .tabs button {
-  flex: 1;
-  padding: 12px 20px;
+  flex: 0 0 auto;
+  padding: 10px 18px;
   background: transparent;
   border: none;
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   color: #666;
   cursor: pointer;
@@ -45,20 +45,65 @@
 .header {
   background: #fff;
   border-bottom: 1px solid #e1e5e9;
-  padding: 12px 0;
-  text-align: center;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   position: sticky;
   top: 0;
   z-index: 100;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
-.header h2 {
-  margin: 0 0 4px 0;
+.header-title h2 {
+  margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
   color: #1a1a1a;
   letter-spacing: -0.025em;
+}
+
+.header-title {
+  flex: 0 0 auto;
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+  margin-top: 0;
+  padding: 4px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  width: fit-content;
+  flex: 0 0 auto;
+}
+
+.header-right {
+  flex: 0 0 auto;
+}
+
+.ai-debugger-tab {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ai-debugger-tab:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+  border-color: #667eea;
+}
+
+.ai-debugger-tab.active {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
 }
 
 .subtitle {
@@ -121,11 +166,23 @@
 
 @media (max-width: 768px) {
   .header {
-    padding: 10px 0;
+    padding: 10px 16px;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
-  .header h2 {
+  .header-title h2 {
     font-size: 1.1rem;
+  }
+
+  .tabs {
+    order: 2;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .header-right {
+    order: 3;
   }
 
   .subtitle {

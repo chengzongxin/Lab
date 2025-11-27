@@ -95,7 +95,7 @@ const TemuSellerCrawler: React.FC = () => {
 
     return (
         <div className="temu-seller-crawler">
-            <div className="header">
+            <div className="temu-header">
                 <h2>🏪 TEMU卖家店铺爬取</h2>
                 <p className="subtitle">爬取指定卖家店铺的所有商品，包含卖家信息</p>
             </div>

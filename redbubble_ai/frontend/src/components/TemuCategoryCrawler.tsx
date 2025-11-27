@@ -87,7 +87,7 @@ const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = () => {
 
   return (
     <div className="temu-category-crawler">
-      <div className="header">
+      <div className="temu-header">
         <h2>📦 TEMU类目商品爬取</h2>
         <p className="subtitle">爬取指定类目下的所有爆款商品，支持销量筛选</p>
       </div>
