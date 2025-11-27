@@ -35,7 +35,8 @@
   gap: 8px;
 }
 
-.category-select {
+.category-select,
+.order-select {
   padding: 10px 12px;
   border: 1px solid #ddd;
   border-radius: 6px;
@@ -45,7 +46,8 @@
   min-width: 160px;
 }
 
-.category-select:focus {
+.category-select:focus,
+.order-select:focus {
   outline: none;
   border-color: #667eea;
 }
@@ -250,6 +252,60 @@
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* 卖家信息 */
+.seller-info-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  padding: 8px;
+  background: #f8f9fb;
+  border-radius: 6px;
+  border-left: 3px solid #667eea;
+}
+
+.seller-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.seller-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.seller-name {
+  font-size: 12px;
+  color: #333;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.seller-id {
+  font-size: 11px;
+  color: #666;
+}
+
+.created-time {
+  font-size: 12px;
+  color: #999;
+  margin-top: 6px;
+  padding: 4px 8px;
+  background: #f0f2f5;
+  border-radius: 4px;
+  display: inline-block;
 }
 
 .temu-meta-compact {

@@ -31,6 +31,11 @@ interface TemuProduct {
   img: string;
   price: string;
   sales_count: number;
+  mall_id?: string;
+  seller_name?: string;
+  seller_avatar?: string;
+  seller_url?: string;
+  created_at?: string;
 }
 
 interface ProductWithMatches {
@@ -55,6 +60,7 @@ const TemuAIWorkflow: React.FC = () => {
   const [batchSize, setBatchSize] = useState<number>(100);
   const [redbubblePages, setRedbubblePages] = useState<number>(1);
   const [selectedCategory, setSelectedCategory] = useState<string>('u-socks'); // 新增类目选择
+  const [orderBy, setOrderBy] = useState<string>('time_desc'); // 默认按时间倒序
   const [isRunning, setIsRunning] = useState(false);
   const [message, setMessage] = useState('');
   const [showControls, setShowControls] = useState(false);
@@ -93,7 +99,7 @@ const TemuAIWorkflow: React.FC = () => {
     }
   };
 
-  // 加载商品数据（支持分页和类目筛选）
+  // 加载商品数据（支持分页、类目筛选和排序）
   const loadProducts = async (page: number = 1) => {
     setIsLoadingProducts(true);
     try {
@@ -103,7 +109,8 @@ const TemuAIWorkflow: React.FC = () => {
           limit: pageSize,
           offset: offset,
           min_match_score: 0.1,
-          redbubble_category: selectedCategory // 传递类目参数
+          redbubble_category: selectedCategory, // 传递类目参数
+          order_by: orderBy // 传递排序参数
         }
       });
       setProducts(response.data.products || []);
@@ -125,24 +132,29 @@ const TemuAIWorkflow: React.FC = () => {
     return () => clearInterval(interval);
   }, []); // 仅在组件挂载时执行一次
 
-  // 当类目改变时重新加载数据
+  // 当类目或排序方式改变时重新加载数据
   useEffect(() => {
     loadProducts(1);
-  }, [selectedCategory]);
+  }, [selectedCategory, orderBy]);
 
   // 启动AI工作流
   const startWorkflow = async () => {
     if (isRunning) return;
 
+    // 获取排序方式的显示名称
+    const orderByName = orderBy === 'time_desc' ? '时间倒序' :
+                        orderBy === 'time_asc' ? '时间正序' : '销量排序';
+
     setIsRunning(true);
-    setMessage(`正在启动AI工作流 (类目: ${RedbubbleCategories.find(c => c.id === selectedCategory)?.name})...`);
+    setMessage(`正在启动AI工作流 (类目: ${RedbubbleCategories.find(c => c.id === selectedCategory)?.name}, 排序: ${orderByName})...`);
 
     try {
       const response = await axios.post('http://localhost:8000/api/temu/ai-workflow', {
         category_id: null,
         batch_size: batchSize,
         redbubble_pages: redbubblePages,
-        redbubble_category: selectedCategory // 传递类目参数
+        redbubble_category: selectedCategory, // 传递类目参数
+        order_by: orderBy // 传递排序参数
       });
 
       if (response.data.success) {
@@ -192,6 +204,17 @@ const TemuAIWorkflow: React.FC = () => {
             {RedbubbleCategories.map(cat => (
               <option key={cat.id} value={cat.id}>{cat.name}</option>
             ))}
+          </select>
+
+          {/* 排序选择器 */}
+          <select
+            className="order-select"
+            value={orderBy}
+            onChange={(e) => setOrderBy(e.target.value)}
+          >
+            <option value="time_desc">🕒 按时间倒序（最新优先）</option>
+            <option value="time_asc">⏰ 按时间正序（最旧优先）</option>
+            <option value="sales">🔥 按销量排序（最热优先）</option>
           </select>
 
           <button
@@ -284,10 +307,49 @@ const TemuAIWorkflow: React.FC = () => {
                   />
                   <div className="temu-info-compact">
                     <h4 className="temu-title-compact">{item.temu_product.title}</h4>
+                    
+                    {/* 卖家信息 */}
+                    {(item.temu_product.seller_name || item.temu_product.mall_id) && (
+                      <div className="seller-info-compact">
+                        {item.temu_product.seller_avatar && (
+                          <img 
+                            src={item.temu_product.seller_avatar} 
+                            alt={item.temu_product.seller_name || 'Seller'} 
+                            className="seller-avatar"
+                          />
+                        )}
+                        <div className="seller-details">
+                          {item.temu_product.seller_name && (
+                            <span className="seller-name" title={item.temu_product.seller_name}>
+                              👤 {item.temu_product.seller_name}
+                            </span>
+                          )}
+                          {item.temu_product.mall_id && (
+                            <span className="seller-id">
+                              🏪 ID: {item.temu_product.mall_id}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
                     <div className="temu-meta-compact">
                       <span className="price">{item.temu_product.price}</span>
                       <span className="sales">🔥 {item.temu_product.sales_count.toLocaleString()}</span>
                     </div>
+                    
+                    {/* 创建时间 */}
+                    {item.temu_product.created_at && (
+                      <div className="created-time">
+                        📅 {new Date(item.temu_product.created_at).toLocaleString('zh-CN', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
 

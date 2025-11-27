@@ -68,6 +68,7 @@ class TemuAIWorkflowRequest(BaseModel):
     batch_size: int = 10  # 每批处理数量（默认10）
     redbubble_pages: int = 1  # Redbubble搜索页数（默认1页）
     redbubble_category: str = "u-socks"  # Redbubble搜索类目（默认袜子）
+    order_by: str = "time_desc"  # 排序方式：time_desc(时间倒序), time_asc(时间正序), sales(销量排序)
 
 class TemuSellerCrawlRequest(BaseModel):
     mall_id: str  # 卖家店铺ID（必填）
@@ -532,7 +533,7 @@ async def start_temu_ai_workflow(request: TemuAIWorkflowRequest, background_task
         """异步执行AI工作流"""
         try:
             logger.info(f"开始执行TEMU AI工作流: task_id={task_id}")
-            logger.info(f"参数: category_id={request.category_id}, batch_size={request.batch_size}, redbubble_pages={request.redbubble_pages}")
+            logger.info(f"参数: category_id={request.category_id}, batch_size={request.batch_size}, redbubble_pages={request.redbubble_pages}, order_by={request.order_by}")
             
             # 在线程池中执行同步的工作流函数
             loop = asyncio.get_event_loop()
@@ -543,7 +544,8 @@ async def start_temu_ai_workflow(request: TemuAIWorkflowRequest, background_task
                     request.category_id,
                     request.batch_size,
                     request.redbubble_pages,
-                    request.redbubble_category
+                    request.redbubble_category,
+                    request.order_by  # 传递排序参数
                 )
             
             logger.info(f"TEMU AI工作流执行完成: {stats}")
@@ -556,10 +558,17 @@ async def start_temu_ai_workflow(request: TemuAIWorkflowRequest, background_task
     # 添加后台任务
     background_tasks.add_task(run_ai_workflow)
     
+    # 排序方式描述
+    order_by_desc = {
+        'time_desc': '按时间倒序（最新优先）',
+        'time_asc': '按时间正序（最旧优先）',
+        'sales': '按销量排序（最热优先）'
+    }.get(request.order_by, '按时间倒序')
+    
     return {
         "success": True,
         "task_id": task_id,
-        "message": f"已启动TEMU AI清洗工作流，批量处理 {request.batch_size} 个商品"
+        "message": f"已启动TEMU AI清洗工作流，批量处理 {request.batch_size} 个商品（{order_by_desc}）"
     }
 
 @app.get("/api/temu/ai-workflow/stats")
@@ -690,17 +699,18 @@ def get_temu_products_with_matches(
     offset: int = 0,
     category_id: Optional[int] = None,
     min_match_score: float = 0.5,
-    redbubble_category: Optional[str] = None
+    redbubble_category: Optional[str] = None,
+    order_by: str = "time_desc"  # 排序方式：time_desc, time_asc, sales
 ):
     """
     获取TEMU商品及其AI清洗结果和Redbubble搜索结果（分组展示）
-    支持按Redbubble类目筛选结果
+    支持按Redbubble类目筛选结果，支持多种排序方式
     """
     try:
         conn = get_db_conn()
         cursor = conn.cursor(dictionary=True)
         
-        # 第一步：获取TEMU商品列表（包括未清洗的）
+        # 第一步：获取TEMU商品列表（包括未清洗的），包含卖家信息
         products_query = """
             SELECT 
                 p.id,
@@ -710,6 +720,11 @@ def get_temu_products_with_matches(
                 p.price,
                 p.sales_count,
                 p.category_id,
+                p.mall_id,
+                p.seller_name,
+                p.seller_avatar,
+                p.seller_url,
+                p.created_at,
                 tc.cleaned_keywords,
                 tc.status as cleaning_status,
                 tc.created_at as cleaned_at
@@ -723,7 +738,15 @@ def get_temu_products_with_matches(
             products_query += " AND p.category_id = %s"
             params.append(category_id)
         
-        products_query += " ORDER BY p.sales_count DESC, p.id DESC LIMIT %s OFFSET %s"
+        # 根据排序方式动态生成ORDER BY子句
+        if order_by == "time_desc":
+            products_query += " ORDER BY p.created_at DESC, p.sales_count DESC"
+        elif order_by == "time_asc":
+            products_query += " ORDER BY p.created_at ASC, p.sales_count DESC"
+        else:  # sales
+            products_query += " ORDER BY p.sales_count DESC, p.created_at DESC"
+        
+        products_query += " LIMIT %s OFFSET %s"
         params.extend([limit, offset])
         
         cursor.execute(products_query, tuple(params))
@@ -760,7 +783,7 @@ def get_temu_products_with_matches(
             cursor.execute(matches_query, tuple(match_params))
             redbubble_results = cursor.fetchall()
             
-            # 组装数据
+            # 组装数据（包含卖家信息）
             result_products.append({
                 "temu_product": {
                     "id": product['id'],
@@ -769,7 +792,12 @@ def get_temu_products_with_matches(
                     "img": product['img'],
                     "price": product['price'],
                     "sales_count": product['sales_count'],
-                    "category_id": product['category_id']
+                    "category_id": product['category_id'],
+                    "mall_id": product.get('mall_id'),
+                    "seller_name": product.get('seller_name'),
+                    "seller_avatar": product.get('seller_avatar'),
+                    "seller_url": product.get('seller_url'),
+                    "created_at": product.get('created_at').isoformat() if product.get('created_at') else None
                 },
                 "cleaned_keywords": product['cleaned_keywords'],
                 "cleaning_status": product['cleaning_status'],

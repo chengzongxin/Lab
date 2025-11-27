@@ -25,7 +25,7 @@ def get_db_conn():
 
 def get_uncleaned_temu_products(limit: int = 50, category_id: Optional[int] = None) -> List[Dict]:
     """
-    获取未清洗的TEMU商品
+    获取未清洗的TEMU商品（按时间倒序，优先处理最新爬取的商品）
     
     :param limit: 最多获取数量
     :param category_id: 类目ID过滤（可选）
@@ -37,7 +37,7 @@ def get_uncleaned_temu_products(limit: int = 50, category_id: Optional[int] = No
     try:
         # 查询未清洗的商品（不在temu_title_cleaning表中或status='failed'的）
         query = """
-            SELECT p.id, p.goods_id, p.title, p.img, p.link, p.price, p.sales_count
+            SELECT p.id, p.goods_id, p.title, p.img, p.link, p.price, p.sales_count, p.created_at
             FROM temu_products p
             LEFT JOIN temu_title_cleaning tc ON p.id = tc.product_id AND tc.status = 'completed'
             WHERE tc.id IS NULL
@@ -48,13 +48,14 @@ def get_uncleaned_temu_products(limit: int = 50, category_id: Optional[int] = No
             query += " AND p.category_id = %s"
             params.append(category_id)
         
-        query += " ORDER BY p.sales_count DESC LIMIT %s"
+        # 按时间倒序排序，优先处理最新爬取的商品
+        query += " ORDER BY p.created_at DESC, p.sales_count DESC LIMIT %s"
         params.append(limit)
         
         cursor.execute(query, tuple(params) if params else (limit,))
         products = cursor.fetchall()
         
-        logger.info(f"找到 {len(products)} 个未清洗的TEMU商品")
+        logger.info(f"找到 {len(products)} 个未清洗的TEMU商品（按时间倒序）")
         return products
         
     finally:
@@ -194,7 +195,8 @@ def process_temu_to_redbubble_workflow(
     category_id: Optional[int] = None,
     batch_size: int = 10,
     redbubble_pages: int = 2,
-    redbubble_category: str = "u-socks"
+    redbubble_category: str = "u-socks",
+    order_by: str = "time_desc"  # 新增：排序方式
 ) -> Dict:
     """
     完整工作流：清洗TEMU标题 → 搜索Redbubble → 保存匹配结果
@@ -204,6 +206,7 @@ def process_temu_to_redbubble_workflow(
     :param batch_size: 每批处理数量
     :param redbubble_pages: Redbubble搜索页数
     :param redbubble_category: Redbubble搜索类目
+    :param order_by: 排序方式 time_desc(时间倒序), time_asc(时间正序), sales(销量排序)
     :return: 统计信息
     """
     stats = {
@@ -217,15 +220,21 @@ def process_temu_to_redbubble_workflow(
     }
     
     try:
-        # 步骤1：获取TEMU商品（包括已清洗和未清洗的）
-        logger.info(f"步骤1: 获取TEMU商品（batch_size={batch_size}）...")
+        # 步骤1：获取TEMU商品（包括已清洗和未清洗的），根据排序方式选择商品
+        order_by_name = {
+            'time_desc': '时间倒序（最新优先）',
+            'time_asc': '时间正序（最旧优先）',
+            'sales': '销量排序（最热优先）'
+        }.get(order_by, '时间倒序')
+        
+        logger.info(f"步骤1: 获取TEMU商品（batch_size={batch_size}，排序: {order_by_name}）...")
         
         conn = get_db_conn()
         cursor = conn.cursor(dictionary=True)
         
-        # 查询TEMU商品，按销量排序
+        # 查询TEMU商品
         query = """
-            SELECT p.id, p.goods_id, p.title, p.img, p.link, p.price, p.sales_count,
+            SELECT p.id, p.goods_id, p.title, p.img, p.link, p.price, p.sales_count, p.created_at,
                    tc.id as cleaning_id, tc.cleaned_keywords, tc.status as cleaning_status
             FROM temu_products p
             LEFT JOIN temu_title_cleaning tc ON p.id = tc.product_id
@@ -236,7 +245,15 @@ def process_temu_to_redbubble_workflow(
             query += " WHERE p.category_id = %s"
             params.append(category_id)
         
-        query += " ORDER BY p.sales_count DESC LIMIT %s"
+        # 根据排序方式动态生成ORDER BY子句
+        if order_by == "time_desc":
+            query += " ORDER BY p.created_at DESC, p.sales_count DESC"
+        elif order_by == "time_asc":
+            query += " ORDER BY p.created_at ASC, p.sales_count DESC"
+        else:  # sales
+            query += " ORDER BY p.sales_count DESC, p.created_at DESC"
+        
+        query += " LIMIT %s"
         params.append(batch_size)
         
         cursor.execute(query, tuple(params) if params else (batch_size,))
