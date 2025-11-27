@@ -95,7 +95,7 @@ def clean_title_with_ai(title: str) -> Dict[str, any]:
                 {"role": "user", "content": user_prompt}
             ],
             temperature=0.3,  # 降低温度以获得更一致的结果
-            max_tokens=100
+            max_tokens=64
         )
         
         cleaned_keywords = response.choices[0].message.content.strip()

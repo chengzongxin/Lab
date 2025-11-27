@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from typing import List, Optional
+from typing import List, Optional, Dict
 import mysql.connector
 import os
 import json
@@ -13,6 +13,9 @@ import uuid
 # 加载.env环境变量
 from dotenv import load_dotenv
 load_dotenv()  # 这会自动加载当前目录的.env文件
+
+# 导入AI调试工具
+from ai_debugger import chat_with_ai, get_presets
 
 # 配置日志
 logging.basicConfig(
@@ -77,6 +80,12 @@ class TemuSellerCrawlRequest(BaseModel):
     use_persistent_context: bool = False  # 是否使用持久化上下文
     user_data_dir: Optional[str] = None  # 用户数据目录
     debug_port: Optional[int] = None  # 调试端口
+
+class AIDebuggerChatRequest(BaseModel):
+    messages: List[Dict[str, str]]  # 消息列表
+    model: str = "gpt-4o-mini"  # 模型名称
+    temperature: float = 0.7  # 温度参数
+    max_tokens: int = 500  # 最大token数
 
 def get_db_conn():
     return mysql.connector.connect(
@@ -1181,6 +1190,44 @@ def get_crawler_progress():
             return {"step": "空闲", "current": 0, "total": 0, "title": ""}
     except Exception as e:
         return {"step": "空闲", "current": 0, "total": 0, "title": "", "error": str(e)} 
+
+# ============ AI调试器 API ============
+
+@app.get("/api/ai-debugger/presets")
+def get_ai_presets():
+    """
+    获取预设的AI提示词模板
+    """
+    try:
+        presets = get_presets()
+        return {
+            "success": True,
+            "presets": presets
+        }
+    except Exception as e:
+        logger.error(f"获取预设失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取预设失败: {str(e)}")
+
+@app.post("/api/ai-debugger/chat")
+def ai_debugger_chat(request: AIDebuggerChatRequest):
+    """
+    通用AI对话接口 - 用于调试和测试AI功能
+    """
+    try:
+        logger.info(f"收到AI调试请求 - 模型: {request.model}, 温度: {request.temperature}")
+        
+        result = chat_with_ai(
+            messages=request.messages,
+            model=request.model,
+            temperature=request.temperature,
+            max_tokens=request.max_tokens
+        )
+        
+        return result
+    
+    except Exception as e:
+        logger.error(f"AI调试请求失败: {e}")
+        raise HTTPException(status_code=500, detail=f"AI请求失败: {str(e)}")
 
 
 if __name__ == "__main__":

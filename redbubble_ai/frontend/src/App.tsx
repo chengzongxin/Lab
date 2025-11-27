@@ -7,6 +7,7 @@ import CrawlerControl from "./components/CrawlerControl";
 import TemuCategoryCrawler from "./components/TemuCategoryCrawler";
 import TemuAIWorkflow from "./components/TemuAIWorkflow";
 import TemuSellerCrawler from "./components/TemuSellerCrawler";
+import AIDebugger from "./components/AIDebugger";
 import { API_BASE_URL } from './config';
 import "./App.css";
 
@@ -32,7 +33,7 @@ const App: React.FC = () => {
   const [sortOption, setSortOption] = useState<SortOption>('default');
   const [showCrawlerControl, setShowCrawlerControl] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [activeTab, setActiveTab] = useState<'redbubble' | 'temu' | 'ai-workflow' | 'seller'>('ai-workflow');
+  const [activeTab, setActiveTab] = useState<'redbubble' | 'temu' | 'ai-workflow' | 'seller' | 'ai-debugger'>('ai-workflow');
 
   const fetchProducts = async (category: string = 'all') => {
     try {
@@ -100,6 +101,12 @@ const App: React.FC = () => {
             🤖 AI工作流
           </button>
           <button
+            className={activeTab === 'ai-debugger' ? 'active' : ''}
+            onClick={() => setActiveTab('ai-debugger')}
+          >
+            🔧 AI调试器
+          </button>
+          <button
             className={activeTab === 'temu' ? 'active' : ''}
             onClick={() => setActiveTab('temu')}
           >
@@ -124,6 +131,13 @@ const App: React.FC = () => {
       {activeTab === 'ai-workflow' && (
         <div className="ai-workflow-container">
           <TemuAIWorkflow />
+        </div>
+      )}
+
+      {/* AI调试器标签页内容 */}
+      {activeTab === 'ai-debugger' && (
+        <div className="ai-debugger-container">
+          <AIDebugger />
         </div>
       )}
 

@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { API_BASE_URL } from '../config';
 import './TemuAIWorkflow.css';
 
 interface AIWorkflowStats {
@@ -100,7 +99,7 @@ const TemuAIWorkflow: React.FC = () => {
   };
 
   // 加载商品数据（支持分页、类目筛选和排序）
-  const loadProducts = async (page: number = 1) => {
+  const loadProducts = useCallback(async (page: number = 1) => {
     setIsLoadingProducts(true);
     try {
       const offset = (page - 1) * pageSize;
@@ -122,7 +121,7 @@ const TemuAIWorkflow: React.FC = () => {
     } finally {
       setIsLoadingProducts(false);
     }
-  };
+  }, [pageSize, selectedCategory, orderBy]);
 
   // 页面加载时获取数据
   useEffect(() => {
@@ -130,12 +129,13 @@ const TemuAIWorkflow: React.FC = () => {
     loadProducts(1);
     const interval = setInterval(loadStats, 10000); // 每10秒刷新统计
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // 仅在组件挂载时执行一次
 
   // 当类目或排序方式改变时重新加载数据
   useEffect(() => {
     loadProducts(1);
-  }, [selectedCategory, orderBy]);
+  }, [selectedCategory, orderBy, loadProducts]);
 
   // 启动AI工作流
   const startWorkflow = async () => {
