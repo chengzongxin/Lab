@@ -72,7 +72,7 @@ def clean_title_with_ai(title: str) -> Dict[str, any]:
 2. 去除所有通用的营销形容词（如：hot, best, new, premium, quality, perfect, amazing等）
 3. 去除数量词和规格词（如：1pc, 2pcs, set of, pack）
 4. 保留最重要的商品类型、风格、特征等核心描述词
-5. 必须去除以下类目词：cap, scarf, beanie, hat, sock, socks
+5. 必须去除商品类目词，包含但不限于以下词：cap, scarf, beanie, hat, sock, socks
 6. 返回最多不超过5个关键词，用空格分隔
 
 示例：
@@ -80,7 +80,7 @@ def clean_title_with_ai(title: str) -> Dict[str, any]:
 输出：retro brimless hat deep sea dive design
 
 输入：Men's Winter Warm Knit Beanie - Premium Quality Soft Comfortable Hat
-输出：men winter knit beanie
+输出：men winter knit
 
 请只返回清洗后的关键词，不要解释。"""
 
