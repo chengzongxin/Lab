@@ -54,6 +54,13 @@
   border-color: #667eea;
 }
 
+.textarea-url {
+  min-height: 120px;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
 .input-number {
   width: 100%;
   padding: 10px;
@@ -176,6 +183,43 @@
   font-family: 'Courier New', monospace;
   font-size: 13px;
   color: #d63384;
+}
+
+.progress-logs {
+  margin-top: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #e9ecef;
+}
+
+.progress-logs h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #333;
+  font-weight: 600;
+}
+
+.log-content {
+  background: white;
+  border-radius: 6px;
+  padding: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.log-item {
+  padding: 4px 0;
+  color: #555;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.log-item:not(:last-child) {
+  border-bottom: 1px solid #f0f0f0;
 }
 
 @media (max-width: 768px) {

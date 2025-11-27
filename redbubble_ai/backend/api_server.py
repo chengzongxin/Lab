@@ -878,9 +878,9 @@ async def start_crawl(request: CrawlRequest, background_tasks: BackgroundTasks):
 
 
 @app.post("/api/crawl/temu/seller")
-async def start_temu_seller_crawl(request: TemuSellerCrawlRequest, background_tasks: BackgroundTasks):
+async def start_temu_seller_crawl(request: TemuSellerCrawlRequest):
     """
-    启动TEMU卖家店铺爬取任务（异步后台执行）
+    启动TEMU卖家店铺爬取任务（同步执行，等待完成后返回）
     功能：爬取指定卖家店铺的所有商品，并提取卖家信息（名称、头像、ID）
     """
     if not request.mall_id:
@@ -891,63 +891,62 @@ async def start_temu_seller_crawl(request: TemuSellerCrawlRequest, background_ta
     # 创建任务ID
     task_id = str(uuid.uuid4())
     
-    async def run_seller_crawl():
-        """异步执行卖家店铺爬取"""
-        try:
-            logger.info(f"开始执行TEMU卖家店铺爬取: task_id={task_id}, mall_id={request.mall_id}")
+    try:
+        logger.info(f"开始执行TEMU卖家店铺爬取: task_id={task_id}, mall_id={request.mall_id}")
+        
+        # 导入爬虫函数
+        from temu_seller_crawler import crawl_temu_seller_products
+        from temu_db_utils import save_temu_products_to_db
+        
+        # 在线程池中执行同步爬虫（等待完成）
+        import asyncio
+        from concurrent.futures import ThreadPoolExecutor
+        
+        loop = asyncio.get_event_loop()
+        with ThreadPoolExecutor() as executor:
+            products = await loop.run_in_executor(
+                executor,
+                crawl_temu_seller_products,
+                request.mall_id,
+                request.max_pages,
+                request.min_sales,
+                request.use_persistent_context,
+                request.user_data_dir,
+                request.debug_port
+            )
+        
+        saved_count = 0
+        if products:
+            logger.info(f"爬取到 {len(products)} 个商品，正在保存到数据库...")
+            # 保存到数据库
+            saved_count = save_temu_products_to_db(products, source_type='seller')
+            logger.info(f"✓ 成功保存 {saved_count} 个卖家商品")
+        else:
+            logger.warning("未找到任何商品")
+        
+        message = f"✅ 成功爬取卖家店铺 (ID: {request.mall_id})，保存了 {saved_count} 个商品"
+        if request.min_sales > 0:
+            message += f"（销量 >= {request.min_sales}）"
+        
+        return {
+            "success": True,
+            "task_id": task_id,
+            "message": message,
+            "products_count": len(products) if products else 0,
+            "saved_count": saved_count
+        }
             
-            # 导入爬虫函数
-            from temu_seller_crawler import crawl_temu_seller_products
-            from temu_db_utils import save_temu_products_to_db
-            
-            # 在线程池中执行同步爬虫
-            import asyncio
-            from concurrent.futures import ThreadPoolExecutor
-            
-            loop = asyncio.get_event_loop()
-            with ThreadPoolExecutor() as executor:
-                products = await loop.run_in_executor(
-                    executor,
-                    crawl_temu_seller_products,
-                    request.mall_id,
-                    request.max_pages,
-                    request.min_sales,
-                    request.use_persistent_context,
-                    request.user_data_dir,
-                    request.debug_port
-                )
-            
-            if products:
-                logger.info(f"爬取到 {len(products)} 个商品，正在保存到数据库...")
-                # 保存到数据库
-                saved_count = save_temu_products_to_db(products, source_type='seller')
-                logger.info(f"✓ 成功保存 {saved_count} 个卖家商品")
-            else:
-                logger.warning("未找到任何商品")
-                
-        except Exception as e:
-            logger.error(f"TEMU卖家店铺爬取失败: {e}")
-            import traceback
-            logger.error(traceback.format_exc())
-    
-    # 添加后台任务
-    background_tasks.add_task(run_seller_crawl)
-    
-    message = f"已启动TEMU卖家店铺爬取，店铺ID: {request.mall_id}，最多滚动 {request.max_pages} 次"
-    if request.min_sales > 0:
-        message += f"，最小销量: {request.min_sales}"
-    
-    return {
-        "success": True,
-        "task_id": task_id,
-        "message": message
-    }
+    except Exception as e:
+        logger.error(f"TEMU卖家店铺爬取失败: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"爬取失败: {str(e)}")
 
 
 @app.post("/api/crawl/temu/category")
-async def start_temu_category_crawl(request: TemuCategoryCrawlRequest, background_tasks: BackgroundTasks):
+async def start_temu_category_crawl(request: TemuCategoryCrawlRequest):
     """
-    启动TEMU类目完整爬取工作流（异步后台执行）
+    启动TEMU类目完整爬取工作流（同步执行，等待完成后返回）
     包括：爬取类目爆款商品 -> 爬取商品详情 -> 爬取卖家店铺商品
     """
     if not request.category_url:
@@ -955,69 +954,49 @@ async def start_temu_category_crawl(request: TemuCategoryCrawlRequest, backgroun
     if request.min_sales < 0:
         raise HTTPException(status_code=400, detail="最小销量不能小于0")
     
-    # 检查是否有正在运行的任务
-    running_tasks = get_running_tasks()
-    if running_tasks:
-        raise HTTPException(status_code=400, detail="已有任务正在运行，请等待完成")
-    
     # 创建任务ID
     task_id = str(uuid.uuid4())
     
-    # 启动完整工作流（异步）
-    background_tasks.add_task(
-        run_temu_category_workflow_async,
-        task_id,
-        request.category_url,
-        request.min_sales,
-        request.crawl_details,
-        request.crawl_seller_products,
-        request.use_persistent_context,
-        request.user_data_dir,
-        request.debug_port
-    )
-    
-    message = f"已启动TEMU类目爬取工作流，类目URL: {request.category_url[:50]}...，最小销量: {request.min_sales}"
-    if request.debug_port:
-        message += f"，调试端口: {request.debug_port}"
-    
-    return {
-        "success": True,
-        "task_id": task_id,
-        "message": message
-    }
-
-async def run_temu_category_workflow_async(
-    task_id: str,
-    category_url: str,
-    min_sales: int,
-    crawl_details: bool,
-    crawl_seller_products: bool,
-    use_persistent_context: bool,
-    user_data_dir: str,
-    debug_port: int
-):
-    """异步运行TEMU类目完整工作流"""
-    import asyncio
-    import concurrent.futures
-    from crawler_utils import crawl_temu_category_full_workflow
-    
-    loop = asyncio.get_event_loop()
-    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-        try:
+    try:
+        logger.info(f"开始执行TEMU类目爬取: task_id={task_id}, url={request.category_url}")
+        
+        # 导入爬虫函数
+        from crawler_utils import crawl_temu_category_full_workflow
+        
+        # 在线程池中执行同步爬虫（等待完成）
+        import asyncio
+        from concurrent.futures import ThreadPoolExecutor
+        
+        loop = asyncio.get_event_loop()
+        with ThreadPoolExecutor() as executor:
             stats = await loop.run_in_executor(
                 executor,
                 crawl_temu_category_full_workflow,
-                category_url,
-                min_sales,
-                crawl_details,
-                crawl_seller_products,
-                use_persistent_context,
-                user_data_dir,
-                debug_port
+                request.category_url,
+                request.min_sales,
+                request.crawl_details,
+                request.crawl_seller_products,
+                request.use_persistent_context,
+                request.user_data_dir,
+                request.debug_port
             )
-            logger.info(f"TEMU类目工作流完成: {stats}")
-        except Exception as e:
-            logger.error(f"TEMU类目工作流执行失败: {e}")
+        
+        message = f"✅ 成功爬取类目，保存了 {stats.get('saved_products', 0)} 个商品"
+        if request.min_sales > 0:
+            message += f"（销量 >= {request.min_sales}）"
+        
+        return {
+            "success": True,
+            "task_id": task_id,
+            "message": message,
+            "stats": stats
+        }
+            
+    except Exception as e:
+        logger.error(f"TEMU类目爬取失败: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"爬取失败: {str(e)}")
 
 @app.get("/api/crawl/status")
 def get_crawl_status():

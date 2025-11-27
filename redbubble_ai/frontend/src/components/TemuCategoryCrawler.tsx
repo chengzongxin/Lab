@@ -7,7 +7,7 @@ interface TemuCategoryCrawlerProps {
 }
 
 const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = () => {
-  const [categoryUrl, setCategoryUrl] = useState('');
+  const [categoryUrls, setCategoryUrls] = useState(''); // 改为复数，支持多个URL
   const [minSales, setMinSales] = useState(200);
   const [crawlDetails, setCrawlDetails] = useState(false);
   const [crawlSellerProducts, setCrawlSellerProducts] = useState(false);
@@ -15,34 +15,74 @@ const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = () => {
   const [usePersistentContext, setUsePersistentContext] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [message, setMessage] = useState('');
+  const [progressLogs, setProgressLogs] = useState<string[]>([]); // 进度日志
 
   const startCrawl = async () => {
-    if (!categoryUrl.trim()) {
-      setMessage('❌ 请输入类目URL');
+    if (!categoryUrls.trim()) {
+      setMessage('❌ 请输入类目URL（支持多个，一行一个）');
+      return;
+    }
+
+    // 解析多个URL（按行分割，过滤空行）
+    const urls = categoryUrls.split('\n')
+      .map(url => url.trim())
+      .filter(url => url.length > 0);
+
+    if (urls.length === 0) {
+      setMessage('❌ 请输入至少一个有效的URL');
       return;
     }
 
     setIsRunning(true);
-    setMessage('正在启动TEMU类目爬取...');
+    setProgressLogs([]);
+    setMessage(`📋 准备批量爬取 ${urls.length} 个类目...`);
 
-    try {
-      const response = await axios.post('http://localhost:8000/api/crawl/temu/category', {
-        category_url: categoryUrl.trim(),
-        min_sales: minSales,
-        crawl_details: crawlDetails,
-        crawl_seller_products: crawlSellerProducts,
-        use_persistent_context: usePersistentContext,
-        debug_port: debugPort
-      });
+    let successCount = 0;
+    let failCount = 0;
 
-      if (response.data.success) {
-        setMessage(`✅ ${response.data.message}`);
+    // 依次处理每个URL
+    for (let i = 0; i < urls.length; i++) {
+      const url = urls[i];
+      const currentIndex = i + 1;
+      
+      // 添加进度日志
+      const progressMsg = `\n[${currentIndex}/${urls.length}] 正在处理: ${url.substring(0, 60)}...`;
+      setProgressLogs(prev => [...prev, progressMsg]);
+      setMessage(`🔄 [${currentIndex}/${urls.length}] 正在爬取...`);
+
+      try {
+        const response = await axios.post('http://localhost:8000/api/crawl/temu/category', {
+          category_url: url,
+          min_sales: minSales,
+          crawl_details: crawlDetails,
+          crawl_seller_products: crawlSellerProducts,
+          use_persistent_context: usePersistentContext,
+          debug_port: debugPort
+        }, {
+          timeout: 1800000  // 30分钟超时（爬取可能需要较长时间）
+        });
+
+        if (response.data.success) {
+          const successMsg = `✅ [${currentIndex}/${urls.length}] ${response.data.message}`;
+          setProgressLogs(prev => [...prev, successMsg]);
+          successCount++;
+        } else {
+          const errorMsg = `❌ [${currentIndex}/${urls.length}] 爬取失败`;
+          setProgressLogs(prev => [...prev, errorMsg]);
+          failCount++;
+        }
+      } catch (error: any) {
+        const errorMsg = `❌ [${currentIndex}/${urls.length}] 错误: ${error.response?.data?.detail || error.message}`;
+        setProgressLogs(prev => [...prev, errorMsg]);
+        failCount++;
       }
-    } catch (error: any) {
-      setMessage(`❌ 启动失败: ${error.response?.data?.detail || error.message}`);
-    } finally {
-      setIsRunning(false);
     }
+
+    // 显示最终结果
+    const finalMsg = `\n🎉 批量爬取完成！成功: ${successCount}, 失败: ${failCount}, 总计: ${urls.length}`;
+    setProgressLogs(prev => [...prev, finalMsg]);
+    setMessage(`✅ 批量爬取完成！成功 ${successCount}/${urls.length}`);
+    setIsRunning(false);
   };
 
   return (
@@ -54,15 +94,15 @@ const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = () => {
 
       <div className="form-container">
         <div className="form-group">
-          <label>类目URL</label>
-          <input
-            type="text"
-            value={categoryUrl}
-            onChange={(e) => setCategoryUrl(e.target.value)}
-            placeholder="https://www.temu.com/channel/xxxxx.html"
-            className="input-url"
+          <label>类目URL（支持批量，一行一个）</label>
+          <textarea
+            value={categoryUrls}
+            onChange={(e) => setCategoryUrls(e.target.value)}
+            placeholder="https://www.temu.com/channel/xxxxx.html&#10;https://www.temu.com/channel/yyyyy.html&#10;（可输入多个链接，每行一个）"
+            className="input-url textarea-url"
+            rows={5}
           />
-          <span className="hint">粘贴TEMU类目页面的完整链接</span>
+          <span className="hint">粘贴TEMU类目页面的完整链接，支持批量输入（每行一个）</span>
         </div>
 
         <div className="form-row">
@@ -137,6 +177,19 @@ const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = () => {
         {message && (
           <div className={`message ${message.startsWith('❌') ? 'error' : 'success'}`}>
             {message}
+          </div>
+        )}
+
+        {progressLogs.length > 0 && (
+          <div className="progress-logs">
+            <h4>📊 爬取进度</h4>
+            <div className="log-content">
+              {progressLogs.map((log, index) => (
+                <div key={index} className="log-item">
+                  {log}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
