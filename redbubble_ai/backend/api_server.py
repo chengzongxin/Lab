@@ -764,7 +764,7 @@ def get_temu_products_with_matches(
         # 第二步：为每个TEMU商品获取对应的Redbubble搜索结果
         result_products = []
         for product in temu_products:
-            # 查询该商品的Redbubble匹配结果 (JOIN products表获取详情)
+            # 查询该商品的Redbubble匹配结果 (JOIN redbubble_products表获取详情)
             matches_query = """
                 SELECT 
                     m.id,
@@ -777,7 +777,7 @@ def get_temu_products_with_matches(
                     m.search_category,
                     m.created_at
                 FROM temu_redbubble_matches m
-                JOIN products p ON m.redbubble_product_id = p.id
+                JOIN redbubble_products p ON m.redbubble_product_id = p.id
                 WHERE m.temu_product_id = %s
                 AND m.match_score >= %s
             """
