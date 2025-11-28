@@ -59,6 +59,7 @@ class TemuCrawlRequest(BaseModel):
 
 class TemuCategoryCrawlRequest(BaseModel):
     category_url: str  # TEMU类目URL（必填）
+    max_pages: int = 10  # 最大滚动次数（默认10次）
     min_sales: int = 200  # 最小销量（默认200）
     crawl_details: bool = False  # 是否爬取商品详情（暂时禁用）
     crawl_seller_products: bool = False  # 是否爬取卖家店铺商品（暂时禁用）
@@ -402,7 +403,7 @@ def run_crawler_sync(task_id: str, keyword: str, pages: int, category: str):
     
     try:
         # 导入迁移的工具模块（使用绝对导入）
-        from crawler_utils import crawl_redbubble
+        from redbubble_crawler import crawl_redbubble
         from download_utils import download_image, save_to_mysql, get_image_save_path
         from scorer_utils import nima_score
         
@@ -928,6 +929,35 @@ async def start_temu_seller_crawl(request: TemuSellerCrawlRequest):
     # 创建任务ID
     task_id = str(uuid.uuid4())
     
+    # 检查该店铺是否已经爬取过
+    try:
+        conn = get_db_conn()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT COUNT(DISTINCT goods_id) as product_count, 
+                   MAX(created_at) as last_crawl_time
+            FROM temu_products 
+            WHERE mall_id = %s
+        """, (request.mall_id,))
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        if result and result[0] > 0:
+            product_count = result[0]
+            last_crawl_time = result[1]
+            logger.warning(f"店铺 {request.mall_id} 已存在 {product_count} 个商品，上次爬取时间: {last_crawl_time}")
+            return {
+                "success": False,
+                "skipped": True,
+                "message": f"店铺已存在！该店铺已有 {product_count} 个商品，上次爬取时间: {last_crawl_time}",
+                "mall_id": request.mall_id,
+                "existing_products": product_count,
+                "last_crawl_time": str(last_crawl_time) if last_crawl_time else None
+            }
+    except Exception as e:
+        logger.warning(f"检查店铺是否存在时出错: {e}，继续执行爬取")
+    
     try:
         logger.info(f"开始执行TEMU卖家店铺爬取: task_id={task_id}, mall_id={request.mall_id}")
         
@@ -988,17 +1018,70 @@ async def start_temu_category_crawl(request: TemuCategoryCrawlRequest):
     """
     if not request.category_url:
         raise HTTPException(status_code=400, detail="类目URL不能为空")
+    if request.max_pages < 1 or request.max_pages > 30:
+        raise HTTPException(status_code=400, detail="滚动次数必须在1-30之间")
     if request.min_sales < 0:
         raise HTTPException(status_code=400, detail="最小销量不能小于0")
     
     # 创建任务ID
     task_id = str(uuid.uuid4())
     
+    # 检查该类目URL是否已经爬取过
+    try:
+        import hashlib
+        category_url_hash = hashlib.md5(request.category_url.encode()).hexdigest()
+        
+        conn = get_db_conn()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT 
+                id,
+                category_name,
+                total_products,
+                crawled_products,
+                status,
+                created_at,
+                updated_at
+            FROM temu_categories 
+            WHERE category_url_hash = %s
+        """, (category_url_hash,))
+        existing_category = cursor.fetchone()
+        
+        if existing_category:
+            # 统计该类目下的商品数量
+            cursor.execute("""
+                SELECT COUNT(*) as product_count
+                FROM temu_products
+                WHERE category_id = %s
+            """, (existing_category['id'],))
+            product_result = cursor.fetchone()
+            product_count = product_result['product_count'] if product_result else 0
+            
+            cursor.close()
+            conn.close()
+            
+            logger.warning(f"类目URL已存在: {request.category_url[:100]}..., 已有 {product_count} 个商品")
+            return {
+                "success": False,
+                "skipped": True,
+                "message": f"类目已存在！该类目已有 {product_count} 个商品，上次爬取时间: {existing_category['updated_at']}",
+                "category_url": request.category_url,
+                "category_name": existing_category.get('category_name'),
+                "existing_products": product_count,
+                "last_crawl_time": str(existing_category['updated_at']) if existing_category.get('updated_at') else None,
+                "status": existing_category.get('status')
+            }
+        
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        logger.warning(f"检查类目是否存在时出错: {e}，继续执行爬取")
+    
     try:
         logger.info(f"开始执行TEMU类目爬取: task_id={task_id}, url={request.category_url}")
         
         # 导入爬虫函数
-        from crawler_utils import crawl_temu_category_full_workflow
+        from temu_category_crawler import crawl_temu_category_full_workflow
         
         # 在线程池中执行同步爬虫（等待完成）
         import asyncio
@@ -1010,6 +1093,7 @@ async def start_temu_category_crawl(request: TemuCategoryCrawlRequest):
                 executor,
                 crawl_temu_category_full_workflow,
                 request.category_url,
+                request.max_pages,
                 request.min_sales,
                 request.crawl_details,
                 request.crawl_seller_products,

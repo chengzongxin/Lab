@@ -11,7 +11,12 @@ import sys
 import asyncio
 from playwright.sync_api import sync_playwright
 
+# 配置日志
 logger = logging.getLogger(__name__)
+
+# 修复Windows下的事件循环问题
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
 def crawl_temu_seller_products(mall_id, max_pages=10, min_sales=0, use_persistent_context=False, user_data_dir=None, debug_port=None):
     """
@@ -31,10 +36,6 @@ def crawl_temu_seller_products(mall_id, max_pages=10, min_sales=0, use_persisten
     seller_info = {}
     
     try:
-        # 在Windows上强制使用ProactorEventLoopPolicy，以支持子进程（Playwright需要）
-        if sys.platform == 'win32':
-            asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
-
         with sync_playwright() as p:
             # 启动浏览器（与类目爬取逻辑一致）
             if debug_port:

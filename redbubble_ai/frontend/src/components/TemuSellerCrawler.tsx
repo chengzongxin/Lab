@@ -40,6 +40,7 @@ const TemuSellerCrawler: React.FC = () => {
 
         let successCount = 0;
         let failCount = 0;
+        let skippedCount = 0;
 
         // 依次处理每个URL
         for (let i = 0; i < urls.length; i++) {
@@ -70,7 +71,12 @@ const TemuSellerCrawler: React.FC = () => {
                     timeout: 1800000  // 30分钟超时（爬取可能需要较长时间）
                 });
 
-                if (response.data.success) {
+                // 处理跳过的店铺（已存在）
+                if (response.data.skipped) {
+                    const skipMsg = `⏭️ [${currentIndex}/${urls.length}] 跳过（店铺ID: ${mallId}）\n   └─ ${response.data.message}`;
+                    setProgressLogs(prev => [...prev, skipMsg]);
+                    skippedCount++;
+                } else if (response.data.success) {
                     const successMsg = `✅ [${currentIndex}/${urls.length}] ${response.data.message}`;
                     setProgressLogs(prev => [...prev, successMsg]);
                     successCount++;
@@ -87,9 +93,9 @@ const TemuSellerCrawler: React.FC = () => {
         }
 
         // 显示最终结果
-        const finalMsg = `\n🎉 批量爬取完成！成功: ${successCount}, 失败: ${failCount}, 总计: ${urls.length}`;
+        const finalMsg = `\n🎉 批量爬取完成！\n   成功: ${successCount} | 跳过: ${skippedCount} | 失败: ${failCount} | 总计: ${urls.length}`;
         setProgressLogs(prev => [...prev, finalMsg]);
-        setMessage(`✅ 批量爬取完成！成功 ${successCount}/${urls.length}`);
+        setMessage(`✅ 批量爬取完成！成功 ${successCount}, 跳过 ${skippedCount}, 失败 ${failCount}`);
         setIsRunning(false);
     };
 

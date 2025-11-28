@@ -6,7 +6,7 @@ import logging
 import mysql.connector
 from typing import List, Dict, Optional
 from ai_title_cleaner import clean_title_with_fallback
-from crawler_utils import crawl_redbubble
+from redbubble_crawler import crawl_redbubble
 import json
 
 logger = logging.getLogger(__name__)

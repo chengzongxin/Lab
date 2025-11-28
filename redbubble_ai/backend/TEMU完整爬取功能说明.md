@@ -170,7 +170,7 @@ curl -X POST "http://localhost:8000/api/crawl/temu/category" \
 ### 方式3：直接调用函数
 
 ```python
-from crawler_utils import crawl_temu_category_full_workflow
+from temu_category_crawler import crawl_temu_category_full_workflow
 
 stats = crawl_temu_category_full_workflow(
     category_url="https://www.temu.com/ca/mens-hats-caps-o3-800.html?...",

@@ -8,6 +8,7 @@ interface TemuCategoryCrawlerProps {
 
 const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = () => {
   const [categoryUrls, setCategoryUrls] = useState(''); // 改为复数，支持多个URL
+  const [maxPages, setMaxPages] = useState(10); // 滚动次数，默认10次
   const [minSales, setMinSales] = useState(200);
   const [crawlDetails, setCrawlDetails] = useState(false);
   const [crawlSellerProducts, setCrawlSellerProducts] = useState(false);
@@ -39,6 +40,7 @@ const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = () => {
 
     let successCount = 0;
     let failCount = 0;
+    let skippedCount = 0;
 
     // 依次处理每个URL
     for (let i = 0; i < urls.length; i++) {
@@ -53,6 +55,7 @@ const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = () => {
       try {
         const response = await axios.post('http://localhost:8000/api/crawl/temu/category', {
           category_url: url,
+          max_pages: maxPages,
           min_sales: minSales,
           crawl_details: crawlDetails,
           crawl_seller_products: crawlSellerProducts,
@@ -62,7 +65,12 @@ const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = () => {
           timeout: 1800000  // 30分钟超时（爬取可能需要较长时间）
         });
 
-        if (response.data.success) {
+        // 处理跳过的类目（已存在）
+        if (response.data.skipped) {
+          const skipMsg = `⏭️ [${currentIndex}/${urls.length}] 跳过（类目已存在）\n   └─ ${response.data.message}`;
+          setProgressLogs(prev => [...prev, skipMsg]);
+          skippedCount++;
+        } else if (response.data.success) {
           const successMsg = `✅ [${currentIndex}/${urls.length}] ${response.data.message}`;
           setProgressLogs(prev => [...prev, successMsg]);
           successCount++;
@@ -79,9 +87,9 @@ const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = () => {
     }
 
     // 显示最终结果
-    const finalMsg = `\n🎉 批量爬取完成！成功: ${successCount}, 失败: ${failCount}, 总计: ${urls.length}`;
+    const finalMsg = `\n🎉 批量爬取完成！\n   成功: ${successCount} | 跳过: ${skippedCount} | 失败: ${failCount} | 总计: ${urls.length}`;
     setProgressLogs(prev => [...prev, finalMsg]);
-    setMessage(`✅ 批量爬取完成！成功 ${successCount}/${urls.length}`);
+    setMessage(`✅ 批量爬取完成！成功 ${successCount}, 跳过 ${skippedCount}, 失败 ${failCount}`);
     setIsRunning(false);
   };
 
@@ -107,6 +115,19 @@ const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = () => {
 
         <div className="form-row">
           <div className="form-group">
+            <label>滚动次数</label>
+            <input
+              type="number"
+              value={maxPages}
+              onChange={(e) => setMaxPages(parseInt(e.target.value))}
+              min="1"
+              max="30"
+              className="input-number"
+            />
+            <span className="hint">页面滚动加载次数（1-30）</span>
+          </div>
+
+          <div className="form-group">
             <label>最小销量</label>
             <input
               type="number"
@@ -117,7 +138,9 @@ const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = () => {
             />
             <span className="hint">只保存销量大于此值的商品</span>
           </div>
+        </div>
 
+        <div className="form-row">
           <div className="form-group">
             <label>调试端口（可选）</label>
             <input
