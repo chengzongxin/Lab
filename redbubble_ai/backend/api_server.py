@@ -110,9 +110,9 @@ def init_database():
     cursor.execute("CREATE DATABASE IF NOT EXISTS redbubble_ai DEFAULT CHARACTER SET utf8mb4;")
     cursor.execute("USE redbubble_ai;")
     
-    # 创建商品表（Redbubble）
+    # 创建Redbubble商品表
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS products (
+    CREATE TABLE IF NOT EXISTS redbubble_products (
       id INT PRIMARY KEY AUTO_INCREMENT,
       title VARCHAR(500) NOT NULL,
       img VARCHAR(1000) NOT NULL,
@@ -277,7 +277,7 @@ def init_database():
       INDEX idx_redbubble_product_id (redbubble_product_id),
       INDEX idx_match_score (match_score),
       FOREIGN KEY (temu_product_id) REFERENCES temu_products(id) ON DELETE CASCADE,
-      FOREIGN KEY (redbubble_product_id) REFERENCES products(id) ON DELETE SET NULL
+      FOREIGN KEY (redbubble_product_id) REFERENCES redbubble_products(id) ON DELETE SET NULL
     ) DEFAULT CHARACTER SET utf8mb4;
     """)
     
@@ -873,9 +873,9 @@ def get_products(category: str = None):
     conn = get_db_conn()
     cursor = conn.cursor(dictionary=True)
     if category:
-        cursor.execute("SELECT id, title, img, score, link, local_img, category FROM products WHERE category = %s ORDER BY id DESC", (category,))
+        cursor.execute("SELECT id, title, img, score, link, local_img, category FROM redbubble_products WHERE category = %s ORDER BY id DESC", (category,))
     else:
-        cursor.execute("SELECT id, title, img, score, link, local_img, category FROM products ORDER BY id DESC")
+        cursor.execute("SELECT id, title, img, score, link, local_img, category FROM redbubble_products ORDER BY id DESC")
     products = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -1123,15 +1123,15 @@ def get_crawl_status():
     try:
         conn = get_db_conn()
         cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) as count FROM products")
+        cursor.execute("SELECT COUNT(*) as count FROM redbubble_products")
         result = cursor.fetchone()
         total_products = result[0] if result else 0
         
-        cursor.execute("SELECT AVG(score) as avg_score FROM products WHERE score IS NOT NULL")
+        cursor.execute("SELECT AVG(score) as avg_score FROM redbubble_products WHERE score IS NOT NULL")
         result = cursor.fetchone()
         avg_score = float(result[0]) if result and result[0] else 0
         
-        cursor.execute("SELECT COUNT(*) as high_score_count FROM products WHERE score >= 7")
+        cursor.execute("SELECT COUNT(*) as high_score_count FROM redbubble_products WHERE score >= 7")
         result = cursor.fetchone()
         high_score_count = result[0] if result else 0
         
@@ -1155,12 +1155,12 @@ def clear_products():
     try:
         conn = get_db_conn()
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM products")
+        cursor.execute("DELETE FROM redbubble_products")
         conn.commit()
         cursor.close()
         conn.close()
         
-        return {"success": True, "message": "已清空所有商品数据"}
+        return {"success": True, "message": "已清空所有Redbubble商品数据"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"清空数据失败: {str(e)}")
 

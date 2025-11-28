@@ -239,9 +239,9 @@ def save_to_mysql(products):
         cursor.execute("CREATE DATABASE IF NOT EXISTS redbubble_ai DEFAULT CHARACTER SET utf8mb4;")
         cursor.execute("USE redbubble_ai;")
         
-        # 创建products表（如果不存在）
+        # 创建redbubble_products表（如果不存在）
         cursor.execute("""
-        CREATE TABLE IF NOT EXISTS products (
+        CREATE TABLE IF NOT EXISTS redbubble_products (
           id INT PRIMARY KEY AUTO_INCREMENT,
           title VARCHAR(500) NOT NULL,
           img VARCHAR(1000) NOT NULL,
@@ -258,7 +258,7 @@ def save_to_mysql(products):
         for product in products:
             try:
                 cursor.execute("""
-                INSERT INTO products (title, img, score, link, local_img, category)
+                INSERT INTO redbubble_products (title, img, score, link, local_img, category)
                 VALUES (%s, %s, %s, %s, %s, %s)
                 """, (
                     product['title'],

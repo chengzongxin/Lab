@@ -135,9 +135,9 @@ def save_redbubble_matches(
 
         for idx, product in enumerate(redbubble_results, 1):
             try:
-                # 1. 确保Redbubble商品存在于products表
+                # 1. 确保Redbubble商品存在于redbubble_products表
                 # 先检查是否存在
-                cursor.execute("SELECT id FROM products WHERE link = %s", (product['link'],))
+                cursor.execute("SELECT id FROM redbubble_products WHERE link = %s", (product['link'],))
                 result = cursor.fetchone()
                 
                 if result:
@@ -146,7 +146,7 @@ def save_redbubble_matches(
                 else:
                     # 插入新商品
                     cursor.execute("""
-                        INSERT INTO products (title, img, score, link, category)
+                        INSERT INTO redbubble_products (title, img, score, link, category)
                         VALUES (%s, %s, %s, %s, 'ai-matched')
                     """, (
                         product['title'],
