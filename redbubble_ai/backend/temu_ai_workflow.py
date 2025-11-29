@@ -125,7 +125,9 @@ def save_redbubble_matches(
     保存TEMU商品和Redbubble商品的匹配关系
     """
     conn = get_db_conn()
-    cursor = conn.cursor()
+    # 使用 buffered=True 避免 "Unread result found" 错误
+    # 这会将查询结果立即读取到内存，允许在同一 cursor 上执行多个查询
+    cursor = conn.cursor(buffered=True)
     
     saved_count = 0
     try:
@@ -309,7 +311,8 @@ def process_temu_to_redbubble_workflow(
             
             # 2.2 检查是否已有该类目的Redbubble搜索结果
             conn = get_db_conn()
-            cursor = conn.cursor()
+            # 使用 buffered=True 避免潜在的 "Unread result found" 错误
+            cursor = conn.cursor(buffered=True)
             cursor.execute("""
                 SELECT COUNT(*) as count 
                 FROM temu_redbubble_matches 
