@@ -48,6 +48,7 @@ const TemuAIWorkflow: React.FC = () => {
   // Redbubble类目定义
   const RedbubbleCategories = [
     { id: 'u-socks', name: '🧦 袜子 (Socks)' },
+    { id: 'w-scarf', name: '🧣 围巾 (Scarf)' },
     { id: 'u-clothing', name: '👕 服装 (Clothing)' },
     { id: 'u-stickers', name: '🏷️ 贴纸 (Stickers)' },
     { id: 'u-phone-cases', name: '📱 手机壳 (Phone Cases)' },

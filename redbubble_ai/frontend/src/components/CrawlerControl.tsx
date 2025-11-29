@@ -26,6 +26,7 @@ interface TaskStatus {
 
 const categoryOptions = [
   { value: 'u-socks', label: '袜子' },
+  { value: 'w-scarf', label: '围巾' },
   { value: 'u-clothing', label: '衣服' },
   { value: 'u-bags', label: '包' },
   { value: 'u-masks', label: '口罩' },
