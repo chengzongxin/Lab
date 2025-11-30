@@ -788,7 +788,8 @@ def get_temu_products_with_matches(
                 matches_query += " AND m.search_category = %s"
                 match_params.append(redbubble_category)
                 
-            matches_query += " ORDER BY m.rank_position ASC, m.match_score DESC LIMIT 10"
+            # 增加限制到100，允许前端显示更多Redbubble匹配结果
+            matches_query += " ORDER BY m.rank_position ASC, m.match_score DESC LIMIT 100"
             
             cursor.execute(matches_query, tuple(match_params))
             redbubble_results = cursor.fetchall()

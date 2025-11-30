@@ -207,7 +207,7 @@
 /* 每行商品：左右分栏 */
 .product-row-compact {
   display: grid;
-  grid-template-columns: 400px 1fr;
+  grid-template-columns: 280px 1fr;
   gap: 16px;
   background: white;
   border-radius: 8px;
@@ -248,10 +248,8 @@
   color: #333;
   margin: 0;
   line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* 卖家信息 */
@@ -363,7 +361,7 @@
   font-style: italic;
 }
 
-/* Redbubble结果 - 九宫格布局 */
+/* Redbubble结果 - 一行4个布局 */
 .redbubble-grid-container {
   display: flex;
   flex-direction: column;
@@ -372,7 +370,7 @@
 
 .redbubble-grid-compact {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 6px;
 }
 

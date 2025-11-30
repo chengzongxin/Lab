@@ -368,13 +368,13 @@ const TemuAIWorkflow: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Redbubble结果列表 - 九宫格 */}
+                  {/* Redbubble结果列表 - 一行4个 */}
                   {item.redbubble_results.length > 0 ? (
                     <div className="redbubble-grid-container">
                       <div className="redbubble-grid-compact">
                         {(expandedProducts.has(item.temu_product.id)
                           ? item.redbubble_results
-                          : item.redbubble_results.slice(0, 6)
+                          : item.redbubble_results.slice(0, 20)
                         ).map((result) => (
                           <a
                             key={result.id}
@@ -391,7 +391,7 @@ const TemuAIWorkflow: React.FC = () => {
                           </a>
                         ))}
                       </div>
-                      {item.redbubble_results.length > 6 && (
+                      {item.redbubble_results.length > 20 && (
                         <button
                           className="expand-btn"
                           onClick={() => toggleExpand(item.temu_product.id)}
