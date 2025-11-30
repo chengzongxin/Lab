@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from '../config';
 import './TemuSellerCrawler.css';
 
 const TemuSellerCrawler: React.FC = () => {
@@ -61,7 +62,7 @@ const TemuSellerCrawler: React.FC = () => {
                     continue;
                 }
 
-                const response = await axios.post('http://localhost:8000/api/crawl/temu/seller', {
+                const response = await axios.post(`${API_BASE_URL}/api/crawl/temu/seller`, {
                     mall_id: mallId,
                     max_pages: maxPages,
                     min_sales: minSales,

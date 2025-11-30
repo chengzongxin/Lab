@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from '../config';
 import './TemuCategoryCrawler.css';
 
 interface TemuCategoryCrawlerProps {
@@ -53,7 +54,7 @@ const TemuCategoryCrawler: React.FC<TemuCategoryCrawlerProps> = () => {
       setMessage(`🔄 [${currentIndex}/${urls.length}] 正在爬取...`);
 
       try {
-        const response = await axios.post('http://localhost:8000/api/crawl/temu/category', {
+        const response = await axios.post(`${API_BASE_URL}/api/crawl/temu/category`, {
           category_url: url,
           max_pages: maxPages,
           min_sales: minSales,

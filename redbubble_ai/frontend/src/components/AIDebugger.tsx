@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from '../config';
 import './AIDebugger.css';
 
 interface Message {
@@ -63,7 +64,7 @@ const AIDebugger: React.FC = () => {
 
   const loadPresets = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/ai-debugger/presets');
+      const response = await axios.get(`${API_BASE_URL}/api/ai-debugger/presets`);
       if (response.data.success) {
         setPresets(response.data.presets);
       }
@@ -123,7 +124,7 @@ const AIDebugger: React.FC = () => {
 
     try {
       const response = await axios.post<ChatResponse>(
-        'http://localhost:8000/api/ai-debugger/chat',
+        `${API_BASE_URL}/api/ai-debugger/chat`,
         {
           messages: newMessages,
           model: model,
