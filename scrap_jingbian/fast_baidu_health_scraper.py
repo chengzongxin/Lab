@@ -130,6 +130,8 @@ class FastBaiduHealthScraper:
             
             page_info = f"第{page + 1}页" if page > 0 else "第1页"
             logging.info(f"正在搜索: {title} ({page_info})")
+
+            self.smart_delay(4, 6)
             
             # 发送请求
             response = self.session.get(search_url, timeout=10)
