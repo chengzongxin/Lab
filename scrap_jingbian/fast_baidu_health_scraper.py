@@ -48,7 +48,7 @@ headers = {
     'Sec-Fetch-User': '?1',
     'Sec-Fetch-Dest': 'document',
     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
-    'cookie': 'BIDUPSID=0E6BDE17EBE358A7645DD73CA89DCF43; PSTM=1753855425; BAIDUID=E361C9456029385555E8B8B196D558A8:FG=1; MAWEBCUID=web_FiZNzazYTReSAhltuUsNWGKPWHeHoMUTNDIITvOofqZqvDeeDn; H_WISE_SIDS_BFESS=62325_63140_63324_63947_64005_64247_64364_64418_64437_64450_64460_64475_64487_64504_64513_64543_64556_64566_64569_64575_64590_64594_64597_64601_64653_64662_64669_64714_64741_64742_64738_64750; BAIDUID_BFESS=E361C9456029385555E8B8B196D558A8:FG=1; ZFY=iJQBeH2IAB39l9S07EReVRz3AcuEZcmXL:BTlLrNIXk4:C; BAIDU_WISE_UID=wapp_1755941802709_640; BDUSS_BFESS=m5wYX5RRmFON0lzazcxQUhjcDFKeVpxcm55TEExc1lndlNJbE8tfmNXMlRXOUZvSUFBQUFBJCQAAAAAAAAAAAEAAAA45jc3QW5nZWxfwLbPqwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJPOqWiTzqloZ; __bid_n=198dc7c3fe47536be07c5b; RT="z=1&dm=baidu.com&si=40e0c6c6-94a2-4a01-a46d-8ccf0a1f9adb&ss=mepu9mjc&sl=1&tt=1l8&bcn=https%3A%2F%2Ffclog.baidu.com%2Flog%2Fweirwood%3Ftype%3Dperf&ld=2d8&ul=2sw&hd=2ti"; BA_HECTOR=ak2l8l84218la48k80042l2h20200h1kaua3a24; BDRCVFR[feWj1Vr5u3D]=I67x6TjHwwYf0; PSINO=6; delPer=0; BDORZ=B490B5EBF6F3CD402E515D22BCDA1598; H_PS_PSSID=62325_63140_63324_63947_64005_64049_64247_64364_64437_64450_64460_64475_64504_64513_64543_64556_64566_64569_64575_64597_64653_64669_64714_64741_64742_64738_64750_64699_64823; H_WISE_SIDS=62325_63140_63324_63947_64005_64049_64247_64364_64437_64450_64460_64475_64504_64513_64543_64556_64566_64569_64575_64597_64653_64669_64714_64741_64742_64738_64750_64699_64823; ab_sr=1.0.1_ZjBhZGNhYTZiYWE0OWFmYmFkMzI4NjMwODk3ZmM0NTU2MjQzZDQ2Y2ZiMTk3N2Y5MTA4ZjY3NTRiMmQwN2EwMmVmYjQ1NjkxN2RiNTViNDQ2ZjM3ODBlNWM4MjI3ZGY4ODBmN2M4NDNiZTdiMmEwM2ZhN2RlM2M3N2NjOGEzNzc2ZDA5NWU3NDZjZDkyNDlkYjM5ZThhYTFjNjM1MTk1NQ=='
+    'cookie': 'BIDUPSID=0BA67C76418CBE48FFD22A9BE212E1B6; PSTM=1763283537; BAIDUID=0BA67C76418CBE480B37002D25A89551:FG=1; BDUSS=JFakRxWGd0QURncE1WeDNhLXRsMXFNVG13dWdKaTBHMUtYWjBzM3pRdHJQV1pwRVFBQUFBJCQAAAAAAAAAAAEAAAA45jc3QW5nZWxfwLbPqwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGuwPmlrsD5pdj; BDUSS_BFESS=JFakRxWGd0QURncE1WeDNhLXRsMXFNVG13dWdKaTBHMUtYWjBzM3pRdHJQV1pwRVFBQUFBJCQAAAAAAAAAAAEAAAA45jc3QW5nZWxfwLbPqwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGuwPmlrsD5pdj; BDORZ=B490B5EBF6F3CD402E515D22BCDA1598; H_PS_PSSID=60276_63145_64007_66529_66585_66583_66592_66675_66689_66684_66791_66801_66804_66849_66605_66903_66932_66958_66961; H_WISE_SIDS=60276_63145_64007_66529_66585_66583_66592_66675_66689_66684_66791_66801_66804_66849_66605_66903_66932_66958_66961; H_WISE_SIDS_BFESS=60276_63145_64007_66529_66585_66583_66592_66675_66689_66684_66791_66801_66804_66849_66605_66903_66932_66958_66961; BA_HECTOR=208g01al0g242kag0g0k212h810l0i1kkcqjq26; BAIDUID_BFESS=0BA67C76418CBE480B37002D25A89551:FG=1; delPer=0; PSINO=7; ZFY=G2W5OGv33Lp:BEpsMMDIviaZzVv1UqynVJ1IeHhWmG:B4:C; __bid_n=19ab5cb1abb45125c5254f; RT="z=1&dm=baidu.com&si=d6d1a2eb-ec16-4370-a20e-27ce613113b8&ss=mje3xe9e&sl=1&tt=v6&bcn=https%3A%2F%2Ffclog.baidu.com%2Flog%2Fweirwood%3Ftype%3Dperf&ld=1n7&ul=3qn&hd=3rf"; BDRCVFR[feWj1Vr5u3D]=I67x6TjHwwYf0; ab_sr=1.0.1_YTk2YTA5MDA0N2VkMTdhOGYzYjBiNzYyYzZiMGFkYjMxNTA1MDZhODQ3YzI2MDZkYjI1MWQ1N2QxNjE0ODc1MWExMWFhNmZhYjVlNzJmNzYyOTAxYjI5YjZlNDg5N2U0ZDUwOGJmZTg2MjY5ZmY1NDYzN2FjZjQ2MzI0M2MxMjM0OTY5YmRmMWE4MGU1YWQwNzIwMjBhZDIyNTY5NWFhMg=='
 }
 
 class FastBaiduHealthScraper:
@@ -101,20 +101,35 @@ class FastBaiduHealthScraper:
             logging.error(f"读取Excel文件失败: {e}")
             return []
     
-    def smart_delay(self, min_seconds=0.5, max_seconds=1.5):
+    def smart_delay(self, min_seconds=4, max_seconds=6):
         """智能延迟，避免被反爬"""
         delay = random.uniform(min_seconds, max_seconds)
         time.sleep(delay)
         logging.debug(f"智能延迟 {delay:.2f} 秒")
     
-    def search_baidu(self, title):
-        """在百度搜索文章标题"""
+    def search_baidu(self, title, page=0):
+        """在百度搜索文章标题
+        
+        Args:
+            title: 搜索标题
+            page: 页码，0表示第一页，1表示第二页，2表示第三页
+        """
         try:
             # 构建搜索URL
             encoded_title = urllib.parse.quote(title)
-            search_url = f"https://www.baidu.com/s?wd={encoded_title}"
             
-            logging.info(f"正在搜索: {title}")
+            # 根据页码构建URL
+            # 第一页：www.baidu.com/s?wd={encoded_title}
+            # 第二页：www.baidu.com/s?wd={encoded_title}&pn=10
+            # 第三页：www.baidu.com/s?wd={encoded_title}&pn=20
+            if page == 0:
+                search_url = f"https://www.baidu.com/s?wd={encoded_title}"
+            else:
+                pn = page * 10  # 每页pn参数递增10
+                search_url = f"https://www.baidu.com/s?wd={encoded_title}&pn={pn}"
+            
+            page_info = f"第{page + 1}页" if page > 0 else "第1页"
+            logging.info(f"正在搜索: {title} ({page_info})")
             
             # 发送请求
             response = self.session.get(search_url, timeout=10)
@@ -143,18 +158,24 @@ class FastBaiduHealthScraper:
                 else:
                     print("等待10分钟后仍未完成验证，程序将自动跳过该条。")
                     logging.warning("等待10分钟后未检测到用户输入，自动跳过。")
-                # return self.search_baidu(title)  # 重新搜索
+                # return self.search_baidu(title, page)  # 重新搜索
                 return None
             
-            logging.info("搜索请求成功")
+            logging.info(f"搜索请求成功 ({page_info})")
             return response.text
             
         except Exception as e:
             logging.error(f"百度搜索失败: {e}")
             return None
     
-    def find_baidu_health_result(self, html_content, max_pages=3):
-        """从HTML内容中查找百度健康结果"""
+    def find_baidu_health_result(self, html_content, current_page=0, max_pages=3):
+        """从HTML内容中查找百度健康结果
+        
+        Args:
+            html_content: 当前页面的HTML内容
+            current_page: 当前页码（0表示第一页）
+            max_pages: 最大翻页数（总共搜索几页）
+        """
         try:
             soup = BeautifulSoup(html_content, 'html.parser')
             
@@ -164,7 +185,8 @@ class FastBaiduHealthScraper:
                 # 备用选择器
                 results = soup.find_all('div', {'class': re.compile(r'result')})
             
-            logging.info(f"找到{len(results)}个搜索结果")
+            page_info = f"第{current_page + 1}页" if current_page > 0 else "第1页"
+            logging.info(f"找到{len(results)}个搜索结果 ({page_info})")
             
             for result in results:
                 try:
@@ -211,51 +233,23 @@ class FastBaiduHealthScraper:
                     continue
             
             # 如果当前页没找到，尝试翻页
-            if max_pages > 1:
-                next_page = self.find_next_page(soup)
-                if next_page:
-                    logging.info("尝试翻到下一页...")
-                    next_response = self.session.get(next_page, timeout=10)
-                    if next_response.status_code == 200:
-                        return self.find_baidu_health_result(next_response.text, max_pages - 1)
+            if current_page < max_pages - 1:
+                next_page_num = current_page + 1
+                logging.info(f"当前页未找到百度健康结果，尝试翻到第{next_page_num + 1}页...")
+                
+                # 通过URL参数翻页
+                next_html = self.search_baidu(self.current_search_title, page=next_page_num)
+                if next_html:
+                    return self.find_baidu_health_result(next_html, current_page=next_page_num, max_pages=max_pages)
+                else:
+                    logging.warning(f"无法获取第{next_page_num + 1}页内容")
             
-            logging.warning("未找到百度健康结果")
+            logging.warning(f"已搜索{current_page + 1}页，未找到百度健康结果")
             return False
             
         except Exception as e:
             logging.error(f"查找百度健康结果失败: {e}")
             return False
-    
-    def find_next_page(self, soup):
-        """查找下一页链接"""
-        try:
-            # 尝试多种翻页按钮选择器
-            next_selectors = [
-                "a.n", 
-                "a[class*='next']", 
-                "a[aria-label*='下一页']",
-                "a:contains('下一页')"
-            ]
-            
-            for selector in next_selectors:
-                try:
-                    if selector == "a:contains('下一页')":
-                        # 查找包含"下一页"文本的链接
-                        next_links = soup.find_all('a', string=re.compile(r'下一页'))
-                        if next_links:
-                            return next_links[0].get('href')
-                    else:
-                        next_button = soup.select_one(selector)
-                        if next_button and ("下一页" in next_button.get_text() or "next" in next_button.get_text().lower()):
-                            return next_button.get('href')
-                except:
-                    continue
-            
-            return None
-            
-        except Exception as e:
-            logging.debug(f"查找下一页失败: {e}")
-            return None
     
     def get_detail_page(self, href):
         """获取详情页内容"""
@@ -280,7 +274,7 @@ class FastBaiduHealthScraper:
             logging.info(f"获取详情页: {url}")
 
             # 智能延迟
-            self.smart_delay(2, 4)
+            self.smart_delay(4, 6)
             
             # 发送请求，允许重定向
             response = self.session.get(url, timeout=15, allow_redirects=True)
@@ -311,7 +305,7 @@ class FastBaiduHealthScraper:
             
             logging.info(f"使用备用方法获取详情页: {url}")
 
-            self.smart_delay(2, 4)
+            self.smart_delay(4, 6)
             
             # 发送请求，禁用重试
             response = requests.get(url, headers=headers, timeout=20, allow_redirects=True)
@@ -461,32 +455,94 @@ class FastBaiduHealthScraper:
             
             # 提取医生信息
             try:
-                # 标准选择器
+                # 方法1: 通过父容器查找（推荐方式）
                 try:
-                    doctor_name_element = soup.select_one("span.index_name__0Yl8k")
-                    if doctor_name_element:
-                        info['doctor'] = doctor_name_element.get_text().strip()
-                        logging.info(f"找到医生姓名: {info['doctor']}")
-                except:
-                    pass
+                    name_info_container = soup.select_one("div.index_nameInfo__9H6bC")
+                    if name_info_container:
+                        logging.info("找到医生信息容器")
+                        
+                        # 从容器中提取各个信息
+                        doctor_name_element = name_info_container.select_one("span.index_name__0Yl8k")
+                        if doctor_name_element:
+                            info['doctor'] = doctor_name_element.get_text().strip()
+                            logging.info(f"从容器中找到医生姓名: {info['doctor']}")
+                        
+                        position_element = name_info_container.select_one("span.index_title__wNRZD")
+                        if position_element:
+                            info['position'] = position_element.get_text().strip()
+                            logging.info(f"从容器中找到医生职位: {info['position']}")
+                        
+                        dept_element = name_info_container.select_one("span.index_department__y9DFE")
+                        if dept_element:
+                            info['department'] = dept_element.get_text().strip()
+                            logging.info(f"从容器中找到科室信息: {info['department']}")
+                    else:
+                        logging.debug("未找到医生信息容器 div.index_nameInfo__9H6bC")
+                except Exception as e:
+                    logging.debug(f"通过容器提取医生信息失败: {e}")
                 
-                try:
-                    position_element = soup.select_one("span.index_title__wNRZD")
-                    if position_element:
-                        info['position'] = position_element.get_text().strip()
-                        logging.info(f"找到医生职位: {info['position']}")
-                except:
-                    pass
+                # 方法2: 直接查找各个span（备用方式）
+                if not info['doctor'] or not info['position'] or not info['department']:
+                    try:
+                        doctor_name_element = soup.select_one("span.index_name__0Yl8k")
+                        if doctor_name_element and not info['doctor']:
+                            info['doctor'] = doctor_name_element.get_text().strip()
+                            logging.info(f"直接找到医生姓名: {info['doctor']}")
+                    except Exception as e:
+                        logging.debug(f"直接查找医生姓名失败: {e}")
+                    
+                    try:
+                        position_element = soup.select_one("span.index_title__wNRZD")
+                        if position_element and not info['position']:
+                            info['position'] = position_element.get_text().strip()
+                            logging.info(f"直接找到医生职位: {info['position']}")
+                    except Exception as e:
+                        logging.debug(f"直接查找医生职位失败: {e}")
+                    
+                    try:
+                        dept_element = soup.select_one("span.index_department__y9DFE")
+                        if dept_element and not info['department']:
+                            info['department'] = dept_element.get_text().strip()
+                            logging.info(f"直接找到科室信息: {info['department']}")
+                    except Exception as e:
+                        logging.debug(f"直接查找科室信息失败: {e}")
                 
-                try:
-                    dept_element = soup.select_one("span.index_department__y9DFE")
-                    if dept_element:
-                        info['department'] = dept_element.get_text().strip()
-                        logging.info(f"找到科室信息: {info['department']}")
-                except:
-                    pass
+                # 方法3: 通过class名称的部分匹配（更宽松的匹配）
+                if not info['doctor'] or not info['position'] or not info['department']:
+                    try:
+                        # 查找所有包含这些class的span
+                        all_spans = soup.find_all('span')
+                        for span in all_spans:
+                            class_attr = span.get('class', [])
+                            if isinstance(class_attr, list):
+                                class_str = ' '.join(class_attr)
+                            else:
+                                class_str = str(class_attr)
+                            
+                            # 匹配医生姓名
+                            if 'index_name__' in class_str and not info['doctor']:
+                                text = span.get_text().strip()
+                                if text and len(text) < 20:  # 姓名通常不会太长
+                                    info['doctor'] = text
+                                    logging.info(f"通过部分匹配找到医生姓名: {info['doctor']}")
+                            
+                            # 匹配职位
+                            if 'index_title__' in class_str and not info['position']:
+                                text = span.get_text().strip()
+                                if text and ('医师' in text or '医生' in text or '主任' in text or '副主任' in text):
+                                    info['position'] = text
+                                    logging.info(f"通过部分匹配找到医生职位: {info['position']}")
+                            
+                            # 匹配科室
+                            if 'index_department__' in class_str and not info['department']:
+                                text = span.get_text().strip()
+                                if text and ('科' in text):
+                                    info['department'] = text
+                                    logging.info(f"通过部分匹配找到科室信息: {info['department']}")
+                    except Exception as e:
+                        logging.debug(f"通过部分匹配提取医生信息失败: {e}")
                 
-                # 备用选择器
+                # 方法4: 备用选择器（通用匹配）
                 if not info['doctor'] or not info['position'] or not info['department']:
                     backup_selectors = [
                         ".doctor-name", ".doctor-info .name", ".expert-name",
@@ -516,7 +572,7 @@ class FastBaiduHealthScraper:
                         except:
                             continue
                 
-                # 从页面源码中搜索
+                # 方法5: 从页面源码中搜索（最后手段）
                 if not info['doctor'] or not info['position'] or not info['department']:
                     page_text = soup.get_text()
                     
@@ -689,13 +745,13 @@ class FastBaiduHealthScraper:
         try:
             self.current_search_title = title
             
-            # 搜索标题
-            html_content = self.search_baidu(title)
+            # 搜索标题（从第一页开始）
+            html_content = self.search_baidu(title, page=0)
             if not html_content:
                 return None
             
-            # 查找百度健康结果
-            if not self.find_baidu_health_result(html_content):
+            # 查找百度健康结果（允许翻3页）
+            if not self.find_baidu_health_result(html_content, current_page=0, max_pages=3):
                 return None
             
             return True
@@ -773,7 +829,7 @@ class FastBaiduHealthScraper:
             for i, title in enumerate(titles, 1):
                 logging.info(f"正在处理第{i}/{len(titles)}个标题: {title}")
 
-                self.smart_delay(2, 4)
+                self.smart_delay(4, 6)
                 
                 success = self.scrape_single_title(title)
                 if success:
@@ -782,7 +838,7 @@ class FastBaiduHealthScraper:
                     logging.warning(f"处理失败: {title}")
                 
                 # 智能延迟
-                self.smart_delay(2, 4)
+                self.smart_delay(4, 6)
                 
                 # 每处理几个标题后增加额外延迟
                 if i % 10 == 0:
